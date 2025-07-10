@@ -1,0 +1,241 @@
+@tailwind utilities;
+
+@layer components {
+  .all-\[unset\] {
+    all: unset;
+  }
+}
+
+/* @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap'); */
+
+@layer utilities {
+  .font-poppins { font-family: 'Poppins', sans-serif; }
+  /* .font-patrick { font-family: 'Patrick Hand', cursive; }
+  .font-kalam { font-family: 'Kalam', cursive; }
+  .font-caveat { font-family: 'Caveat', cursive; }
+  .font-pacifico { font-family: 'Pacifico', cursive; }
+  .font-gloria { font-family: 'Gloria Hallelujah', cursive; }
+  .font-coming { font-family: 'Coming Soon', cursive; }
+  .font-shadows { font-family: 'Shadows Into Light', cursive; }
+  .font-architect { font-family: 'Architects Daughter', cursive; }
+  .font-sf { font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', system-ui, sans-serif; } */
+}
+
+
+:root {
+  --actions-font-family: "Roboto", Helvetica;
+  --actions-font-size: 14px;
+  --actions-font-style: normal;
+  --actions-font-weight: 500;
+  --actions-letter-spacing: 0px;
+  --actions-line-height: 28px;
+  --body-base-font-family: "Inter", Helvetica;
+  --body-base-font-size: 16px;
+  --body-base-font-style: normal;
+  --body-base-font-weight: 400;
+  --body-base-letter-spacing: 0px;
+  --body-base-line-height: 139.9999976158142%;
+  --h1-web-font-family: "SF Pro Text", Helvetica;
+  --h1-web-font-size: 32px;
+  --h1-web-font-style: normal;
+  --h1-web-font-weight: 500;
+  --h1-web-letter-spacing: 0px;
+  --h1-web-line-height: 28px;
+  --h2-web-font-family: "SF Pro Text", Helvetica;
+  --h2-web-font-size: 26px;
+  --h2-web-font-style: normal;
+  --h2-web-font-weight: 500;
+  --h2-web-letter-spacing: 0px;
+  --h2-web-line-height: 28px;
+  --h3-web-font-family: "SF Pro Text", Helvetica;
+  --h3-web-font-size: 20px;
+  --h3-web-font-style: normal;
+  --h3-web-font-weight: 500;
+  --h3-web-letter-spacing: 0px;
+  --h3-web-line-height: 28px;
+  --system-colors-colors-blue: rgba(0, 122, 255, 1);
+  --system-colors-grays-gray-2: rgba(174, 174, 178, 1);
+  --system-colors-miscellaneous-floating-tab-text-selected: var(
+    --system-colors-colors-blue
+  );
+  --text-1-web-font-family: "SF Pro Text", Helvetica;
+  --text-1-web-font-size: 16px;
+  --text-1-web-font-style: normal;
+  --text-1-web-font-weight: 400;
+  --text-1-web-letter-spacing: 0px;
+  --text-1-web-line-height: 28px;
+  --text-2-web-font-family: "SF Pro Text", Helvetica;
+  --text-2-web-font-size: 14px;
+  --text-2-web-font-style: normal;
+  --text-2-web-font-weight: 400;
+  --text-2-web-letter-spacing: 0px;
+  --text-2-web-line-height: normal;
+  --text-3-web-font-family: "SF Pro Text", Helvetica;
+  --text-3-web-font-size: 12px;
+  --text-3-web-font-style: normal;
+  --text-3-web-font-weight: 400;
+  --text-3-web-letter-spacing: 0px;
+  --text-3-web-line-height: 28px;
+  --text-3-web-medium-font-family: "SF Pro Text", Helvetica;
+  --text-3-web-medium-font-size: 12px;
+  --text-3-web-medium-font-style: normal;
+  --text-3-web-medium-font-weight: 500;
+  --text-3-web-medium-letter-spacing: 0px;
+  --text-3-web-medium-line-height: 28px;
+  --variable-collection-color-icon: rgba(102, 102, 102, 1);
+}
+
+/*
+
+To enable a theme in your HTML, simply add one of the following data attributes to an HTML element, like so:
+
+<body data-system-colors-mode="light">
+    <!-- the rest of your content -->
+</body>
+
+You can apply the theme on any DOM node, not just the `body`
+
+*/
+
+[data-system-colors-mode="light"] {
+  --system-colors-colors-blue: rgba(0, 122, 255, 1);
+  --system-colors-grays-gray-2: rgba(174, 174, 178, 1);
+  --system-colors-miscellaneous-floating-tab-text-selected: var(
+    --system-colors-colors-blue
+  );
+}
+
+[data-system-colors-mode="dark"] {
+  --system-colors-colors-blue: rgba(10, 132, 255, 1);
+  --system-colors-grays-gray-2: rgba(99, 99, 102, 1);
+  --system-colors-miscellaneous-floating-tab-text-selected: rgba(
+    255,
+    255,
+    255,
+    1
+  );
+}
+
+[data-system-colors-mode="dark-elevated"] {
+  --system-colors-colors-blue: rgba(10, 132, 255, 1);
+  --system-colors-grays-gray-2: rgba(99, 99, 102, 1);
+  --system-colors-miscellaneous-floating-tab-text-selected: rgba(
+    255,
+    255,
+    255,
+    1
+  );
+}
+
+[data-system-colors-mode="IC-light"] {
+  --system-colors-colors-blue: rgba(0, 64, 221, 1);
+  --system-colors-grays-gray-2: rgba(174, 174, 178, 1);
+  --system-colors-miscellaneous-floating-tab-text-selected: var(
+    --system-colors-colors-blue
+  );
+}
+
+[data-system-colors-mode="IC-dark"] {
+  --system-colors-colors-blue: rgba(64, 156, 255, 1);
+  --system-colors-grays-gray-2: rgba(84, 84, 86, 1);
+  --system-colors-miscellaneous-floating-tab-text-selected: rgba(
+    255,
+    255,
+    255,
+    1
+  );
+}
+
+[data-system-colors-mode="IC-dark-elevated"] {
+  --system-colors-colors-blue: rgba(64, 156, 255, 1);
+  --system-colors-grays-gray-2: rgba(84, 84, 86, 1);
+  --system-colors-miscellaneous-floating-tab-text-selected: rgba(
+    255,
+    255,
+    255,
+    1
+  );
+}
+
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+
+    --card: transparent;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 215 20.2% 65.1%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+
+    --card: transparent;
+    --card-foreground: 213 31% 91%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 216 34% 17%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+

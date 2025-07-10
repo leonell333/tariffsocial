@@ -1,0 +1,117 @@
+
+users/{userId}
+{
+  "username": "",
+  "username_lowcase": "",
+  "email": "",
+  "information": "",
+  "description": "",
+  "photoUrl": "",
+  "country": {
+    countryCode: "",
+    label: "",
+  },
+  "isVerified": true,
+  "status": "online",               // optional: online, offline
+  "skills": [],
+  "services": [],
+  "tags": [],
+  "createdAt": Timestamp,
+  "role": {                         // optional: admin, user, moderator
+    "admin": true,
+    "moderator": false
+  },
+  followCount: 0,
+  follows: [],
+  followerCount: 0,
+  followers: [],                    // Array of user IDs who follow this user
+  "postCount": 0,
+  "adCount": 0,
+  "sponsoreCount": 0
+}
+
+subcollection
+users/{userId}/followers/{followerId}
+{
+  "followerId": "",
+  "username": "",
+  "photoUrl": "",
+  "information": "Frontend developer",
+  "followedAt": Timestamp
+}
+
+subcollection
+users/{userId}/follows/{followedId}
+{
+  "followedId": "",
+  "username": "",
+  "photoUrl": "",
+  "information": "",
+  "followedAt": Timestamp
+}
+
+subcollection
+users/{userId}/dms/{dmUserId}
+{
+  partnerId: "";
+  username: "";
+  photoUrl: "";
+  lastMessage: "";
+  lastTime: Timestamp;
+  state: "show" | "pending" | "ignore" | "blocked";
+}
+
+/messages/{messageId}
+{
+  from: "";
+  to: "";
+  action: "send";
+  type: "DM" | "message" | "site" | "notify";
+  messageType: "text" | "emoji" | "image" | "gif" | "file";
+  message: "";
+  read: 0 | 1;
+  timestamp: Timestamp;
+}
+
+posts/{postId}
+{
+  "ownerId": "",
+  "userPhoto": "",
+  "useremail": "",
+  "username": "",
+  "address": "",
+  "contentHtml": "",
+  "likesCount": 0,
+  "lovesCount": 0,
+  "laughsCount": 0,
+  "commentsCount": 0,
+  "isSponsored": false,
+  "shares": 0,
+  "tags": [],
+  "keywords": [],
+  "createdAt": Timestamp
+}
+
+Subcollections
+comments 
+/posts/{postId}/comments/{commentId}
+
+interactions
+/posts/{postId}/interactions/{userId}
+
+ads/{adId}
+{
+  "image": "https://...",
+  "link": "https://shop.com/item/123",
+  "ownerId": "abc123",
+  "views": 1040,
+  "clicks": 150,
+  "isActive": true,
+  "scheduledAt": Timestamp,
+  "createdAt": Timestamp
+}
+
+
+
+
+

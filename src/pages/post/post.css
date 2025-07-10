@@ -1,0 +1,98 @@
+.create-post .ql-editor {
+
+  padding: 3px;
+  border-radius: 7px;
+  font-size: 17px;
+  padding-left: 12px !important;
+  padding-top: 0px;
+}
+
+.create-post .ql-container {
+  border: none;
+  margin-bottom: 5px;
+}
+
+.create-post-comment {
+  margin-top: 4px;
+}
+
+.create-post-comment .ql-editor {
+  padding: 3px;
+  line-height: 24px;
+  border-radius: 7px;
+  font-size: 16px;
+  padding-right: 15px !important;
+  min-height: 45px;
+}
+
+.create-post-comment .ql-container {
+  border: none;
+}
+
+
+.post_title {
+  @apply w-[500px] m-auto;
+}
+
+#editor .ql-container {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.signup {
+  background-color: white !important;
+  border-color: blue !important;
+}
+
+.signup:hover {
+  background-color: #3b4dff !important;
+  color: white !important;
+}
+
+.signin:hover {
+  background-color: #f5f5f5 !important;
+  border-color: #f5f5f5 !important;
+}
+
+.post-modal .rte-modern.rte-desktop.rte-toolbar-default {
+  min-width: 400px !important;
+}
+
+.post-modal .rte-toolbar-basic rte-line-spliter {
+  margin: 0px -3px !important;
+}
+.post-modal .css-1aeycle {
+  padding: 12px;
+}
+.create-post
+  .css-5h82ro-MuiInputBase-root-MuiInput-root:hover:not(
+    .Mui-disabled,
+    .Mui-error
+  ):before,
+.create-post .css-5h82ro-MuiInputBase-root-MuiInput-root::after,
+.create-comment
+  .css-5h82ro-MuiInputBase-root-MuiInput-root:hover:not(
+    .Mui-disabled,
+    .Mui-error
+  ):before,
+.create-comment .css-5h82ro-MuiInputBase-root-MuiInput-root::after {
+  border-bottom: 2px solid #bebebe;
+}
+
+.post-card .css-1dfcyzw-MuiPaper-root-MuiPopover-paper {
+  padding: 30px 20px;
+}
+
+.block-modal .css-f5d8q5 {
+  padding: 0px;
+}
+
+.create-sponsored .ql-editor {
+  min-height: 300px;
+}
+
+.block-modal {
+  border: none;
+  box-shadow: none;
+}
