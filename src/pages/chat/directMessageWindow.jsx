@@ -102,7 +102,7 @@ const DirectMessageWindow = () => {
       toast.warning('Please write a message or attach a file.');
       return;
     }
-    dispatch(updateBaseStore({ loading: true }));
+    // dispatch(updateBaseStore({ loading: true }));
 
     dispatch(sendMessageWithAttachments(message, attachments))
       .then((res) => {
@@ -117,7 +117,7 @@ const DirectMessageWindow = () => {
         console.error('Error sending message:', err);
         toast.error('Failed to send message.');
       }).finally(() => {
-        dispatch(updateBaseStore({ loading: false }));
+        // dispatch(updateBaseStore({ loading: false }));
       });
   };
 
@@ -225,7 +225,11 @@ const DirectMessageWindow = () => {
           dispatch(getMessageHistoryWithUser(selectedUserId));
           setUserSearch("");
         } else {
-          dispatch(updateChatStore({ selectedUsers: [...selectedUsers, selectedUserId] }));
+          // Find the user object from users or searchUsers
+          const userObj = users.find(u => u.id === selectedUserId) || searchUsers.find(u => u.id === selectedUserId);
+          if (userObj && !selectedUsers.some(u => u.id === userObj.id)) {
+            dispatch(updateChatStore({ selectedUsers: [...selectedUsers, userObj] }));
+          }
           setSearchKey('');
           setUserSearch('');
         }
@@ -337,18 +341,18 @@ const DirectMessageWindow = () => {
       </div>
           
       <div className="p-4 pb-0 pt-2 border-gray-200">
-        {selectedUsers.map((userId, i) => (
+        {selectedUsers.map((user, i) => (
           <div
-            key={userId}
+            key={user.id}
             className="inline-flex items-center gap-2 px-3 py-1 mr-2 border border-gray-300 rounded-full bg-gray-100 max-w-fit cursor-pointer hover:bg-blue-100 transition"
             onClick={() => dispatch(updateChatStore({ selectedUsers: selectedUsers.filter((_, idx) => idx !== i) }))}
           >
             <img
-              src={users.find(u => u.id === userId)?.photoUrl || defaultAvatar}
+              src={user.photoUrl || defaultAvatar}
               className="h-6 w-6 rounded-full object-cover"
             />
             <span className="text-sm text-gray-800 font-medium">
-              {users.find(u => u.id === userId)?.username}
+              {user.username}
             </span>
           </div>
         ))}

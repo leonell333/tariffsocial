@@ -6,7 +6,6 @@ import InputArea from './inputArea';
 import defaultAvatar from '../../assets/images/logo2.png';
 import { format, isSameDay } from 'date-fns';
 import { updateChatStore, searchUsersByUsername, getMessageHistoryWithUser, markMessagesAsRead, updateReaction, listenForMessages, setReplyToMessage, pinMessage, setForwardMessage, deleteMessage, toggleSelectMessage, deleteMessages } from '../../store/actions/chatAction';
-import { toast } from 'react-toastify';
 
 const MessageWindow = () => {
 	const navigate = useNavigate();
@@ -101,7 +100,6 @@ const MessageWindow = () => {
 			await dispatch(deleteMessage(message.id));
 			setContextMenu((prev) => ({ ...prev, visible: false }));
     } catch (error) {
-			toast.error('Failed to delete message.');
 			console.error('Failed to delete message:', error);
 		}
 	};

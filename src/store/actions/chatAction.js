@@ -215,7 +215,7 @@ export const handleDeleteDM = (dmUserId) => (dispatch, getState) => {
     try {
       const { user, chat } = getState();
       if (!user?.id || !dmUserId) return res(false);
-      dispatch(updateBaseStore({ loading: true }));
+      // dispatch(updateBaseStore({ loading: true }));
       const batch = writeBatch(db);
       const ref1 = doc(db, 'users', user.id, 'dms', dmUserId);
       const ref2 = doc(db, 'users', dmUserId, 'dms', user.id);
@@ -229,7 +229,7 @@ export const handleDeleteDM = (dmUserId) => (dispatch, getState) => {
       console.error('Failed to delete DM user from both sides:', err);
       rej(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
+      // dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -273,7 +273,7 @@ export const handleDmBlock = (dm) => (dispatch, getState) => {
     try {
       const { user, chat } = getState();
       if (!user?.id || !dm?.partnerId) return res(false);
-      dispatch(updateBaseStore({ loading: true }));
+      // dispatch(updateBaseStore({ loading: true }));
       const batch = writeBatch(db);
       const ref = doc(db, 'users', user.id, 'dms', dm.partnerId);
       batch.update(ref, {
@@ -310,7 +310,7 @@ export const handleDmBlock = (dm) => (dispatch, getState) => {
       console.error('handleDmBlock error:', err);
       rej(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
+      // dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -320,7 +320,7 @@ export const handleDmUnblock = (dm) => (dispatch, getState) => {
     try {
       const { user, chat } = getState();
       if (!user?.id || !dm?.partnerId) return res(false);
-      dispatch(updateBaseStore({ loading: true }));
+      // dispatch(updateBaseStore({ loading: true }));
       const batch = writeBatch(db);
       const ref = doc(db, 'users', user.id, 'dms', dm.partnerId);
       batch.update(ref, {
@@ -344,7 +344,7 @@ export const handleDmUnblock = (dm) => (dispatch, getState) => {
       console.error('handleDmUnblock error:', err);
       rej(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
+      // dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -354,7 +354,7 @@ export const handleDmIgnore = (dm) => (dispatch, getState) => {
     try {
       const { user, chat } = getState();
       if (!user?.id || !dm?.partnerId) return res(false);
-      dispatch(updateBaseStore({ loading: true }));
+      // dispatch(updateBaseStore({ loading: true }));
       const batch = writeBatch(db);
       const ref = doc(db, 'users', user.id, 'dms', dm.partnerId);
       batch.update(ref, {
@@ -375,7 +375,7 @@ export const handleDmIgnore = (dm) => (dispatch, getState) => {
       console.error('handleDmIgnore error:', err);
       rej(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
+      // dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -487,7 +487,6 @@ export const checkReverseDmStates = (users) => (dispatch, getState) => {
       users.forEach((recipient, index) => {
         const dmSnap = dmSnaps[index];
         const state = dmSnap.exists() ? dmSnap.data().state : null;
-        console.log(`[DM State] ${recipient.username}: ${state}`);
         if (state === 'blocked') {
           blockedUsers.push(recipient);
           toast.warning(`${recipient.username} has blocked you.`);
@@ -515,7 +514,6 @@ export const sendMessageWithAttachments = (message, attachments) => (dispatch, g
       const { user } = getState();
       const { selectedUsers = [] } = getState().chat;
       if (selectedUsers.length === 0) {
-        toast.warning('No valid recipients to send to.');
         return res(false);
       }
       const { blockedUsers, newDms, existingDms } = await dispatch(checkReverseDmStates(selectedUsers));
@@ -578,27 +576,6 @@ export const sendMessageWithAttachments = (message, attachments) => (dispatch, g
           content: successful[0].url,
         }));
       }
-      const { chat } = getState();
-      const updatedDms = [...chat.dms];
-      const latest = successful[successful.length - 1]?.url || message;
-      allowedUsers.forEach(u => {
-        const index = updatedDms.findIndex(dm => dm.partnerId === u.id);
-        const updatedEntry = {
-          partnerId: u.id,
-          username: u.username || '',
-          photoUrl: u.photoUrl || '',
-          lastMessage: latest,
-          lastTime: new Date(),
-          state: 'show',
-        };
-        if (index !== -1) {
-          updatedDms[index] = updatedEntry;
-        } else {
-          updatedDms.push(updatedEntry);
-        }
-      });
-      updatedDms.sort((a, b) => new Date(b.lastTime) - new Date(a.lastTime));
-      dispatch(updateChatStore({ dms: updatedDms }));
       res(true);
     } catch (err) {
       console.error('sendMessageWithAttachments error:', err);
@@ -734,8 +711,52 @@ export const sendMessageToSingleUser = (message, attachments) => (dispatch, getS
 export const sendBulkMessages = ({ users, newDms, existingDms, messageType, content }) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
     try {
-      const { user } = getState();
+      const { user, chat } = getState();
       if (!user?.id || !content || users.length === 0) return res(false);
+      const updatedDms = [...(chat.dms || [])];
+      const now = new Date();
+      newDms.forEach(recipient => {
+        const dmEntry = {
+          partnerId: recipient.id,
+          username: recipient.username || '',
+          photoUrl: recipient.photoUrl || '',
+          lastMessage: content,
+          lastTime: now,
+          state: 'show',
+        };
+        
+        const existingIndex = updatedDms.findIndex(dm => dm.partnerId === recipient.id);
+        if (existingIndex !== -1) {
+          updatedDms[existingIndex] = dmEntry;
+        } else {
+          updatedDms.push(dmEntry);
+        }
+      });
+      
+      existingDms.forEach(recipient => {
+        const existingIndex = updatedDms.findIndex(dm => dm.partnerId === recipient.id);
+        if (existingIndex !== -1) {
+          updatedDms[existingIndex] = {
+            ...updatedDms[existingIndex],
+            lastMessage: content,
+            lastTime: now,
+          };
+        }
+      });
+      
+      updatedDms.sort((a, b) => {
+        const getTime = (t) => {
+          if (!t) return 0;
+          if (typeof t === 'number') return t;
+          if (typeof t === 'string') return new Date(t).getTime();
+          if (t.toDate) return t.toDate().getTime();
+          if (t instanceof Date) return t.getTime();
+          return 0;
+        };
+        return getTime(b.lastTime) - getTime(a.lastTime);
+      });
+      dispatch(updateChatStore({ dms: updatedDms }));
+      
       const batch = writeBatch(db);
       newDms.forEach(recipient => {
         const messageRef = doc(collection(db, 'messages'));
@@ -828,7 +849,6 @@ export const sendMessageAddDms = ({ to, type, messageType, content }) => (dispat
         timestamp: new Date(), // Use current date for immediate display
       };
       
-      // Update local messages array immediately
       const currentMessages = chat.messages || [];
       dispatch(updateChatStore({
         messages: [...currentMessages, newMessage]
@@ -1086,7 +1106,6 @@ export const sendMessageToSelectedUser = (content) => (dispatch, getState) => {
       res(true);
     } catch (error) {
       console.error('Failed to send message:', error);
-      toast.error('Failed to send message. Please try again.');
       rej(error);
     } finally {
     }

@@ -169,11 +169,6 @@ const Chat = () => {
   const handleAcceptClick = (dmUser) => {
     dispatch(handleDmAccept(dmUser))
       .then((res) => {
-        if (res) {
-          toast.success('DM request accepted successfully!');
-        } else {
-          toast.warn('Failed to accept DM request.');
-        }
       }).catch((err) => {
         console.error('Error while accepting DM request:', err);
       });
@@ -182,28 +177,15 @@ const Chat = () => {
   const handleBlockClick = (dmUser) => {
     dispatch(handleDmBlock(dmUser))
       .then((res) => {
-        if (res) {
-          toast.success('User blocked successfully.');
-        } else {
-          toast.warn('Failed to block user.');
-        }
-      })
-      .catch((err) => {
+      }).catch((err) => {
         console.error('Block failed:', err);
-        toast.error('An error occurred.');
       });
   };
 
   const handleIgnoreClick = (dmUser) => {
     dispatch(handleDmIgnore(dmUser))
       .then((res) => {
-        if (res) {
-          toast.success('User ignored successfully.');
-        } else {
-          toast.warn('Failed to ignore user.');
-        }
-      })
-      .catch((err) => {
+      }).catch((err) => {
         console.error('Ignore failed:', err);
         toast.error('An error occurred while ignoring.');
       });
@@ -212,13 +194,7 @@ const Chat = () => {
   const handleUnblockClick = (dm) => {
     dispatch(handleDmUnblock(dm))
       .then((res) => {
-        if (res) {
-          toast.success('User unblocked successfully.');
-        } else {
-          toast.warn('Failed to unblock user.');
-        }
-      })
-      .catch((err) => {
+      }).catch((err) => {
         console.error('Unblock failed:', err);
         toast.error('An error occurred.');
       });
@@ -227,11 +203,6 @@ const Chat = () => {
   const handleDeleteDMClick = (dmUserId) => {
     dispatch(handleDeleteDM(dmUserId))
       .then((res) => {
-        if (res) {
-          toast.success("User deleted successfully")
-        } else {
-          console.log('No DM deleted (maybe invalid ID)');
-        }
       }).catch((err) => {
         console.error('Error deleting DM:', err);
       });
