@@ -9,7 +9,6 @@ import { getColleagues, followAction } from '../../store/actions/colleagueAction
 import { updateUserStore } from '../../store/actions/userActions';
 import { getUsers, searchUsersByUsername, getTotalUserCount } from '../../store/actions/chatAction';
 import { getPostsByUser } from '../../store/actions/postActions';
-import { toast } from 'react-toastify';
 
 const Recommendations = (props) => {
   const navigate = useNavigate();
@@ -30,7 +29,6 @@ const Recommendations = (props) => {
       await dispatch(followAction(userToFollow));
     } catch (err) {
       console.error('Follow action failed:', err);
-      toast.error('Failed to update follow status. Please try again.');
     }
   };
 
@@ -41,7 +39,6 @@ const Recommendations = (props) => {
         await dispatch(getPostsByUser(selectedUser.id, true));
       } catch (err) {
         console.error('Error fetching posts for user:', err);
-        toast.error('Failed to load user posts. Please try again.');
       }
     }
   };

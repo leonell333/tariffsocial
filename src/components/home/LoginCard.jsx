@@ -33,7 +33,6 @@ const LoginCard = (props) => {
       }
       }).catch((error) => {
         console.error('Signin failed:', error);
-        toast.error(`Error: ${error}`, { position: 'top-right' });
       });
   };
 

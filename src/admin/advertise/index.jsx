@@ -81,7 +81,6 @@ const AdminAds = (props) => {
     }
   }
   const search = async () => {
-    props.updateBaseStore({ loading: true })
     let ads_ = []
     const conditions = [where('ownerId', '==', props.user.id)]
     if (billedStatus == 'Billed') conditions.push(where('billed', '==', true))
@@ -118,7 +117,6 @@ const AdminAds = (props) => {
       }
     }
     setAds(ads_)
-    props.updateBaseStore({ loading: false })
   }
 
   return (

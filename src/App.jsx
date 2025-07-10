@@ -1,7 +1,6 @@
 import './App.css'
 import store from './store/store'
 import { Provider } from 'react-redux'
-import { useRef } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Posts from './pages/post'
 import PostDetail from './pages/post/detail'

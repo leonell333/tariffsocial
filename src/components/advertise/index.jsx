@@ -6,10 +6,7 @@ import {getDownloadURL,ref as storageRef,uploadBytes,uploadString} from "firebas
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import {updateBaseStore } from "../../store/actions/baseActions"
 import { updatePostStore } from "../../store/actions/postActions"
-import { format } from 'date-fns';
 import Button from '@mui/material/Button';
-import ReactCountryFlagsSelect, { Us } from 'react-country-flags-select';
-import { toast } from 'react-toastify';
 import Slider from "react-slick";
 import { getFireStoreUrl } from '../../utils/utils';
 

@@ -5,13 +5,11 @@ import { HomeIcon, CheckCircle2, Ban, Unlock, Lock, Trash2, XIcon } from 'lucide
 import { Separator } from "../../components/ui/separator";
 import defaultAvatar from '../../assets/images/logo2.png';
 import RightSide from '../layout/rightSide'
-import { toast } from 'react-toastify';
 import DirectMessageWindow from './directMessageWindow';
 import MessageWindow from './messageWindow';
 import { getDms, getPendingDms, initialChatStore, updateChatStore, getMessageHistoryWithUser, getPendingDmsCount, handleDmAccept, 
   handleDmBlock, handleDmUnblock, handleDmIgnore, handleDeleteDM, getUnreadMessagesCountPerUser, markMessagesAsRead } from '../../store/actions/chatAction';
 import { readTime } from '../../utils'
-import { Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
@@ -187,7 +185,6 @@ const Chat = () => {
       .then((res) => {
       }).catch((err) => {
         console.error('Ignore failed:', err);
-        toast.error('An error occurred while ignoring.');
       });
   };
 
@@ -196,7 +193,6 @@ const Chat = () => {
       .then((res) => {
       }).catch((err) => {
         console.error('Unblock failed:', err);
-        toast.error('An error occurred.');
       });
   };
 

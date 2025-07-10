@@ -3,7 +3,6 @@ import { useState, forwardRef, useImperativeHandle, useRef, useEffect, } from 'r
 import { connect } from 'react-redux'
 import '../../pages/post/post.css'
 import { updateBaseStore } from '../../store/actions/baseActions'
-import { toast } from 'react-toastify'
 
 const TagInput = forwardRef((props, ref) => {
   const [tags, setTags] = useState([])

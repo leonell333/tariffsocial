@@ -13,7 +13,6 @@ import { EmojiIcon } from '../ui/icons';
 import { convertToWebp } from '../../utils';
 import { updateBaseStore } from '../../store/actions/baseActions';
 import { createComment } from '../../store/actions/postActions';
-import { toast } from 'react-toastify';
 
 const MAX_FILE_MB = 25;
 
@@ -68,7 +67,6 @@ const CreateComment = ({ postId, setUpdateComments, setRecommendations }) => {
     const fileSizeMB = file.size / 1024 / 1024;
 
     if (fileSizeMB > MAX_FILE_MB) {
-      toast.error('File size exceeds 50MB limit.');
       e.target.value = '';
       return;
     }
@@ -83,14 +81,13 @@ const CreateComment = ({ postId, setUpdateComments, setRecommendations }) => {
       }
     } catch (err) {
       console.error('Upload error:', err);
-      toast.error('Failed to process file.');
     } finally {
       e.target.value = '';
     }
   };
 
   const handleCreateComment = () => {
-    if (!quill || quill.getText().trim() === '') return toast.warning('Please input new comment content.');
+    if (!quill || quill.getText().trim() === '') return;
     dispatch(createComment({ quill, postId }))
       .then((res) => {
         if (res) {

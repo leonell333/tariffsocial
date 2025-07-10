@@ -5,7 +5,6 @@ import { Grid } from '@giphy/react-components';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import Popover from '@mui/material/Popover';
-import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux';
 import { sendMessageToSingleUser } from '../../store/actions/chatAction';
 
@@ -70,7 +69,6 @@ const InputArea = () => {
     const currentTotalSize = attachments.reduce((sum, a) => sum + a.file.size, 0);
     const totalSizeMB = (currentTotalSize + newFileSize) / (1024 * 1024);
     if (totalSizeMB > MAX_FILE_SIZE_MB) {
-      toast.warning(`Total attachments must be under ${MAX_FILE_SIZE_MB}MB.`);
       return;
     }
     const type = file.type.startsWith('image/')
@@ -88,11 +86,9 @@ const InputArea = () => {
 
   const handleSendMessage = async () => {
     if (!selectedUserId) {
-      toast.warning('Please select a user to send a message.');
       return;
     }
     if (!message.trim() && attachments.length === 0) {
-      toast.warning('Please write a message or attach a file.');
       return;
     }
     setIsSending(true);
@@ -105,7 +101,6 @@ const InputArea = () => {
         }
       }).catch((err) => {
         console.error('Error sending message:', err);
-        toast.error('Failed to send message.');
       }).finally(() => {
         setIsSending(false);
       });
@@ -133,7 +128,6 @@ const InputArea = () => {
       const currentTotalSize = attachments.reduce((sum, a) => sum + a.file.size, 0);
       const totalSizeMB = (currentTotalSize + newFileSize) / (1024 * 1024);
       if (totalSizeMB > MAX_FILE_SIZE_MB) {
-        toast.warning(`Total attachments must be under ${MAX_FILE_SIZE_MB}MB.`);
         return;
       }
       const file = new File([blob], `${gif.id}.gif`, { type: 'image/gif' });
@@ -143,7 +137,6 @@ const InputArea = () => {
       setSearchQuery('');
     } catch (err) {
       console.error('Failed to fetch GIF:', err);
-      toast.error('Failed to add GIF.');
     }
   };
 

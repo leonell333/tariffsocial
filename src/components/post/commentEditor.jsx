@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import Quill from 'quill';
 import Delta from 'quill-delta';
 import { convertToWebp, } from '../../utils';
-import { toast } from 'react-toastify';
 
 const BlockEmbed = Quill.import('blots/block/embed');
 
@@ -126,7 +125,6 @@ const CommentEditor = ({ onReady, placeholder, defaultValue }) => {
         const file = imageItem.getAsFile();
         const maxSize = 50 * 1024 * 1024;
         if (file.size > maxSize) {
-          toast.error('File size exceeds 50MB limit.');
           return;
         }
         

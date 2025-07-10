@@ -3,7 +3,6 @@ import { db, auth, storage } from "../../firebase"
 import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion, arrayRemove, increment, writeBatch, 
   collection, query, where, limit, serverTimestamp, orderBy, startAfter, getCountFromServer, getDocsFromCache, 
   onSnapshot, startAt, endAt, } from "firebase/firestore";
-import { toast } from 'react-toastify';
 
 export const updateBaseStore = (data) => (dispatch, getState) => {
   return new Promise((res, rej) => {
@@ -179,7 +178,6 @@ export const deleteNotification = (notificationId) => (dispatch, getState) => {
       res(true);
     } catch (error) {
       console.error('Error deleting notification:', error);
-      toast.error('Failed to delete notification');
       rej(error);
     } finally {
     }

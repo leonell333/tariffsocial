@@ -95,29 +95,21 @@ const DirectMessageWindow = () => {
 
   const handleSendDM = async () => {
     if (selectedUsers.length === 0) {
-      toast.warning('Please select at least one user to send a message.');
       return;
     }
     if (!message.trim() && attachments.length === 0) {
-      toast.warning('Please write a message or attach a file.');
       return;
     }
-    // dispatch(updateBaseStore({ loading: true }));
-
     dispatch(sendMessageWithAttachments(message, attachments))
       .then((res) => {
         if (res) {
           setMessage('');
           setAttachments([]);
           dispatch(updateChatStore({ selectedUsers: [] }));
-        } else {
-          toast.warning('Message not sent. You may be blocked by all recipients.');
         }
       }).catch((err) => {
         console.error('Error sending message:', err);
-        toast.error('Failed to send message.');
       }).finally(() => {
-        // dispatch(updateBaseStore({ loading: false }));
       });
   };
 
@@ -127,7 +119,6 @@ const DirectMessageWindow = () => {
     const totalSizeMB = (currentTotalSize + newFileSize) / (1024 * 1024);
 
     if (totalSizeMB > MAX_FILE_SIZE_MB) {
-      toast.warning('Total attachments must be under 20MB.');
       return;
     }
 
@@ -148,7 +139,6 @@ const DirectMessageWindow = () => {
       const totalSizeMB = (currentTotalSize + newFileSize) / (1024 * 1024);
 
       if (totalSizeMB > MAX_FILE_SIZE_MB) {
-        toast.warning('Total attachments must be under 20MB.');
         return;
       }
 
@@ -212,12 +202,9 @@ const DirectMessageWindow = () => {
 
   const handleUserSelect = (selectedUserId) => {
     if (selectedUsers.length >= 3) {
-      toast.warn('You can only select up to 3 users.');
       return;
     }
-
     dispatch(updateChatStore({ messages: [], lastMessage: null, lastMessageVisible: false }));
-
     dispatch(getDmState(selectedUserId))
       .then((state) => {
         if (state) {
@@ -225,7 +212,6 @@ const DirectMessageWindow = () => {
           dispatch(getMessageHistoryWithUser(selectedUserId));
           setUserSearch("");
         } else {
-          // Find the user object from users or searchUsers
           const userObj = users.find(u => u.id === selectedUserId) || searchUsers.find(u => u.id === selectedUserId);
           if (userObj && !selectedUsers.some(u => u.id === userObj.id)) {
             dispatch(updateChatStore({ selectedUsers: [...selectedUsers, userObj] }));
@@ -236,7 +222,6 @@ const DirectMessageWindow = () => {
       })
       .catch((err) => {
         console.error('Error checking DM:', err);
-        toast.error("Failed to check DM status.");
       })
       .finally(() => {
         setUserlistShow(false);

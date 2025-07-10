@@ -26,7 +26,6 @@ const Comment = (props) => {
     if (!commentId || !postId || !editorInstance) return;
     const editedHtml = editorInstance.root.innerHTML.trim();
     if (!editedHtml || editedHtml === '<p><br></p>') {
-      toast.error("Comment is empty.");
       return;
     }
     dispatch(updateComment(postId, commentId, editedHtml)).then((res) => {
@@ -41,7 +40,6 @@ const Comment = (props) => {
         }
       }).catch((err) => {
         console.error('Failed to save edited comment:', err);
-        toast.error("Failed to save comment.");
       })
   };
 

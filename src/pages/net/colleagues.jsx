@@ -5,7 +5,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar } from '@mui/material';
 import { getColleagues, updateColleagueStore, followAction } from '../../store/actions/colleagueAction';
 import { updateUserStore } from '../../store/actions/userActions';
-import { toast } from 'react-toastify';
 
 const Colleagues = () => {
   const navigate = useNavigate();
@@ -27,14 +26,12 @@ const Colleagues = () => {
 
   const handleFollowAction = async (colleagueToFollow) => {
     if (!user.authenticated) {
-      toast.error('Please login to follow users');
       return;
     }
     try {
       await dispatch(followAction(colleagueToFollow));
     } catch (err) {
       console.error('Follow action failed:', err);
-      toast.error('Failed to update follow status. Please try again.');
     }
   };
 

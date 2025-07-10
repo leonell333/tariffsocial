@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import Quill from 'quill';
 import Delta from 'quill-delta';
 import { convertToWebp, } from '../../utils';
-import { toast } from 'react-toastify';
 
 const BlockEmbed = Quill.import('blots/block/embed');
 
@@ -135,7 +134,6 @@ const PostEditor = ({ onReady, placeholder, }) => {
         const file = (imageItem || videoItem).getAsFile();
         const maxSize = 50 * 1024 * 1024;
         if (file.size > maxSize) {
-          toast.error('File size exceeds 50MB limit.');
           return;
         }
         const reader = new FileReader();

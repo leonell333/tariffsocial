@@ -16,7 +16,6 @@ import '../../pages/post/post.css'
 import { updatePostStore, createPost } from '../../store/actions/postActions'
 import { updateBaseStore } from '../../store/actions/baseActions'
 import PostEditor from './postEditor'
-import { toast } from 'react-toastify'
 import { convertToWebp, compressVideoClientSide } from '../../utils'
 
 const MAX_FILE_MB = 25;
@@ -128,7 +127,6 @@ const CreatePost = () => {
     const fileSizeMB = file.size / 1024 / 1024;
 
     if (fileSizeMB > MAX_FILE_MB) {
-      toast.error('File size exceeds 50MB limit.');
       e.target.value = '';
       return;
     }
@@ -145,7 +143,6 @@ const CreatePost = () => {
       }
     } catch (err) {
       console.error('Compression failed:', err);
-      toast.error('Failed to process file.');
     } finally {
       e.target.value = '';
     }
@@ -165,7 +162,6 @@ const CreatePost = () => {
         html.trim() === ''
       );
     if (isHtmlEmpty) {
-      toast.warn('Please enter content.');
       return;
     }
 
@@ -182,7 +178,7 @@ const CreatePost = () => {
         }
       })
       .catch((error) => {
-        toast.error('Failed to create post.');
+        console.log('error',error);
       });
   };
 

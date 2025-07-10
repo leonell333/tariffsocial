@@ -86,7 +86,6 @@ const AdminPosts = (props) => {
 
   const fetchPage = async (pageNum) => {
     if (pageNum < 0) return
-    props.updateBaseStore({ loading: true })
     const newSnapshots = [...snapshots]
     let fetchedPosts = []
 
@@ -121,8 +120,6 @@ const AdminPosts = (props) => {
     } catch (err) {
       console.error('Failed to fetch posts:', err)
     }
-
-    props.updateBaseStore({ loading: false })
   }
 
   useEffect(() => {

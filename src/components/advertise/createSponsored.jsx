@@ -42,8 +42,6 @@ const CreateSponsored = () => {
   const [businessName, setBusinessName] = useState('')
   const [author, setAuthor] = useState('')
   const [link, setLink] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [content, setContent] = useState('')
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const user = useSelector(state => state.user)
@@ -154,8 +152,6 @@ const CreateSponsored = () => {
       toast.error('The number of days should be a little over 7 days.')
       return
     }
-
-    dispatch(updateBaseStore({ loading: true }))
 
     await dispatch(createOrUpdateSponsoredAd({
       editId,

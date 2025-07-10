@@ -102,7 +102,6 @@ const UpdateSponsored = (props) => {
       return
     }
 
-    props.updateBaseStore({ loading: true })
     try {
       let keywords = extractKeywords(contentText)
       keywords = keywords.concat(extractKeywords(title))
@@ -130,7 +129,6 @@ const UpdateSponsored = (props) => {
     } catch (error) {
       console.log(error)
     }
-    props.updateBaseStore({ loading: false, sponsoredUpdateModal: false })
     props.search()
   }
 

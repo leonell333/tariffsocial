@@ -116,8 +116,6 @@ const CreateBannerAdvertise = () => {
       toast.error('Please select image')
       return
     }
-
-    dispatch(updateBaseStore({ loading: true }))
     await dispatch(createOrUpdateBannerAd({
       stateAdvertise: {
         ...stateAdvertise,

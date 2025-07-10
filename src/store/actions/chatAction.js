@@ -518,7 +518,6 @@ export const sendMessageWithAttachments = (message, attachments) => (dispatch, g
       }
       const { blockedUsers, newDms, existingDms } = await dispatch(checkReverseDmStates(selectedUsers));
       if (blockedUsers.length === selectedUsers.length) {
-        toast.warning("Message not sent. All recipients have blocked you.");
         return res(false);
       }
       const isJustEmoji = /^\p{Emoji}+$/u.test(message.trim());
@@ -590,7 +589,6 @@ export const sendMessageToSingleUser = (message, attachments) => (dispatch, getS
       const { user, chat } = getState();
       const { selectedUserId } = chat;
       if (!selectedUserId) {
-        toast.warning('No recipient selected.');
         return res(false);
       }
       const { blocked } = await dispatch(getReverseDmState(selectedUserId));
@@ -717,6 +715,7 @@ export const sendBulkMessages = ({ users, newDms, existingDms, messageType, cont
       const now = new Date();
       newDms.forEach(recipient => {
         const dmEntry = {
+          id: recipient.id, // Ensure id is set for new DMs
           partnerId: recipient.id,
           username: recipient.username || '',
           photoUrl: recipient.photoUrl || '',
@@ -738,6 +737,7 @@ export const sendBulkMessages = ({ users, newDms, existingDms, messageType, cont
         if (existingIndex !== -1) {
           updatedDms[existingIndex] = {
             ...updatedDms[existingIndex],
+            id: recipient.id,
             lastMessage: content,
             lastTime: now,
           };
@@ -1081,7 +1081,6 @@ export const sendMessageToSelectedUser = (content) => (dispatch, getState) => {
       const { user } = getState();
       const selectedUser = user.selectedUser;
       if (!content.trim() || !selectedUser) {
-        toast.warning('No content or recipient selected.');
         return res(false);
       }
       const dmState = await dispatch(getReverseDmState(selectedUser.id));

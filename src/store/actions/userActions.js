@@ -28,7 +28,6 @@ export const getUserDataById = (userId) => (dispatch, getState) => {
       const userRef = doc(db, 'users', userId);
       const docSnap = await getDoc(userRef);
       if (!docSnap.exists()) {
-        console.log('No such document!');
         throw new Error('User not found');
       }
       const userData = docSnap.data();
@@ -49,10 +48,8 @@ export const getUserDataById = (userId) => (dispatch, getState) => {
 export const userInfoSave = (type, value, skillList = [], serviceList = [],) => {
   return (dispatch) => {
     return new Promise(async (res, rej) => {
-      dispatch(updateBaseStore({ loading: true }));
       const uid = auth.currentUser?.uid;
       if (!uid) {
-        dispatch(updateBaseStore({ loading: false }));
         return rej('User not authenticated');
       }
       try {
@@ -74,7 +71,6 @@ export const userInfoSave = (type, value, skillList = [], serviceList = [],) => 
         console.error('Error updating user:', err);
         rej(err);
       } finally {
-        dispatch(updateBaseStore({ loading: false }));
       }
     });
   };
@@ -85,18 +81,14 @@ export const uploadUserAvatar = (file) => (dispatch, getState) => {
     try {
       const { id, } = getState().user
       if (!file || !id) return
-      dispatch(updateBaseStore({ loading: true }));
       const imageRef = storageRef(storage, `profile/${id}`);
       await uploadBytes(imageRef, file);
       const url = await getDownloadURL(imageRef);
       const userRef = doc(db, "users", id);
       await updateDoc(userRef, { photoUrl: url });
-      dispatch(updateBaseStore({ loading: false }));
       dispatch(updateUserStore({ photoUrl: url, photo: 0 }));
-      toast.success("Profile photo updated successfully!");
       res(true);
     } catch (err) {
-      toast.error("Failed to upload profile photo.");
       rej(err);
     }
   });
@@ -106,7 +98,6 @@ export const deleteUserAvatar = () => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
     const { user } = getState();
     try {
-      dispatch(updateBaseStore({ loading: true }));
       const userRef = doc(db, 'users', user.id);
       await updateDoc(userRef, { photoUrl: '' });
       dispatch(updateUserStore({ photoUrl: '', photo: 0 }))
@@ -115,7 +106,6 @@ export const deleteUserAvatar = () => (dispatch, getState) => {
       console.error("Failed to delete avatar:", err);
       rej(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -136,16 +126,13 @@ export const getTotalUsersCount = () => (dispatch, getState) => {
   });
 };
 
-// auth
 export const signIn = (email, password) => (dispatch) => {
   return new Promise(async (res, rej) => {
-    dispatch(updateBaseStore({ loading: true }));
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       if (!user.emailVerified) {
         await sendEmailVerification(user, { url: emailVerificationUrl });
-        toast.warn('Your email is not verified. We just sent a new link to your inbox.', { position: 'top-right' });
         rej('Email is not verified');
         return;
       }
@@ -163,17 +150,14 @@ export const signIn = (email, password) => (dispatch) => {
         'auth/user-disabled': 'This account has been disabled.',
         'auth/too-many-requests': 'Too many attempts. Try again later.',
       };
-      toast.error(map[code] || `Login failed: ${error.message}`, { position: 'top-right' });
       rej(error.message);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
 
 export const signUp = (email, password, userName) => (dispatch) => {
   return new Promise(async (res, rej) => {
-    dispatch(updateBaseStore({ loading: true }));
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -222,11 +206,10 @@ export const signUp = (email, password, userName) => (dispatch) => {
           toast.error('Too many failed attempts. Try again later.', { position: 'top-right' });
           break;
         default:
-          toast.error(`Sign up failed: ${error.message}`, { position: 'top-right' });
+          break;
       }
       rej(error.message);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -273,7 +256,6 @@ export const googleLogin = () => async (dispatch) => {
       toast.success(`Welcome ${user.displayName || 'you'}!`, { position: 'top-right' });
       res(true);
     } catch (err) {
-      toast.error('Google sign-in failed: ' + err.message, { position: 'top-right' });
       rej(err.message);
     }
   });

@@ -7,7 +7,6 @@ import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion,
 import { ref as storageRef, uploadString, getDownloadURL, uploadBytes, uploadBytesResumable } from 'firebase/storage'
 import { updateUserStore } from './userActions';
 import { updateBaseStore } from './baseActions';
-import { toast } from 'react-toastify';
 import { extractKeywords } from '../../utils';
 
 export const updatePostStore = (data) => (dispatch, getState) => {
@@ -130,7 +129,6 @@ export const getPostAndSponsored = () => (dispatch, getState) => {
     if (posts.length === 0) return res(false);
     if (lastPostVisible && lastSponsoredVisible) return res(false);
     try {
-      dispatch(updateBaseStore({ loading: true }));
       const promises = [];
       if (!lastPostVisible) {
         promises.push(dispatch(getPosts()));
@@ -147,7 +145,6 @@ export const getPostAndSponsored = () => (dispatch, getState) => {
       console.error('Error loading posts and sponsored:', err);
       rej(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -212,7 +209,6 @@ export const getPostsByUser = (userId, reset = false) => (dispatch, getState) =>
         }));
       }
       if (lastUserPostVisible && !reset) return res(true);
-      dispatch(updateBaseStore({ loading: true }));
       const queryConditions = [
         where('ownerId', '==', userId),
         orderBy('createdAt', 'desc')
@@ -245,7 +241,6 @@ export const getPostsByUser = (userId, reset = false) => (dispatch, getState) =>
       console.error('Failed to load user posts:', error);
       rej(error);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -344,8 +339,6 @@ export const searchPostsByKeywords = (keywordsArray, reset = false) => (dispatch
 
       if (lastSearchPostVisible && !reset) return res(true);
 
-      dispatch(updateBaseStore({ loading: true }));
-
       const queryConditions = [
         where('keywords', 'array-contains-any', keywordsArray),
         orderBy('createdAt', 'desc')
@@ -389,7 +382,6 @@ export const searchPostsByKeywords = (keywordsArray, reset = false) => (dispatch
       console.error('Failed to search posts:', error);
       rej(error);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -398,7 +390,6 @@ export const searchPostsByKeywords = (keywordsArray, reset = false) => (dispatch
 export const createPost = ({ quill, tags, address }) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
     const { user } = getState();
-    dispatch(updateBaseStore({ loading: true }));
     try {
       const clonedRoot = quill.root.cloneNode(true);
       clonedRoot.querySelectorAll('.quill-delete-btn').forEach(btn => btn.remove());
@@ -408,14 +399,10 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
       const videoElements = quill.root.getElementsByTagName('video');
 
       if (imageElements.length > 10) {
-        toast.warning('You can only upload up to 5 images.');
-        dispatch(updateBaseStore({ loading: false }));
         return rej('Too many images');
       }
 
       if (videoElements.length > 1) { 
-        toast.warning('You can only add one video to your post.');
-        dispatch(updateBaseStore({ loading: false }));
         return rej('Too many videos');
       }
 
@@ -466,7 +453,6 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
       const endMedia = performance.now();
       console.log(`Media uploads took ${(endMedia - startMedia) / 1000} seconds.`);
       await Promise.all(allMediaResults);
-      dispatch(updateBaseStore({ loading: false }));
       
       const keywords = extractKeywords(contentHtml, tags, address);
       
@@ -490,14 +476,9 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
 
       const userRef = doc(db, 'users', user.id);
       await updateDoc(userRef, { postCount: increment(1) });
-
-      dispatch(updateBaseStore({ loading: false }));
-      toast.success('New post created successfully!');
       res(true);
     } catch (err) {
       console.error('Error creating post:', err);
-      dispatch(updateBaseStore({ loading: false }));
-      toast.error('Failed to create post.');
       rej(err);
     }
   });
@@ -569,8 +550,6 @@ export const handlePostCreationFollowUps = ({ postRef, currentUser, tags }) => a
 
 export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (dispatch, getState) => {
   return new Promise(async (resolve, reject) => {
-    dispatch(updateBaseStore({ loading: true }));
-
     try {
       const { user } = getState();
       const clonedRoot = editorInstance.root.cloneNode(true);
@@ -625,15 +604,11 @@ export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (
 
       const postRef = doc(db, 'posts', id);
       await updateDoc(postRef, { contentHtml, keywords });
-
-      toast.success('Post updated successfully.');
       resolve({ contentHtml, keywords });
     } catch (err) {
       console.error('Failed to update post:', err);
-      toast.error('Failed to update post.');
       reject(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -643,10 +618,8 @@ export const deletePost = ({ id, ownerId }) => (dispatch, getState) => {
     try {
       const { user } = getState();
       if (user.id !== ownerId && !user.role?.admin) {
-        toast.error('You do not have permission to delete this post.');
         return rej('Permission denied');
       }
-      dispatch(updateBaseStore({ loading: true }));
       const postRef = doc(db, 'posts', id);
       const userRef = doc(db, 'users', ownerId);
       const subcollections = ['comments', 'interactions',];
@@ -674,10 +647,8 @@ export const deletePost = ({ id, ownerId }) => (dispatch, getState) => {
       res(true);
     } catch (err) {
       console.error("Failed to delete post and subcollections:", err);
-      toast.error("Failed to delete post.");
       rej(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -719,7 +690,6 @@ export const updateFollowers = (followEmail) => (dispatch, getState) => {
 
 export const updateRecommendation = (recommendations, info) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
-    dispatch(updateBaseStore({ loading: true }));
     const { type, option, time, userInteractions = {}, contentHtml } = info;
     const { username, email, photoURL, blocks, id: actionId } = getState().user;
     const { id, ownerId } = recommendations;
@@ -795,7 +765,6 @@ export const updateRecommendation = (recommendations, info) => (dispatch, getSta
             reportedAt: serverTimestamp(),
           }, { merge: true });
         } else {
-          dispatch(updateBaseStore({ loading: false }));
           return rej(new Error('Already reported'));
         }
       }
@@ -817,16 +786,11 @@ export const updateRecommendation = (recommendations, info) => (dispatch, getSta
             textarea.select();
             document.execCommand("copy");
             document.body.removeChild(textarea);
-            toast.success('Link copied to clipboard!');
           } catch (fallbackErr) {
-            toast.error('Failed to copy link.');
-            dispatch(updateBaseStore({ loading: false }));
             return rej(fallbackErr);
           }
         }
-
         await batch.commit();
-        dispatch(updateBaseStore({ loading: false }));
         return res({ success: true, action });
       }
       else if (type === 'block') {
@@ -842,11 +806,9 @@ export const updateRecommendation = (recommendations, info) => (dispatch, getSta
         }
       }
       await batch.commit();
-      dispatch(updateBaseStore({ loading: false }));
       return res({ success: true, action });
     } catch (error) {
       console.error(error);
-      dispatch(updateBaseStore({ loading: false }));
       return rej(error);
     }
   });
@@ -860,7 +822,6 @@ export const getPostComments = (postId, updateComments) => (dispatch, getState) 
       if (lastCommentVisible) {
         return res([]);
       }
-      dispatch(updateBaseStore({ loading: true }));
       const commentsLimit = 5;
       const conditions = [orderBy('createdAt', 'asc')];
       if (lastComment) {
@@ -881,7 +842,6 @@ export const getPostComments = (postId, updateComments) => (dispatch, getState) 
       console.error('Failed to load comments:', err);
       rej(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -889,7 +849,6 @@ export const getPostComments = (postId, updateComments) => (dispatch, getState) 
 export const createComment = ({ quill, postId }) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
     const { user } = getState();
-    dispatch(updateBaseStore({ loading: true }));
     try {
       const clonedRoot = quill.root.cloneNode(true);
       clonedRoot.querySelectorAll('.quill-delete-btn')?.forEach(btn => btn.remove());
@@ -956,15 +915,11 @@ export const createComment = ({ quill, postId }) => (dispatch, getState) => {
 
       const commentDoc = await getDoc(commentRef);
       const commentData = commentDoc.data();
-      toast.success('Comment created successfully.');
-      
       res({ ...commentData, id: commentId });
     } catch (error) {
       console.error('Failed to create comment:', error);
-      toast.error('Failed to create comment.');
       rej(error);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -972,7 +927,6 @@ export const createComment = ({ quill, postId }) => (dispatch, getState) => {
 export const updateComment = (postId, commentId, updatedContentHtml) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
     try {
-      dispatch(updateBaseStore({ loading: true }));
       const commentRef = doc(db, 'posts', postId, 'comments', commentId);
       await updateDoc(commentRef, { contentHtml: updatedContentHtml });
       res(true);
@@ -980,7 +934,6 @@ export const updateComment = (postId, commentId, updatedContentHtml) => (dispatc
       console.error('Failed to update comment:', err);
       rej({ success: false, error: err.message || 'Update failed.' });
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
@@ -988,7 +941,6 @@ export const updateComment = (postId, commentId, updatedContentHtml) => (dispatc
 export const deleteComment = (postId, commentId) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
     try {
-      dispatch(updateBaseStore({ loading: true }));
       const batch = writeBatch(db);
       const commentRef = doc(db, 'posts', postId, 'comments', commentId);
       const postRef = doc(db, 'posts', postId);
@@ -1000,249 +952,6 @@ export const deleteComment = (postId, commentId) => (dispatch, getState) => {
       console.error('Failed to delete comment and update count:', err);
       rej(err);
     } finally {
-      dispatch(updateBaseStore({ loading: false }));
     }
   });
 };
-
-
-// export const updateRecommendation = (recommendations, info) => (dispatch, getState) => {
-//   return new Promise(async (res, rej) => {
-//     dispatch(updateBaseStore({ loading: true }));
-//       let notice="";
-//       const { type, evaluationText, option, time } = info;
-//       console.log('recommendations',recommendations);
-//       console.log('info',info);
-//       const { email, username, blocks } = getState().user;
-//       const actionId = getState().user.id;
-//       const { id } = recommendations;
-//       const post = doc(db, "posts", id);
-//       const postDoc = await getDoc(post);
-//       let postData = postDoc.data();
-//       let action = '';
-//       if (type == "like" || type == "love" || type == "laugh" || type == "follow" || type == "save") {
-//         if (!recommendations[`${type}s`] || !recommendations[`${type}s`].includes(actionId)) {
-//           action = "add";
-//           let updatedata = {
-//             [`${type}s`]: arrayRemove(actionId)
-//           };
-//           if (type === "love") {
-//             updatedata.lovesCount = (postData.lovesCount || 0) + 1;
-//           }
-
-//           updateDoc(post, updatedata).then(async () => {
-//             recommendations = {
-//               ...recommendations,
-//               [`${type}s`]: [...(recommendations[`${type}s`] || []), actionId],
-//               ...(type === "love" && { lovesCount: (postData.lovesCount || 0) + 1 }),
-//             };
-
-//             try {
-//               await addDoc(collection(db, 'messages'), {
-//                 from: "site",
-//                 actionId,
-//                 actionName: username,
-//                 postId: recommendations.id,
-//                 to: recommendations.ownerId,
-//                 read: 0,
-//                 action,
-//                 what: type,
-//                 type: "post",
-//                 timestamp: serverTimestamp(),
-//               });
-//               dispatch(updateBaseStore({ loading: false }));
-//               res(recommendations);
-//             } catch (error) {
-//               dispatch(updateBaseStore({ loading: false }));
-//               rej();
-//             }
-//           });
-//         } else {
-//           action = "remove";
-//           let updatedata = {
-//             [`${type}s`]: arrayRemove(actionId),
-//           };
-//           if (type === "love") {
-//             updatedata.lovesCount = Math.max((postData.lovesCount || 1) - 1, 0);
-//           }
-            
-//           updateDoc(post, updatedata).then(async () => {
-//             recommendations = {
-//               ...recommendations,
-//               [`${type}s`]: recommendations[`${type}s`].filter(person => person !== actionId),
-//               ...(type === "love" && {
-//                 lovesCount: Math.max((postData.lovesCount || 1) - 1, 0),
-//               }),
-//             };
-
-//             try {
-//               await addDoc(collection(db, 'messages'), {
-//                 from: "site",
-//                 actionId,
-//                 actionName: username,
-//                 postId: recommendations.id,
-//                 to: recommendations.ownerId,
-//                 read: 0,
-//                 action,
-//                 what: type,
-//                 type: "post",
-//                 timestamp: serverTimestamp(),
-//               });
-//               dispatch(updateBaseStore({ loading: false }));
-//               res(recommendations);
-//             } catch (error) {
-//               dispatch(updateBaseStore({ loading: false }));
-//               rej();
-//             }
-//           });
-//         }
-//         } else if (type == "repost") {
-//           let updatedata=postData['reposts']?{
-//             reposts: arrayUnion(actionId)
-//           }:{
-//             reposts: [actionId]
-//           }
-//           updatedata.createdAt=time
-//           updateDoc(post,updatedata ).then(async ()=>{
-//             try {
-//               await addDoc(collection(db, 'messages'), {
-//                 actionId: actionId,
-//                 actionName:username,
-//                 from: "site" ,
-//                 to: recommendations.ownerId,
-//                 postId:recommendations.id,
-//                 read:0, 
-//                 action,
-//                 what:type,
-//                 type:"post",
-//                 timestamp: serverTimestamp(),
-//               });
-//             } catch (error) {
-//               console.log(error);                
-//             }
-//             recommendations={...recommendations,reposts: [...recommendations.reposts,actionId]}
-//             dispatch(updateBaseStore({ loading:false}));
-//             res(recommendations)
-//           });
-//         } else if (type == "report") {
-//           if (!recommendations.reports || recommendations.reports.filter(c=>c.id==actionId).length==0) {
-//             let updatedata=postData['reports']?{
-//               reports: arrayUnion({id:actionId,option})
-//             }:{
-//               reports: [{id:actionId,option}]
-//             }
-//             updateDoc(post,updatedata ).then(async ()=>{
-//               recommendations={...recommendations,reports: [...recommendations.reports,{id:actionId,option}]}
-//               dispatch(updateBaseStore({ loading:false}));
-//               res(recommendations)
-//             });
-//           } 
-//           else
-//           {
-//             dispatch(updateBaseStore({ loading:false}));
-//             rej();
-//           }
-//         } else if (type == "share") {
-//           let updatedata={shares:recommendations.shares+1}
-//           updateDoc(post,updatedata ).then(async ()=>{
-//             recommendations={...recommendations,shares:recommendations.shares+1}
-//             let path=`${window.location.origin}/post/${id}`
-//             try {
-//               navigator.clipboard.writeText(path).then(() => {
-//                 alert(`${path} was copied.`)
-//                 dispatch(updateBaseStore({ loading:false}));                
-//                 res(recommendations)
-//               }).catch(err => {
-//                 console.error("Failed to copy: ", err);
-//                 dispatch(updateBaseStore({ loading:false}));
-//                 rej();
-//               });      
-//             } catch (error) {
-//               const textarea = document.createElement("textarea");
-//               textarea.value = path;
-//               document.body.appendChild(textarea);
-//               textarea.select();
-//               document.execCommand("copy");
-//               document.body.removeChild(textarea);
-//               alert(`${path} was copied.`)
-//               dispatch(updateBaseStore({ loading:false}));
-//               res(recommendations)
-//             }
-//             try {
-//               await addDoc(collection(db, 'messages'), {
-//                 actionId: actionId,
-//                 actionName:username,
-//                 from: "site" ,
-//                 to: recommendations.ownerId,
-//                 postId:recommendations.id,
-//                 read:0, 
-//                 action,
-//                 what:type,
-//                 type:"post",
-//                 timestamp: serverTimestamp(),
-//               });
-//             } catch (error) {
-//               console.log(error);
-//             }
-//           }).catch(()=>{
-//             dispatch(updateBaseStore({ loading:false}));
-//             rej();
-//           });
-//         } else if (type == "block") {
-//           if (!blocks.includes(recommendations.ownerId)) {
-//             action="add"
-//             const useDocRef = doc(db, "users", actionId);
-//             updateDoc(useDocRef,{blocks:arrayUnion(recommendations.ownerId)} ).then(async ()=>{
-//               try {
-//                 await addDoc(collection(db, 'messages'), {
-//                   actionId: actionId,
-//                   actionName:username,
-//                   from: "site" ,
-//                   to: recommendations.ownerId,
-//                   read:0, 
-//                   action,
-//                   what:type,
-//                   type:"user",
-//                   timestamp: serverTimestamp(),
-//                 });
-//                 dispatch(setUserData({blocks:[...blocks,recommendations.ownerId]}))
-//                 dispatch(updateBaseStore({ loading:false}));
-//                 res()
-//               } catch (error) {
-//                 dispatch(updateBaseStore({ loading:false}));
-//                 rej();
-//               }
-//             }).catch((err)=>{
-//               console.log(err);
-//               rej();              
-//             });
-//           } else {
-//             action="remove"
-//             const useDocRef = doc(db, "users", actionId);
-//             updateDoc(useDocRef, {
-//               blocks: arrayRemove(recommendations.ownerId)
-//             }).then(async ()=>{
-//               try {
-//                 await addDoc(collection(db, 'messages'), {
-//                   actionId: actionId,
-//                   actionName:username,
-//                   from: "site" ,
-//                   to: recommendations.ownerId,
-//                   read:0, 
-//                   action,
-//                   what:type,
-//                   type:"user",
-//                   timestamp: serverTimestamp(),
-//                 });
-//                 dispatch(setUserData({blocks:blocks.filter(b=>b!=recommendations.ownerId)}))
-//                 dispatch(updateBaseStore({ loading:false}));
-//                 res()
-//               } catch (error) {
-//                 dispatch(updateBaseStore({ loading:false}));
-//                 rej();
-//               }
-//             });
-//           }
-//         }
-//       });
-// };

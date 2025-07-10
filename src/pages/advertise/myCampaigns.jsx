@@ -89,7 +89,6 @@ const MyCampaigns = (props) => {
     },[])
 
     const search=async ()=>{
-        props.updateBaseStore({ loading: true });
         let combined = [];
 
         const baseConditions = [
@@ -139,7 +138,6 @@ const MyCampaigns = (props) => {
         const sponsoredList = await formatDocs(sponsoredSnap, "sponsored");
         combined = [...adsList, ...sponsoredList];
         setCampaigns(combined);
-        props.updateBaseStore({ loading: false });
     }
 
     const formatDate = (date) => {

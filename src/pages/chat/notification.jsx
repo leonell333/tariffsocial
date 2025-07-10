@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { getNotifications, markNotificationAsRead, deleteNotification } from '../../store/actions/baseActions'
-import { toast } from 'react-toastify'
 import { Trash2, Check, Bell } from 'lucide-react'
 import Comment from '../../components/post/comment'
 import Post from '../../components/post/post'
@@ -37,7 +36,6 @@ const Notification = () => {
       await dispatch(markNotificationAsRead(notificationId))
     } catch (error) {
       console.error('Error marking notification as read:', error)
-      toast.error('Failed to mark notification as read')
     }
   }
 
@@ -46,7 +44,6 @@ const Notification = () => {
       await dispatch(deleteNotification(notificationId))
     } catch (error) {
       console.error('Error deleting notification:', error)
-      toast.error('Failed to delete notification')
     }
   }
 

@@ -9,7 +9,6 @@ import {updatePostStore } from "../../store/actions/postActions"
 import { Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Paper,Tooltip } from '@mui/material';
 import { extractKeywords } from '../../utils';
 import "./advertise.css"
-import { toast } from 'react-toastify';
 
 const stripeBackend = import.meta.env.VITE_BACKEND;
 
@@ -53,19 +52,11 @@ const MyAds = () => {
               }
               await search();
               dispatch(updateBaseStore({ paymentModal: false }));
-              toast.success("Payment completed and ad marked as billed!", {
-                position: "top-right",
-                autoClose: 3000,
-              });
               navigate('/advertise/ads', { replace: true });
 
             });
           } catch (err) {
             console.error("Stripe session fetch error:", err);
-            toast.error("Could not verify payment session. Please refresh the page.", {
-              position: "top-right",
-              autoClose: 5000,
-            });
           }
         }
       });
@@ -73,7 +64,6 @@ const MyAds = () => {
   },[])
 
   const search=async ()=>{
-    dispatch(updateBaseStore({ loading: true }));
     let ads_ = [];
     const conditions = [where("ownerId", "==", user.id)];
 
@@ -103,9 +93,7 @@ const MyAds = () => {
       data.currencySymbol = symbol;
       ads_.push({ id:doc.id, ...data })
     })
-
     setAds(ads_);
-    dispatch(updateBaseStore({ loading: false }))
   }
   
   return (<>

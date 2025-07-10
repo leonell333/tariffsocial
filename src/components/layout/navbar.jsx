@@ -11,7 +11,6 @@ import { extractKeywords } from '../../utils'
 import CreateAdvertisement from '../../pages/advertise'
 import { updatePostStore, searchPostsByKeywords } from '../../store/actions/postActions'
 import { updateBaseStore, getUnreadCounts } from '../../store/actions/baseActions'
-import { toast } from 'react-toastify'
 
 const Navbar = () => {
   const location = useLocation();

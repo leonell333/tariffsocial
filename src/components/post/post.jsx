@@ -17,7 +17,6 @@ import PostEditor from './postEditor'
 import BlockModal from './blockModal'
 import ReportModal from './reportModal'
 import ImagePreviewModal from './imagePreviewModal'
-import { toast } from 'react-toastify'
 import { updatePost, deletePost, updateRecommendation, getPostComments, searchPostsByKeywords } from '../../store/actions/postActions'
 import { getFormattedContent, readTime, formatTextCleanlyPreservingMedia } from '../../utils';
 import { getUserDataById } from '../../store/actions/userActions';
@@ -79,11 +78,9 @@ const Post = (props) => {
         }));
       } else {
         console.error('Unexpected update result:', result);
-        toast.error('Failed to update interaction.');
       }
     } catch (error) {
       console.error('Failed to update post data:', error);
-      toast.error(error.message || 'Something went wrong while updating.');
     }
   };
 
@@ -109,7 +106,6 @@ const Post = (props) => {
       }
     } catch (error) {
       console.error("Error deleting post:", error);
-      toast.error(error.message || "Something went wrong while deleting.");
     }
   };
 
@@ -180,7 +176,6 @@ const Post = (props) => {
 
   const handleAvatarClick = (userId) => {
     if (!user.authenticated) return
-    dispatch(updateBaseStore({ loading: true }));
     dispatch(getUserDataById(userId)).then((res) => {
       if (res) {
         navigate('/profile/' + userId);
@@ -188,7 +183,6 @@ const Post = (props) => {
     }).catch((err) => {
       console.log('err',err);
     }).finally(() => {
-      dispatch(updateBaseStore({ loading: false }));
     })
   }
 

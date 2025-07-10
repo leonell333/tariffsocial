@@ -5,7 +5,6 @@ import Modal from '@mui/material/Modal'
 import { Avatar } from '@mui/material'
 import { sendMessageToSelectedUser } from '../../store/actions/chatAction'
 import { updateBaseStore } from '../../store/actions/baseActions'
-import { toast } from 'react-toastify'
 
 const Message = () => {
   const dispatch = useDispatch();
@@ -25,7 +24,6 @@ const Message = () => {
         }
       }).catch((error) => {
         console.error('Failed to send message:', error);
-        toast.error('Failed to send message. Please try again.');
       });
   }
 

@@ -71,7 +71,6 @@ const AdminSponsored = (props) => {
       }
     }
   const search=async ()=>{
-    props.updateBaseStore({ loading: true })
     let _sponsoreds=[]
     const conditions = [where("ownerId","==",props.user.id)];
     if(billedStatus=="Billed") conditions.push(where("billed","==",true))
@@ -113,7 +112,6 @@ const AdminSponsored = (props) => {
       _sponsoreds[i].content=content
     }
     setSponsoreds(_sponsoreds);
-    props.updateBaseStore({ loading: false })
   }
   
   
