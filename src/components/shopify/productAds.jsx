@@ -225,7 +225,7 @@ const ProductAds = () => {
     <div className="bg-[#fff] border border-[#EBEBEB] rounded-xl p-5 shadow-none">
         <div className="flex flex-row items-center mb-3 product-ads-header">
           <Box>
-            <img src={logo} className="h-[50px] object-contain" />
+            <img src={logo} className="h-[48px] object-contain" />
           </Box>
           <div className="text-[22px] pl-3 text-[#181818]" style={{ fontFamily: 'poppins', fontWeight: 700 }}>
             Tariff Social Shop

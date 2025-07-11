@@ -9,7 +9,6 @@ import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion,
   collection, query, where, limit, serverTimestamp, orderBy, startAfter, getCountFromServer, getDocsFromCache, 
   onSnapshot } from "firebase/firestore";
 import axios from 'axios';
-import { updateBaseStore } from "./baseActions";
 import { toast } from 'react-toastify';
 
 export const updateUserStore = (userData) => (dispatch, getState) => {
@@ -138,7 +137,7 @@ export const signIn = (email, password) => (dispatch) => {
       }
 
       await dispatch(getUserDataById(user.uid));
-      toast.success(`Welcome ${user.username || 'you'}!`, { position: 'top-right' });
+      toast.success(`Welcome ${user.username}`, { position: 'top-right' });
       res(true);
     } catch (error) {
       const code = error.code || '';
@@ -191,19 +190,19 @@ export const signUp = (email, password, userName) => (dispatch) => {
     } catch (error) {
       switch (error.code) {
         case 'auth/email-already-in-use':
-          toast.error('This email is already registered. Try logging in.', { position: 'top-right' });
+          // toast.error('This email is already registered. Try logging in.', { position: 'top-right' });
           break;
         case 'auth/invalid-email':
-          toast.error('Please enter a valid email address.', { position: 'top-right' });
+          // toast.error('Please enter a valid email address.', { position: 'top-right' });
           break;
         case 'auth/weak-password':
-          toast.error('Password is too weak. Use at least 6 characters.', { position: 'top-right' });
+          // toast.error('Password is too weak. Use at least 6 characters.', { position: 'top-right' });
           break;
         case 'auth/operation-not-allowed':
-          toast.error('Sign up is not enabled. Please contact support.', { position: 'top-right' });
+          // toast.error('Sign up is not enabled. Please contact support.', { position: 'top-right' });
           break;
         case 'auth/too-many-requests':
-          toast.error('Too many failed attempts. Try again later.', { position: 'top-right' });
+          // toast.error('Too many failed attempts. Try again later.', { position: 'top-right' });
           break;
         default:
           break;
@@ -253,7 +252,7 @@ export const googleLogin = () => async (dispatch) => {
         userData = { ...docSnap.data() };
       }
       dispatch(updateUserStore({ id: user.uid, ...userData }));
-      toast.success(`Welcome ${user.displayName || 'you'}!`, { position: 'top-right' });
+      toast.success(`Welcome ${user.displayName}`, { position: 'top-right' });
       res(true);
     } catch (err) {
       rej(err.message);

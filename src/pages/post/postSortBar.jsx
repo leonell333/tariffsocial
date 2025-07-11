@@ -136,12 +136,12 @@ const PostSortBar = (props) => {
           <TrendingIcon />
         </span>
 
-        {hashtags.map((item, index) => {
+        {hashtags.slice(0, user.authenticated ? 4 : 5).map((item, index) => {
           const isSelected = selectedTags.includes(item.tag)
           return (
             <button
               key={index}
-              className={`py-0.4 px-3 border rounded text-[14px] font-medium ${
+              className={`py-0.4 px-3 border rounded text-[14px] font-medium cursor-pointer ${
                 isSelected
                   ? 'border-gray-300 bg-gray-300 text-gray-700'
                   : 'bg-white border-gray-300 text-[#333] hover:bg-gray-100'
@@ -155,7 +155,7 @@ const PostSortBar = (props) => {
 
         {user.authenticated && (
           <button
-            className={`py-0.4 px-3 mr-3 border rounded text-[14px] font-medium ${
+            className={`py-0.4 px-3 mr-3 border rounded text-[14px] font-medium cursor-pointer ${
               myPosts
                 ? 'border-gray-300 bg-gray-300 text-gray-700'
                 : 'bg-white border-gray-300 text-[#333] hover:bg-gray-100'

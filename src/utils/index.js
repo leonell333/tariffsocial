@@ -95,6 +95,8 @@ export const readTime = (createdAt) => {
 };
 
 export const getFormattedContent = (content) => {
+  // Check for video wrapper divs first (Quill video structure)
+  const videoWrapperMatches = [...content.matchAll(/<div[^>]*class="[^"]*quill-video-wrapper[^"]*"[^>]*>([\s\S]*?)<\/div>/g)];
   const videoMatches = [...content.matchAll(/<video[^>]*src="([^"]+)"[^>]*>/g)];
   const youtubeMatches = [
     ...content.matchAll(
@@ -105,14 +107,20 @@ export const getFormattedContent = (content) => {
   const imageTags = [...content.matchAll(/<img[^>]*>/g)].map((match) => match[0]);
 
   let mediaHTML = '';
-  if (videoMatches.length > 0) {
+  if (videoWrapperMatches.length > 0) {
+    // Use the first video wrapper found
+    const wrapperContent = videoWrapperMatches[0][1];
+    // Remove the delete button from the wrapper content
+    const cleanWrapperContent = wrapperContent.replace(/<button[^>]*class="[^"]*quill-delete-btn[^"]*"[^>]*>.*?<\/button>/g, '');
+    mediaHTML = `<div class="quill-video-wrapper">${cleanWrapperContent}</div>`;
+  } else if (videoMatches.length > 0) {
     mediaHTML = `<div class="quill-video-wrapper">${videoMatches[0][0].replace('<video', '<video autoplay muted controls=\"false\"')}</div>`;
   } else if (youtubeIds.length > 0) {
     const videoId = youtubeIds[0];
     mediaHTML = `<div class="w-full my-2"><iframe class="w-full h-[230px] rounded-[10px]"
       src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allowfullscreen></iframe></div>`;
   } else if (imageTags.length > 0) {
-    mediaHTML = `<div class="quill-image-wrapper">${imageTags[0]}</div>`;
+    mediaHTML = `<div">${imageTags[0]}</div>`;
   }
 
   const tempDiv = document.createElement('div');
@@ -126,7 +134,7 @@ export const getFormattedContent = (content) => {
       tag === 'IMG' ||
       tag === 'VIDEO' ||
       tag === 'IFRAME' ||
-      (tag === 'DIV' && elem.classList.contains('quill-image-wrapper'))
+      (tag === 'DIV' && (elem.classList.contains('quill-image-wrapper') || elem.classList.contains('quill-video-wrapper')))
     );
   };
   let firstNonMediaElem = null;
@@ -137,10 +145,18 @@ export const getFormattedContent = (content) => {
     }
   }
   if (firstNonMediaElem) {
-    titleHTML = firstNonMediaElem.outerHTML;
-    firstNonMediaElem.remove();
+    const html = firstNonMediaElem.outerHTML.trim();
+    if (
+      html !== '<p><br></p>' &&
+      html !== '<div><br></div>' &&
+      html !== '<p></p>' &&
+      html !== '<div></div>' &&
+      html.replace(/\s/g, '') !== ''
+    ) {
+      titleHTML = html;
+      firstNonMediaElem.remove();
+    }
   }
-
   if (mediaHTML) {
     return `
       <div class="post-preview">
@@ -151,9 +167,8 @@ export const getFormattedContent = (content) => {
   } else {
     return `
       <div class="post-preview">
-        ${titleHTML}
         <div class="post-content max-h-[100px] overflow-hidden relative">
-          ${tempDiv.innerHTML}
+          ${content}
         </div>
       </div>
     `;

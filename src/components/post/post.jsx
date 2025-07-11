@@ -456,7 +456,7 @@ const Post = (props) => {
                   <div className="cursor-pointer post-content"
                     onClick={(e) => { setExpand(!expand) }}
                     dangerouslySetInnerHTML={{
-                      __html: expand ? formattedContent : getFormattedContent(formattedContent)
+                      __html: expand ? formattedContent : getFormattedContent(contentHtml)
                     }}
                   />
                   {Array.isArray(tags) && tags.length > 0 && (

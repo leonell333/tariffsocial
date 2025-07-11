@@ -171,7 +171,6 @@ const CreatePost = () => {
           if (quill && quill.root) {
             quill.root.innerHTML = '';
           }
-          setQuill("");
           setUpdateTags([]);
           setAddress('');
           dispatch(updateBaseStore({ capturedImage: null }));
@@ -189,7 +188,7 @@ const CreatePost = () => {
           src={user.photoUrl}
           sx={{ width: 30, height: 30 }}
           className="cursor-pointer ml-[5px]"
-          onClick={() => navigate('/profile/' + id)}
+          onClick={() => navigate('/profile/' + user.id)}
         />
         <div className="flex-grow w-90">
           <div>

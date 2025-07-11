@@ -179,7 +179,7 @@ const Navbar = () => {
               onClick={() => navigate('/')}
             >
               <img
-                className="h-[50px] object-contain select-none cursor-pointer"
+                className="h-[48px] object-contain select-none cursor-pointer"
                 alt="TariffSocial Logo point"
                 src={logo}
                 style={{
@@ -249,7 +249,7 @@ const Navbar = () => {
                   Advertise On
                 </div>
                 <Box>
-                  <img src={logo} className="h-[45px] mt-[6px]" style={{ imageRendering: 'optimizeQuality', transform: 'translateZ(0)' }} />
+                  <img src={logo} className="h-[40px] mt-[6px]" style={{ imageRendering: 'optimizeQuality', transform: 'translateZ(0)' }} />
                 </Box>
               </div>
             </div>

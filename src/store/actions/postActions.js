@@ -104,7 +104,7 @@ export const getHashTags = () => (dispatch, getState) => {
       const q = query(
         collection(db, 'tags'),
         orderBy('frequency', 'desc'),
-        limit(4)
+        limit(5)
       );
 
       const snap = await getDocsFromCache(q).catch(() => getDocs(q));
@@ -394,9 +394,8 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
       const clonedRoot = quill.root.cloneNode(true);
       clonedRoot.querySelectorAll('.quill-delete-btn').forEach(btn => btn.remove());
       let contentHtml = clonedRoot.innerHTML.trim();
-      contentHtml = clonedRoot.innerHTML.trim();
-      const imageElements = quill.root.getElementsByTagName('img');
-      const videoElements = quill.root.getElementsByTagName('video');
+      const imageElements = clonedRoot.getElementsByTagName('img');
+      const videoElements = clonedRoot.getElementsByTagName('video');
 
       if (imageElements.length > 10) {
         return rej('Too many images');
