@@ -19,18 +19,14 @@ const AdAnalytics = () => {
   });
 
   useEffect(() => {
-    // Load analytics data from localStorage and calculate metrics
     const loadAnalyticsData = () => {
       const recentDirectAds = localStorage.getItem('recentDirectAds') || '[]';
       const recentClicks = localStorage.getItem('recentAdClicks') || '[]';
-      
       const directAds = JSON.parse(recentDirectAds);
       const clicks = JSON.parse(recentClicks);
-      
       const now = Date.now();
       const last24Hours = now - (24 * 60 * 60 * 1000);
       
-      // Filter data for last 24 hours
       const recentDirectAdViews = directAds.filter(ad => 
         ad.type === 'direct' && ad.timestamp > last24Hours
       ).length;
@@ -50,8 +46,6 @@ const AdAnalytics = () => {
       const totalViews = recentDirectAdViews + recentAdsenseViews;
       const totalClicks = recentDirectClicks + recentAdsenseClicks;
       const clickThroughRate = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
-      
-      // Estimate revenue (this would normally come from your payment system)
       const estimatedRevenue = (recentDirectClicks * 0.50) + (recentAdsenseClicks * 0.01);
       
       setAnalyticsData({
@@ -65,12 +59,8 @@ const AdAnalytics = () => {
         revenue: Math.round(estimatedRevenue * 100) / 100
       });
     };
-
     loadAnalyticsData();
-    
-    // Refresh data every 5 minutes
     const interval = setInterval(loadAnalyticsData, 5 * 60 * 1000);
-    
     return () => clearInterval(interval);
   }, []);
 
@@ -228,4 +218,4 @@ const AdAnalytics = () => {
   );
 };
 
-export default AdAnalytics; 
+export default AdAnalytics;

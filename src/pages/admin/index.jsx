@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, StrictMode } from 'react';
 import { Outlet  } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -35,5 +36,3 @@ const MainLayout = () => {
 }
 
 export default MainLayout;
-  
-
