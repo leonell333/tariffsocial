@@ -13,7 +13,6 @@ import { currencies } from '../../consts'
 import '../../pages/advertise/advertise.css'
 import { isValidEmail } from '../../utils'
 import { createOrUpdateBannerAd } from '../../store/actions/advertiseAction'
-import { updateBaseStore } from '../../store/actions/baseActions'
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 
 const CreateBannerAdvertise = () => {
@@ -31,6 +30,8 @@ const CreateBannerAdvertise = () => {
     days: 1,
   })
 
+  const [errors, setErrors] = useState({});
+
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const user = useSelector(state => state.user)
@@ -39,6 +40,10 @@ const CreateBannerAdvertise = () => {
     setStateAdvertise(prev => ({
       ...prev,
       [key]: value
+    }))
+    setErrors(prev => ({
+      ...prev,
+      [key]: undefined
     }))
   }
 
@@ -80,42 +85,41 @@ const CreateBannerAdvertise = () => {
       d.setSeconds(0)
     }
 
-    if (!stateAdvertise.pubDate) {
-      toast.error('Please select a publish date.')
-      return
-    }
-    if (!stateAdvertise.productLink) {
-      toast.error('Please enter the Link path.')
-      return
-    }
-    if (!stateAdvertise.selectedCountry) {
-      toast.error('Please select country.')
-      return
+    let newErrors = {};
+    if (!stateAdvertise.name) {
+      newErrors.name = 'Please enter your name.';
     }
     if (!stateAdvertise.email) {
-      toast.error('Please enter the email.')
-      return
+      newErrors.email = 'Please enter the email.';
+    } else if (!isValidEmail(stateAdvertise.email)) {
+      newErrors.email = 'Please enter the email address correctly.';
     }
-    if (!isValidEmail(stateAdvertise.email)) {
-      toast.error('Please enter the email address correctly.')
-      return
+    if (!stateAdvertise.selectedCountry) {
+      newErrors.selectedCountry = 'Please select country.';
+    }
+    if (!stateAdvertise.productLink) {
+      newErrors.productLink = 'Please enter the Link path.';
     }
     if (isNaN(Number(stateAdvertise.budget))) {
-      toast.error('Please enter a number value for the budget.')
-      return
+      newErrors.budget = 'Please enter a number value for the budget.';
     }
     if (isNaN(Number(stateAdvertise.days))) {
-      toast.error('Please enter a number value for the number of days')
-      return
-    }
-    if (Number(stateAdvertise.days) < 7) {
-      toast.error('The number of days should be a little over 7 days.')
-      return
+      newErrors.days = 'Please enter a number value for the number of days';
+    } else if (Number(stateAdvertise.days) < 7) {
+      newErrors.days = 'The number of days should be a little over 7 days.';
     }
     if (!stateAdvertise.imageFile) {
-      toast.error('Please select image')
-      return
+      newErrors.imageFile = 'Please select image';
     }
+    if (!stateAdvertise.pubDate) {
+      newErrors.pubDate = 'Please select a publish date.';
+    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     await dispatch(createOrUpdateBannerAd({
       stateAdvertise: {
         ...stateAdvertise,
@@ -165,6 +169,8 @@ const CreateBannerAdvertise = () => {
                   shrink: true,
                 },
               }}
+              error={!!errors.name}
+              helperText={errors.name}
             />
           </div>
         </div>
@@ -200,12 +206,14 @@ const CreateBannerAdvertise = () => {
                   shrink: true,
                 },
               }}
+              error={!!errors.email}
+              helperText={errors.email}
             />
           </div>
         </div>
        
         <div className="basis-1/3 px-5">
-          <div className="w-full">
+          <div className="w-full relative">
             <style>
               {`
                 .ReactSelectFlags-module_searchSelect__O6Fp2 {
@@ -251,6 +259,10 @@ const CreateBannerAdvertise = () => {
                     label: country?.label,
                   },
                 }));
+                setErrors(prev => ({
+                  ...prev,
+                  selectedCountry: undefined
+                }));
               }}
               searchable
               optionsListMaxHeight={250}
@@ -265,6 +277,9 @@ const CreateBannerAdvertise = () => {
                 container: 'custom-country-container'
               }}
             />
+            {errors.selectedCountry && (
+              <div className="text-red-500 text-xs mt-1">{errors.selectedCountry}</div>
+            )}
             <div className="absolute text-gray-500 top-[-11px] left-[13px] px-2 pointer-events-none select-none z-10 bg-[#ffffff] text-[13px] country-label">
               Country
             </div>
@@ -376,6 +391,8 @@ const CreateBannerAdvertise = () => {
                   shrink: true,
                 },
               }}
+              error={!!errors.productLink}
+              helperText={errors.productLink}
             />
           </div>
         </div>
@@ -414,6 +431,9 @@ const CreateBannerAdvertise = () => {
           )}
         </div>
         <input type="file" id="fileInput" hidden onChange={handleSelectImage} />
+        {errors.imageFile && (
+          <div className="text-red-500 text-xs mt-1">{errors.imageFile}</div>
+        )}
       </div>
 
       <div className="text-[20px] text-center py-3  text-black ">
@@ -485,6 +505,8 @@ const CreateBannerAdvertise = () => {
                 shrink: true,
               },
             }}
+            error={!!errors.budget}
+            helperText={errors.budget}
           />
         </div>
 
@@ -536,6 +558,9 @@ const CreateBannerAdvertise = () => {
               }}
             />
           </LocalizationProvider>
+          {errors.pubDate && (
+            <div className="text-red-500 text-xs mt-1">{errors.pubDate}</div>
+          )}
         </div>
 
         <div className="basis-1/3 px-5">
@@ -569,6 +594,8 @@ const CreateBannerAdvertise = () => {
                 shrink: true,
               },
             }}
+            error={!!errors.days}
+            helperText={errors.days}
           />
         </div>
       </div>

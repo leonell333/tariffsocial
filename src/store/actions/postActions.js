@@ -298,14 +298,29 @@ export const getBannerAds = () => (dispatch, getState) => {
       const adsQuery = query(
         collection(db, 'ads'),
         where('billed', '==', true),
-        where('state', '==', 'Approved'),
+        where('state', '==', 'public'),
         limit(5)
       )
       const adsSnap = await getDocs(adsQuery)
       const ads = adsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      
+      if (ads.length > 0) {
+        const { logEvent } = await import('firebase/analytics');
+        const { analytics } = await import('../../firebase');
+        if (analytics) {
+          logEvent(analytics, 'direct_ad_loaded', { 
+            count: ads.length,
+            ad_ids: ads.map(ad => ad.id)
+          });
+        }
+      }
+      
       dispatch(updatePostStore({ bannerAds: ads }))
       res(true)
     } catch (error) {
+      console.error('Failed to load banner ads:', error);
+      // Set empty array on error to allow fallback to AdSense
+      dispatch(updatePostStore({ bannerAds: [] }))
       rej(error)
     }
   });

@@ -16,6 +16,7 @@ import AdvertiseRateCard from './components/advertise/advertiseRateCard'
 import Profile from './pages/profile'
 import MainLayout from './pages/layout'
 import Admin from './pages/admin'
+import AdminDashboard from './pages/admin/dashboard'
 import Contact from './pages/info/contact'
 import AdminPosts from './admin/post'
 import AdminAdvertise from './admin/advertise'
@@ -95,8 +96,9 @@ function App() {
                 <Route path="/admin" element={<Admin />}>
                   <Route
                     index
-                    element={<Navigate to="/admin/posts" replace />}
+                    element={<Navigate to="/admin/dashboard" replace />}
                   />
+                  <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="posts" element={<AdminPosts />} />
                   <Route path="advertise" element={<AdminAdvertise />} />
                   <Route path="sponsored" element={<AdminSponsored />} />
@@ -108,8 +110,10 @@ function App() {
           </Authenticatie>
         </BrowserRouter>
       </Provider>
+
+      
     </>
   )
 }
 
-export default App
+export default App;

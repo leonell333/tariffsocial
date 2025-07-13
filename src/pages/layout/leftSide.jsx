@@ -71,7 +71,7 @@ const getMainNavItems = (authenticated) => {
         </svg>
       ),
       label: 'Advertising Rates',
-      url: 'info/advertise-rate',
+      url: '/info/advertise-rate',
     },
   ]
 

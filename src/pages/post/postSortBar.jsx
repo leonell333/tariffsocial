@@ -69,14 +69,10 @@ const PostSortBar = (props) => {
         setSortBarOffset(postSortRef.current.offsetTop);
       }
     };
-
     updateOffsetTop();
-
     window.addEventListener('resize', updateOffsetTop);
-
     const resizeObserver = new ResizeObserver(() => updateOffsetTop());
     const mutationObserver = new MutationObserver(() => updateOffsetTop());
-
     if (postSortRef.current) {
       resizeObserver.observe(postSortRef.current);
       mutationObserver.observe(document.body, {
@@ -96,16 +92,11 @@ const PostSortBar = (props) => {
     const handleScroll = () => {
       const scrollableContainer = document.querySelector('.main-content-scrollable');
       if (!scrollableContainer) return;
-      
       const scrollTop = scrollableContainer.scrollTop;
-      
-      // For non-authenticated users, always keep it fixed
       if (!user?.authenticated) {
         setIsSticky(true);
         return;
       }
-      
-      // For authenticated users, use scroll-based sticky behavior
       setIsSticky(scrollTop >= sortBarOffset - 16);
       if (scrollTop <= sortBarOffset - 16) setShowCreatePost(false);
     };
@@ -136,7 +127,9 @@ const PostSortBar = (props) => {
           <TrendingIcon />
         </span>
 
-        {hashtags.slice(0, user.authenticated ? 4 : 5).map((item, index) => {
+        {hashtags.slice(0, 
+          isSticky ? (user.authenticated ? 3 : 5) : (user.authenticated ? 4 : 5)
+        ).map((item, index) => {
           const isSelected = selectedTags.includes(item.tag)
           return (
             <button
@@ -178,10 +171,6 @@ const PostSortBar = (props) => {
         )}
 
         <div className="flex items-center justify-end">
-          <span className="text-[#666666] font-light mr-2 text-2xl">
-            <svg fill="none" height="14" viewBox="0 0 28 28" width="14" xmlns="http://www.w3.org/2000/svg">
-            </svg>
-          </span>
           <Select value={sort} onValueChange={setSort} >
             <SelectTrigger className="border-none shadow-none p-0 h-auto w-auto bg-transparent focus:outline-none">
               <SelectValue>

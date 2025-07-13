@@ -35,15 +35,13 @@ export const fetchBannerAdById = (adId) => async (dispatch, getState) => {
   }
 };
 
-export const createOrUpdateBannerAd = ({
-  stateAdvertise,
-  navigate,
-  setLoading,
-}) => async (dispatch, getState) => {
+export const createOrUpdateBannerAd = ({ stateAdvertise, navigate, setLoading, }) => async (dispatch, getState) => {
   setLoading && setLoading(true);
   try {
     const keywords = extractKeywords(stateAdvertise.name);
     let imageUrl = '';
+    
+    // Handle image upload
     if (stateAdvertise.imageFile && stateAdvertise.imageFile.startsWith('data:')) {
       let d = new Date();
       let img_name = d.getTime() + '';
@@ -54,6 +52,7 @@ export const createOrUpdateBannerAd = ({
       imageUrl = stateAdvertise.imageFile;
     }
 
+    // Create the ad document
     const docRef = await addDoc(collection(db, 'ads'), {
       name: stateAdvertise.name,
       email: stateAdvertise.email,
@@ -72,12 +71,30 @@ export const createOrUpdateBannerAd = ({
       businessName: stateAdvertise.businessName,
       createdAt: serverTimestamp(),
     });
+
+    // Log analytics event
+    try {
+      const { logEvent } = await import('firebase/analytics');
+      const { analytics } = await import('../../firebase');
+      if (analytics) {
+        logEvent(analytics, 'ad_created', {
+          ad_type: 'banner',
+          ad_id: docRef.id,
+          budget: stateAdvertise.budget,
+          currency: stateAdvertise.currency,
+          country: stateAdvertise.countryCode
+        });
+      }
+    } catch (analyticsError) {
+      console.warn('Failed to log analytics event:', analyticsError);
+    }
+
     toast.success('Advertisement was created successfully.');
     setLoading && setLoading(false);
     navigate && navigate(`/payment?id=${docRef.id}&type=ads`);
   } catch (error) {
-    console.log(error);
-    toast.error('Failed to update the advertisement. Please try again.');
+    console.error('Failed to create banner ad:', error);
+    toast.error('Failed to create the advertisement. Please try again.');
     setLoading && setLoading(false);
   }
 };
@@ -190,4 +207,3 @@ export const createOrUpdateSponsoredAd = ({
     setLoading && setLoading(false);
   }
 };
-

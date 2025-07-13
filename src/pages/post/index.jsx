@@ -5,7 +5,7 @@ import { updateBaseStore } from '../../store/actions/baseActions'
 import { getPosts, getSponsored, getBannerAds, getHashTags, getPostAndSponsored, listenForNewPosts, updatePostStore, searchPostsByKeywords } from '../../store/actions/postActions'
 import CreatePost from '../../components/post/create'
 import Post from '../../components/post/post'
-import AdsSlick from '../../components/advertise/adsSlick'
+import IntelligentAdSlot from '../../components/advertise/IntelligentAdSlot'
 import Sponsored from '../../components/advertise/viewSponsored'
 import PostSortBar from './postSortBar'
 
@@ -121,9 +121,8 @@ const Posts = () => {
   const initData = async () => {
     try {
       const promises = [];
-      if (hashtags.length === 0) {
-        promises.push(dispatch(getHashTags()));
-      }
+      // Always fetch hashtags on project start
+      promises.push(dispatch(getHashTags()));
       if (posts.length === 0 && !lastPostVisible && !isSearchMode) {
         promises.push(dispatch(getPosts()));
       }
@@ -177,11 +176,11 @@ const Posts = () => {
         />
         
         <div className={`rounded-[4px] ${!user.authenticated ? 'mt-[35px]' : ''}`}>
-          {bannerAds.length > 0 && !isSearchMode && <AdsSlick ads={bannerAds} />}
+          {!isSearchMode && <IntelligentAdSlot position="main" />}
 
+          {/* {bannerAds.length > 0 && !isSearchMode && <AdsSlick ads={bannerAds} />} */}
           <div className = "mt-2">
             {isSearchMode ? (
-              // Display search results
               <>
                 {searchPosts.length > 0 ? (
                   searchPosts.map((item) => (

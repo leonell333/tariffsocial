@@ -8,7 +8,7 @@ import { FaApple } from 'react-icons/fa'
 import { Eye, EyeOff } from 'lucide-react'
 import { googleLogin, signIn, signUp } from '../../store/actions/userActions'
 
-const LoginCard = (props) => {
+const LoginCard = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
@@ -53,7 +53,7 @@ const LoginCard = (props) => {
       })
       .catch((err) => {
         console.error('Signup failed:', err);
-        toast.error(`Error: ${err}`, { position: 'top-right' });
+        // toast.error(`Error: ${err}`, { position: 'top-right' });
       });
     
   }
@@ -65,7 +65,7 @@ const LoginCard = (props) => {
       }
     }).catch((err) => {
       console.error('Login failed:', err);
-      toast.error('Login failed. Please try again.', { position: 'top-right' });
+      // toast.error('Login failed. Please try again.', { position: 'top-right' });
     });
   }
 

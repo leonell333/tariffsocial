@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { initializeFirestore, persistentLocalCache, } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAnalytics } from "firebase/analytics";
 
 const vercel_env = import.meta.env.VITE_VERCEL_ENV;
 const firebaseApiKey = import.meta.env.VITE_FIREBASE_API_KEY;
@@ -26,6 +27,9 @@ const firebaseApp = initializeApp({
 });
 
 export const app = firebaseApp;
+
+// Initialize Analytics
+export const analytics = getAnalytics(app);
 
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache()
