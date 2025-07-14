@@ -1,7 +1,6 @@
+
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateBaseStore } from '../../store/actions/baseActions'
-import { updatePostStore } from '../../store/actions/postActions'
 import Button from '@mui/material/Button'
 import Slider from 'react-slick'
 import { ChevronRight } from 'lucide-react'
@@ -9,7 +8,6 @@ import { ChevronRight } from 'lucide-react'
 const AdsSlick = (props) => {
   const dispatch = useDispatch()
   const user = useSelector(state => state.user)
-  
   const { ads } = props
   const containerRef = useRef(null)
   const [width, setWidth] = useState(null);
@@ -28,19 +26,6 @@ const AdsSlick = (props) => {
     beforeChange: (current, next) => setActiveSlide(next),
     variableWidth: false,
   };
-
-  // const settings = {
-  //   dots: true,
-  //   infinite: true,
-  //   speed: 500,
-  //   slidesToShow: 1,
-  //   slidesToScroll: 1,
-  //   fade: true,
-  //   autoplay: false,
-  //   afterChange: (current) => setActiveSlide(current),
-  //   beforeChange: (current, next) => setActiveSlide(next),
-  //   variableWidth: false,
-  // };
 
   useEffect(() => {
     const handleResize = () => {
@@ -68,16 +53,6 @@ const AdsSlick = (props) => {
         )}
       </div>
       <div className="w-full">
-        {/* <button
-            type="button"
-            className="bg-[#0e2841] text-white px-4 hover:bg-[#1c3b63] cursor-pointer  w-full h-[35px] font-[19px] rounded-[50px]" onClick={()=>{
-              let ad=ads[activeSlide]
-            if(!ad) return
-            window.open(ad.productLink)
-            }}
-          >
-            Go to Shop
-          </button> */}
         <Button
           variant="contained"
           className="p-0 w-full bg-blue-600 text-white text-sm font-medium !rounded-[18px] hover:bg-blue-700 transition"

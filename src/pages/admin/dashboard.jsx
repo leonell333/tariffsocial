@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useSelector } from 'react-redux';
 import AdAnalytics from '../../components/advertise/AdAnalytics';
@@ -18,7 +19,6 @@ const AdminDashboard = () => {
         </Typography>
       </div>
 
-      {/* Quick Stats */}
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
           <Card>

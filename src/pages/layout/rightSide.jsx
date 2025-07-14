@@ -15,4 +15,4 @@ const RightSide = () => {
   )
 }
 
-export default RightSide
+export default RightSide;

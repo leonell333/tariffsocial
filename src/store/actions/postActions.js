@@ -8,6 +8,8 @@ import { ref as storageRef, uploadString, getDownloadURL, uploadBytes, uploadByt
 import { updateUserStore } from './userActions';
 import { updateBaseStore } from './baseActions';
 import { extractKeywords } from '../../utils';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from '../../firebase';
 
 export const updatePostStore = (data) => (dispatch, getState) => {
   return new Promise((res, rej) => {
@@ -250,30 +252,23 @@ export const getSponsored = () => (dispatch, getState) => {
     try {
       const { post } = getState()
       const { lastSponsored, sponsored = [], } = post
-
       const conditions = [
         where('state', '==', 'Approved'),
         orderBy('budget', 'desc')
       ]
-
       if (lastSponsored) {
         conditions.push(startAfter(lastSponsored))
       }
-
       const limitCount = 5
       conditions.push(limit(limitCount))
-
       const sponsoredQuery = query(collection(db, 'sponsored'), ...conditions)
       const snap = await getDocs(sponsoredQuery)
-
       const newDocs = snap.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         type: 'sponsored'
       }))
-
       const allSponsoredFetched = snap.docs.length < limitCount
-
       if (newDocs.length > 0) {
         dispatch(updatePostStore({ 
           sponsored: [...sponsored, ...newDocs],
@@ -283,7 +278,6 @@ export const getSponsored = () => (dispatch, getState) => {
       } else if (allSponsoredFetched) {
         dispatch(updatePostStore({ lastSponsoredVisible: true }))
       }
-
       res(true)
     } catch (error) {
       console.error('Failed to load sponsored ads:', error)
@@ -298,15 +292,13 @@ export const getBannerAds = () => (dispatch, getState) => {
       const adsQuery = query(
         collection(db, 'ads'),
         where('billed', '==', true),
-        where('state', '==', 'public'),
+        // where('state', '==', 'public'),
+        where('state', '==', 'Approved'),
         limit(5)
       )
       const adsSnap = await getDocs(adsQuery)
       const ads = adsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      
       if (ads.length > 0) {
-        const { logEvent } = await import('firebase/analytics');
-        const { analytics } = await import('../../firebase');
         if (analytics) {
           logEvent(analytics, 'direct_ad_loaded', { 
             count: ads.length,
@@ -314,12 +306,10 @@ export const getBannerAds = () => (dispatch, getState) => {
           });
         }
       }
-      
       dispatch(updatePostStore({ bannerAds: ads }))
       res(true)
     } catch (error) {
       console.error('Failed to load banner ads:', error);
-      // Set empty array on error to allow fallback to AdSense
       dispatch(updatePostStore({ bannerAds: [] }))
       rej(error)
     }
@@ -411,15 +401,12 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
       let contentHtml = clonedRoot.innerHTML.trim();
       const imageElements = clonedRoot.getElementsByTagName('img');
       const videoElements = clonedRoot.getElementsByTagName('video');
-
       if (imageElements.length > 10) {
         return rej('Too many images');
       }
-
       if (videoElements.length > 1) { 
         return rej('Too many videos');
       }
-
       const uploadMedia = async (elements, folder) => {
         const tasks = Array.from(elements).map(async (el) => {
           if (el.src.startsWith('https://')) return null;
@@ -467,9 +454,7 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
       const endMedia = performance.now();
       console.log(`Media uploads took ${(endMedia - startMedia) / 1000} seconds.`);
       await Promise.all(allMediaResults);
-      
       const keywords = extractKeywords(contentHtml, tags, address);
-      
       const postRef = await addDoc(collection(db, 'posts'), {
         contentHtml,
         address,
@@ -487,7 +472,6 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
         savesCount: 0,
         createdAt: serverTimestamp(),
       });
-
       const userRef = doc(db, 'users', user.id);
       await updateDoc(userRef, { postCount: increment(1) });
       res(true);
@@ -530,10 +514,8 @@ export const handlePostCreationFollowUps = ({ postRef, currentUser, tags }) => a
     });
     return batch.commit();
   });
-
   const tagBatch = writeBatch(db);
   const newTags = [...user.tags];
-
   tags.forEach(tag => {
     const existingTag = user.tags.find(t => t.tag === tag);
     if (existingTag) {
@@ -548,7 +530,6 @@ export const handlePostCreationFollowUps = ({ postRef, currentUser, tags }) => a
       newTags.push({ id: newRef.id, tag, frequency: 1 });
     }
   });
-
   try {
     await Promise.all([
       postCountUpdate,
@@ -558,7 +539,6 @@ export const handlePostCreationFollowUps = ({ postRef, currentUser, tags }) => a
   } catch (err) {
     console.error('Post follow-up error:', err);
   }
-
   dispatch(updateBaseStore({ tags: newTags, }));
 };
 

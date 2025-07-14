@@ -28,5 +28,6 @@ dist-ssr
 # Credentials and secrets
 credentials.json
 *.credentials.json
+collection.txt
 
 .vercel

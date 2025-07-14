@@ -101,17 +101,66 @@ interactions
 
 ads/{adId}
 {
-  "image": "https://...",
-  "link": "https://shop.com/item/123",
-  "ownerId": "abc123",
-  "views": 1040,
-  "clicks": 150,
-  "isActive": true,
-  "scheduledAt": Timestamp,
-  "createdAt": Timestamp
+  "name": "", 
+  "email": "",
+  "ownerId": "",
+  "title": "",
+  "businessName": "",
+  "country": {
+    countryCode: "",
+    label: ""
+  },
+  "productLink": "",
+  "imageUrl": "",
+  "budget": 0,
+  "currency": "",
+  "days": 0,
+  "pubDate": Timestamp,
+  
+  "state": "Pending" | "Approved" | "Rejected" | "Expired",
+  "billed": false,
+  "billedAt": Timestamp,
+  "sessionId": "",
+  "keywords": [],
+  "createdAt": Timestamp,
+  "expire": Timestamp
 }
 
 
+sponsored/{sponsoredId}
+{
+  "name": "",
+  "email": "",
+  "ownerId": "",
+  "title": "",
+  "businessName": "",
+  "content": "",
+  "author": "",
+  "link": "",
+  "phone": "",
+  "country": {
+    countryCode: "",
+    label: ""
+  },
+  "imageFile": "",
+  "budget": 0,
+  "currency": "",
+  "days": 0,
+  "pubDate": Timestamp,
+  "state": "Pending" | "Approved" | "Rejected" | "Expired",
+  "billed": false,
+  "billedAt": Timestamp,
+  "sessionId": "",
+  "keywords": [],
+  "createdAt": Timestamp,
+  "expire": Timestamp
+}
 
-
+payments/{paymentId}
+{
+  "adId": "",
+  "sessionId": "",
+  "ownerId": "",
+  "createdAt": Timestamp
+}
 

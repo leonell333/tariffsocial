@@ -1,25 +1,17 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { connect } from 'react-redux'
-import '../../pages/advertise/advertise.css'
-import { auth, db, storage, storageBucket } from '../../firebase'
-import {
-  doc,
-  updateDoc, 
-} from 'firebase/firestore'
-import {
-  ref as storageRef,
-  uploadString,
-} from 'firebase/storage'
-import { useParams, useLocation, useNavigate } from 'react-router-dom'
-import { updateBaseStore } from '../../store/actions/baseActions'
-import { updatePostStore } from '../../store/actions/postActions'
-import ReactCountryFlagsSelect, { Us } from 'react-country-flags-select'
-import { toast } from 'react-toastify'
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import dayjs from 'dayjs'
+import { useState, useEffect, useRef, useMemo } from "react";
+import { connect } from "react-redux";
+import "../../pages/advertise/advertise.css";
+import { auth, db, storage, storageBucket } from "../../firebase";
+import { doc, updateDoc } from "firebase/firestore";
+import { ref as storageRef, uploadString } from "firebase/storage";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { updateBaseStore } from "../../store/actions/baseActions";
+import { updatePostStore } from "../../store/actions/postActions";
+import ReactCountryFlagsSelect, { Us } from "react-country-flags-select";
+import { toast } from "react-toastify";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 import {
   Checkbox,
@@ -28,84 +20,84 @@ import {
   InputLabel,
   Modal,
   InputAdornment,
-} from '@mui/material'
-import { TextField, Button, Container, Typography, Box } from '@mui/material'
+} from "@mui/material";
+import { TextField, Button, Container, Typography, Box } from "@mui/material";
 
-const stropeBackend = import.meta.env.VITE_BACKEND
+const stropeBackend = import.meta.env.VITE_BACKEND;
 
-import CountryFlag from 'react-country-flag'
-import { extractKeywords, isValidEmail } from '../../utils'
-import { Label } from '@radix-ui/react-select'
-var bEditor = false
+import CountryFlag from "react-country-flag";
+import { extractKeywords, isValidEmail } from "../../utils";
+import { Label } from "@radix-ui/react-select";
+var bEditor = false;
 
 const UpdateSponsored = (props) => {
-  const [rte, setRte] = useState(undefined)
-  const [imageFile, setImageFile] = useState('')
-  const [title, setTitle] = useState(props.sponsored.title)
-  const [email, setEmail] = useState(props.sponsored.email)
-  const [budget, setBudget] = useState(props.sponsored.budget)
+  const [rte, setRte] = useState(undefined);
+  const [imageFile, setImageFile] = useState("");
+  const [title, setTitle] = useState(props.sponsored.title);
+  const [email, setEmail] = useState(props.sponsored.email);
+  const [budget, setBudget] = useState(props.sponsored.budget);
   const [pubDate, setPubDate] = useState(
     dayjs(props.sponsored.pubDate.toDate())
-  )
-  const [days, setDays] = useState(props.sponsored.days)
-  const [content, setContent] = useState(props.sponsored.content)
-  const navigate = useNavigate()
-  var refdiv1 = useRef(null)
+  );
+  const [days, setDays] = useState(props.sponsored.days);
+  const [content, setContent] = useState(props.sponsored.content);
+  const navigate = useNavigate();
+  var refdiv1 = useRef(null);
 
   useEffect(() => {
     setTimeout(function () {
-      let rte1 = new window.RichTextEditor(refdiv1.current)
-      rte1.setHTMLCode(content)
-      setRte(rte1)
-    }, 100)
-  }, [])
+      let rte1 = new window.RichTextEditor(refdiv1.current);
+      rte1.setHTMLCode(content);
+      setRte(rte1);
+    }, 100);
+  }, []);
   const handleUpdate = async (e) => {
-    let content = rte.getHTMLCode()
-    let contentText = rte.getText()
+    let content = rte.getHTMLCode();
+    let contentText = rte.getText();
 
-    let document = rte.getDocument()
-    let images = document.getElementsByTagName('img')
-    let image_data = []
-    let image_name = []
+    let document = rte.getDocument();
+    let images = document.getElementsByTagName("img");
+    let image_data = [];
+    let image_name = [];
     for (var i = 0; i < images.length; i++) {
-      let img_data = images[i].src
-      if (!img_data.startsWith('data:image/')) continue
-      image_data.push(images[i].src)
-      let d = new Date()
-      let img_name = d.getTime() + ''
-      image_name.push(img_name)
-      content = content.replace(images[i].src, `firebaseimage:${img_name}`)
+      let img_data = images[i].src;
+      if (!img_data.startsWith("data:image/")) continue;
+      image_data.push(images[i].src);
+      let d = new Date();
+      let img_name = d.getTime() + "";
+      image_name.push(img_name);
+      content = content.replace(images[i].src, `firebaseimage:${img_name}`);
     }
-    let d = pubDate.toDate()
-    d.setHours(0)
-    d.setMinutes(0)
-    d.setSeconds(0)
+    let d = pubDate.toDate();
+    d.setHours(0);
+    d.setMinutes(0);
+    d.setSeconds(0);
 
     if (!title) {
-      toast.error('Please enter the title.')
-      return
+      toast.error("Please enter the title.");
+      return;
     }
     if (!email) {
-      toast.error('Please enter the email.')
-      return
+      toast.error("Please enter the email.");
+      return;
     }
     if (!isValidEmail(email)) {
-      toast.error('Please enter the email address correctly.')
-      return
+      toast.error("Please enter the email address correctly.");
+      return;
     }
     if (isNaN(Number(budget))) {
-      toast.error('Please enter a number value for the budget.')
-      return
+      toast.error("Please enter a number value for the budget.");
+      return;
     }
     if (isNaN(Number(days))) {
-      toast.error('Please enter a number value for the number of days')
-      return
+      toast.error("Please enter a number value for the number of days");
+      return;
     }
 
     try {
-      let keywords = extractKeywords(contentText)
-      keywords = keywords.concat(extractKeywords(title))
-      const snap = doc(db, 'sponsored', props.sponsored.id)
+      let keywords = extractKeywords(contentText);
+      keywords = keywords.concat(extractKeywords(title));
+      const snap = doc(db, "sponsored", props.sponsored.id);
       await updateDoc(snap, {
         title,
         content,
@@ -115,32 +107,34 @@ const UpdateSponsored = (props) => {
         days: Number(days),
         pubDate: d,
         keywords,
-      })
+      });
       if (image_data.length) {
         for (var i = 0; i < image_data.length; i++) {
           const imageRef = storageRef(
             storage,
             `sponsored-images/${image_name[i]}`
-          )
-          let result = await uploadString(imageRef, image_data[i], 'data_url')
+          );
+          let result = await uploadString(imageRef, image_data[i], "data_url");
         }
       }
-      toast('The sponsored content was updated successfully.')
+      toast("The sponsored content was updated successfully.");
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-    props.search()
-  }
+    props.search();
+  };
 
   return (
     <Modal
       open={props.sponsoredUpdateModal}
       className="create-sponsored"
       aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description">
+      aria-describedby="modal-modal-description"
+    >
       <div
         className="max-w-[1200px] bg-white mx-auto mt-25 "
-        style={{ width: '90vw' }}>
+        style={{ width: "90vw" }}
+      >
         <div>
           <input
             type="text"
@@ -148,7 +142,7 @@ const UpdateSponsored = (props) => {
             value={title}
             placeholder="New sponsored content title here...."
             onChange={(e) => {
-              setTitle(e.target.value)
+              setTitle(e.target.value);
             }}
           />
         </div>
@@ -189,15 +183,13 @@ const UpdateSponsored = (props) => {
             value={days}
             onChange={(e) => setDays(e.target.value)}
           />
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={['DatePicker']}>
-              <DatePicker
-                label="Publishing Date"
-                value={pubDate}
-                onChange={(newValue) => setPubDate(newValue)}
-              />
-            </DemoContainer>
-          </LocalizationProvider>
+          <DemoContainer components={["DatePicker"]}>
+            <DatePicker
+              label="Publishing Date"
+              value={pubDate}
+              onChange={(newValue) => setPubDate(newValue)}
+            />
+          </DemoContainer>
         </div>
         <div className="flex flex-row">
           <Button
@@ -205,7 +197,8 @@ const UpdateSponsored = (props) => {
             variant="contained"
             color="secondary"
             className="w-1/4  h-15"
-            onClick={handleUpdate}>
+            onClick={handleUpdate}
+          >
             Update
           </Button>
           <Button
@@ -214,21 +207,22 @@ const UpdateSponsored = (props) => {
             color="secondary"
             className="w-1/4  h-15"
             onClick={() => {
-              props.updateBaseStore({ sponsoredUpdateModal: false })
-            }}>
+              props.updateBaseStore({ sponsoredUpdateModal: false });
+            }}
+          >
             Cancel
           </Button>
         </div>
       </div>
     </Modal>
-  )
-}
+  );
+};
 
 const mapStateToProps = (state) => ({
   user: state.user,
   sponsoredUpdateModal: state.base.sponsoredUpdateModal,
   sponsored: state.post.sponsored,
-})
+});
 export default connect(mapStateToProps, { updateBaseStore, updatePostStore })(
   UpdateSponsored
-)
+);

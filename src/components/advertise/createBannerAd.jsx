@@ -1,41 +1,39 @@
+
+import { useEffect, useState } from 'react'
 import { InputAdornment, MenuItem, TextField, } from '@mui/material'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
 import ReactCountryFlagsSelect from 'react-country-flags-select'
 import { FaCloudUploadAlt } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
 import { currencies } from '../../consts'
-import '../../pages/advertise/advertise.css'
 import { isValidEmail } from '../../utils'
 import { createOrUpdateBannerAd } from '../../store/actions/advertiseAction'
 import { AiOutlineCloseCircle } from 'react-icons/ai';
+import dayjs from 'dayjs'
+import '../../pages/advertise/advertise.css'
 
 const CreateBannerAdvertise = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [stateAdvertise, setStateAdvertise] = useState({
     imageFile: '',
-    selectedCountry: { countryCode: 'AU', label: 'Australia' },
+    country: { countryCode: 'AU', label: 'Australia' },
     productLink: '',
     email: '',
-    title: '',
+    title: '',  
     currency: 'USD',
     name: '',
     businessName: '',
     budget: 1,
     pubDate: dayjs(),
-    days: 1,
+    days: 7,
   })
 
   const [errors, setErrors] = useState({});
-
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
   const user = useSelector(state => state.user)
-
   const updateAdvertiseState = (key, value) => {
     setStateAdvertise(prev => ({
       ...prev,
@@ -74,7 +72,7 @@ const CreateBannerAdvertise = () => {
   })
 
   useEffect(() => {
-    updateAdvertiseState('selectedCountry', { label: 'Australia', countryCode: 'AU' })
+    updateAdvertiseState('country', { label: 'Australia', countryCode: 'AU' })
   }, [])
 
   const handleAdvertise = async () => {
@@ -84,7 +82,6 @@ const CreateBannerAdvertise = () => {
       d.setMinutes(0)
       d.setSeconds(0)
     }
-
     let newErrors = {};
     if (!stateAdvertise.name) {
       newErrors.name = 'Please enter your name.';
@@ -94,8 +91,8 @@ const CreateBannerAdvertise = () => {
     } else if (!isValidEmail(stateAdvertise.email)) {
       newErrors.email = 'Please enter the email address correctly.';
     }
-    if (!stateAdvertise.selectedCountry) {
-      newErrors.selectedCountry = 'Please select country.';
+    if (!stateAdvertise.country) {
+      newErrors.country = 'Please select country.';
     }
     if (!stateAdvertise.productLink) {
       newErrors.productLink = 'Please enter the Link path.';
@@ -114,21 +111,25 @@ const CreateBannerAdvertise = () => {
     if (!stateAdvertise.pubDate) {
       newErrors.pubDate = 'Please select a publish date.';
     }
-
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       return;
     }
-
-    await dispatch(createOrUpdateBannerAd({
+    dispatch(createOrUpdateBannerAd({
       stateAdvertise: {
         ...stateAdvertise,
         pubDate: d,
         ownerId: user.id,
-        countryCode: stateAdvertise.selectedCountry.countryCode,
       },
-      navigate,
-    }))
+    })).then((res) => {
+      if (res) {
+        console.log('res',res);
+        navigate(`/publish/payment?id=${res}&type=ads`); // Updated path
+      }
+    }).catch((err) => {
+      console.error('Error creating/updating ad:', err);
+    });
+    
   }
 
   return (
@@ -223,23 +224,18 @@ const CreateBannerAdvertise = () => {
                   box-shadow: none !important;
                   width: 100% !important;
                 }
-
                 .ReactSelectFlags-module_control__aWqic {
                   width: 100% !important;
                 }
-
                 .ReactSelectFlags-module_container__Xxx {
                   width: 100% !important;
                 }
-
                 .ReactSelectFlags-module_valueContainer__abc {
                   width: 100% !important;
                 }
-
                 .ReactSelectFlags-module_searchSelect__O6Fp2:focus-within {
                   border: 2px solid #1976d2 !important;
                 }
-
                 .country-select-wrapper:focus-within .country-label {
                   color: #1976d2 !important;
                 }
@@ -249,19 +245,19 @@ const CreateBannerAdvertise = () => {
               selectHeight={40}
               fullWidth
               className="w-full custom-country-select custom-scrollbar"
-              selected={stateAdvertise.selectedCountry?.countryCode ? stateAdvertise.selectedCountry : null}
+              selected={stateAdvertise.country?.countryCode ? stateAdvertise.country : null}
               onSelect={(country) => {
-                if (!country || country.countryCode === stateAdvertise.selectedCountry?.countryCode) return;
+                if (!country || country.countryCode === stateAdvertise.country?.countryCode) return;
                 setStateAdvertise(prev => ({
                   ...prev,
-                  selectedCountry: {
+                  country: {
                     countryCode: country?.countryCode,
                     label: country?.label,
                   },
                 }));
                 setErrors(prev => ({
                   ...prev,
-                  selectedCountry: undefined
+                  country: undefined
                 }));
               }}
               searchable
@@ -277,8 +273,8 @@ const CreateBannerAdvertise = () => {
                 container: 'custom-country-container'
               }}
             />
-            {errors.selectedCountry && (
-              <div className="text-red-500 text-xs mt-1">{errors.selectedCountry}</div>
+            {errors.country && (
+              <div className="text-red-500 text-xs mt-1">{errors.country}</div>
             )}
             <div className="absolute text-gray-500 top-[-11px] left-[13px] px-2 pointer-events-none select-none z-10 bg-[#ffffff] text-[13px] country-label">
               Country
@@ -416,8 +412,8 @@ const CreateBannerAdvertise = () => {
               <div className="text-center text-4">Upload Image</div>
             </div>
           ) : (
-            <div className="relative w-full h-full flex justify-center items-center">
-              <img className="py-4" src={stateAdvertise.imageFile} alt="Preview" />
+            <div className="relative w-full h-[280px] flex justify-center items-center">
+              <img className="py-1 w-auto h-full" src={stateAdvertise.imageFile} alt="Preview" />
               <AiOutlineCloseCircle
                 className="absolute top-2 right-2 text-[#666666] cursor-pointer bg-white rounded-full shadow"
                 size={26}
@@ -550,9 +546,8 @@ const CreateBannerAdvertise = () => {
                       },
                   },
                 },
-                field: { clearable: true }, // <-- Make clearable
+                field: { clearable: true },
               }}
-              // For older MUI, use clearable prop directly: clearable
               onClose={(reason) => {
                 if (reason === 'clear') updateAdvertiseState('pubDate', null);
               }}

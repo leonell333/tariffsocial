@@ -33,7 +33,7 @@ const Colleagues = () => {
 
   return (
     <div className='w-full'>
-      <Card className="shadow-none flex flex-col items-center justify-center gap-2.5 border border-[#EBEBEB] rounded-xl bg-white p-3 mb-3">
+      <Card className="shadow-none flex flex-col items-center justify-center gap-2.5 border border-[#EBEBEB] rounded-xl bg-white p-3 mb-2">
         <CardContent className="p-0 w-full">
           <div className="text-[#181818] text-[18px] mx-auto w-fit" style={{ fontFamily: 'poppins', fontWeight: 700 }}>
             Colleagues and affiliates
@@ -42,7 +42,7 @@ const Colleagues = () => {
             {newColleagues.map((colleague, index) => (
               <div key={colleague.id} className="relative w-full">
                 <div
-                  className="flex items-center gap-2 py-1 w-full cursor-pointer text-6 colleagues-item"
+                  className="flex items-center gap-2 py-1 w-full cursor-pointer text-3 colleagues-item"
                   onClick={() => handleAvatarClick(colleague)}
                 >
                   <Avatar src={colleague.photoUrl} sx={{ width: 49, height:49 }} />
@@ -56,14 +56,6 @@ const Colleagues = () => {
                   </div>
                 </div>
                 <Separator className="w-[275px] my-1 bg-[#E9E5DF] colleagues-separator" />
-                {/* <div className="flex flex-col mt-2">
-                  {colleague.followers && colleague.followers.map((follower, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Avatar src={follower.photoUrl} sx={{ width: 25, height: 25 }} />
-                      <span className="text-sm text-[#787878]">{follower.username}</span>
-                    </div>
-                  ))}
-                </div> */}
               </div>
             ))}
           </section>

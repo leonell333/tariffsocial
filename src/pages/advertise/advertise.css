@@ -1,88 +1,88 @@
 .table-cell-ellipsis {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    display: block !important;
-    max-width: 100% !important;
-    padding: 1px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+  max-width: 100% !important;
+  padding: 1px !important;
 }
 
 .table-cell-break {
-    overflow: hidden !important;
-    word-break: break-word !important;
-    white-space: normal !important;
-    display: block !important;
-    max-width: 100% !important;
-    padding: 1px !important;
+  overflow: hidden !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+  display: block !important;
+  max-width: 100% !important;
+  padding: 1px !important;
 }
 
 .table-cell-none-ellipsis {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    display: block !important;
-    max-width: 100% !important;
-    padding: 1px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  display: block !important;
+  max-width: 100% !important;
+  padding: 1px !important;
 }
 
 .table-cell-ellipsis::after {
-    content: '' !important;
-    display: inline-block !important;
-    width: 4px !important;
-    height: 4px !important;
-    background-color: currentColor !important;
-    border-radius: 50% !important;
-    margin-left: 4px !important;
-    vertical-align: middle !important;
-    visibility: hidden !important;
+  content: '' !important;
+  display: inline-block !important;
+  width: 4px !important;
+  height: 4px !important;
+  background-color: currentColor !important;
+  border-radius: 50% !important;
+  margin-left: 4px !important;
+  vertical-align: middle !important;
+  visibility: hidden !important;
 }
 
 .table-cell-ellipsis[data-truncated="true"]::after {
-    visibility: visible !important;
+  visibility: visible !important;
 }
 
 .tooltip-wrapper {
-    position: relative !important;
+  position: relative !important;
 }
 
 .tooltip-content {
-    display: none !important;
-    position: absolute !important;
-    background: #fff !important;
-    border: 1px solid #ccc !important;
-    padding: 6px 10px !important;
-    white-space: normal !important;
-    z-index: 999 !important;
-    width: max-content !important;
-    max-width: 300px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  display: none !important;
+  position: absolute !important;
+  background: #fff !important;
+  border: 1px solid #ccc !important;
+  padding: 6px 10px !important;
+  white-space: normal !important;
+  z-index: 999 !important;
+  width: max-content !important;
+  max-width: 300px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .tooltip-wrapper:hover .tooltip-content {
-    display: block !important;
+  display: block !important;
 }
 
 .responsive-table-wrapper {
-    
-    width: 100% !important;
+  width: 100% !important;
+  border: none;
 }
 
 @media (max-width: 1250px) {
-    .responsive-table-wrapper {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-    }
+  .responsive-table-wrapper {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+  }
 
-    .responsive-table-wrapper > .MuiPaper-root {
-        min-width: 1200px !important;
-    }
+  .responsive-table-wrapper > .MuiPaper-root {
+      min-width: 1200px !important;
+  }
 }
 
 .responsive-table-wrapper::-webkit-scrollbar {
-    height: 6px !important;
+  height: 6px !important;
 }
 
 .responsive-table-wrapper::-webkit-scrollbar-thumb {
-    background: #ccc !important;
-    border-radius: 4px !important;
+  background: #ccc !important;
+  border-radius: 4px !important;
 }
 

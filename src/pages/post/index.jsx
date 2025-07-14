@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+
+import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { useLocation } from 'react-router-dom'
 import { updateBaseStore } from '../../store/actions/baseActions'
 import { getPosts, getSponsored, getBannerAds, getHashTags, getPostAndSponsored, listenForNewPosts, updatePostStore, searchPostsByKeywords } from '../../store/actions/postActions'
 import CreatePost from '../../components/post/create'
@@ -12,14 +12,9 @@ import PostSortBar from './postSortBar'
 const SPONSORED_INSERT_INTERVAL = 4
 
 const Posts = () => {
-  const { pathname } = useLocation()
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
-  const { keyword, hashtags, posts, sponsored, bannerAds, lastPostVisible, lastSponsoredVisible, searchPosts, isSearchMode, lastSearchPostVisible } = useSelector((state) => state.post);
-  // console.log('sponsored',sponsored);
-  // console.log('bannerAds',bannerAds);
-  // console.log('posts', posts);
-  
+  const { keyword, hashtags, posts, sponsored, bannerAds, lastPostVisible, lastSponsoredVisible, searchPosts, isSearchMode, } = useSelector((state) => state.post);
   const postRef = useRef(null)
   const lastScrollY = useRef(0);
   const [showCreatePost, setShowCreatePost] = useState(false)
@@ -44,6 +39,8 @@ const Posts = () => {
     })
     initData()
   }, [])
+
+  // console.log('bannerAds',bannerAds);
 
   useEffect(() => {
     const updateLayout = () => {
@@ -91,7 +88,6 @@ const Posts = () => {
           });
         }
       }
-
       lastScrollY.current = scrollTop;
     };
 
@@ -121,7 +117,6 @@ const Posts = () => {
   const initData = async () => {
     try {
       const promises = [];
-      // Always fetch hashtags on project start
       promises.push(dispatch(getHashTags()));
       if (posts.length === 0 && !lastPostVisible && !isSearchMode) {
         promises.push(dispatch(getPosts()));

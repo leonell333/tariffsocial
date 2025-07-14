@@ -45,5 +45,3 @@ Want to leave? No problem. You can delete your account from your settings. Your 
 Contact us at: privacy@tariffsocial.com
 
 Remember: Tariff Social is designed to be clean, satire-friendly, and respectful. Your privacy matters here.
-
-

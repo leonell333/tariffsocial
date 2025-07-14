@@ -18,7 +18,6 @@ const MainLayout = () => {
         <div className="w-full max-w-[1320px] relative">
           <div className="bg-white flex justify-center w-full">
             <div className="bg-white w-full relative px-4 flex">
-              {/* Main Content Layout */}
               <div className="flex flex-col lg:flex-row gap-6 w-full mt-4">
                 <div className="w-full lg:w-[200px]">
                   <LeftSide/>

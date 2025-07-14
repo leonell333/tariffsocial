@@ -11,7 +11,7 @@ import { getDms, getPendingDms, initialChatStore, updateChatStore, getMessageHis
   handleDmBlock, handleDmUnblock, handleDmIgnore, handleDeleteDM, getUnreadMessagesCountPerUser, markMessagesAsRead } from '../../store/actions/chatAction';
 import { readTime } from '../../utils'
 import { db } from '../../firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { getDoc, doc, collection, query, where, onSnapshot } from 'firebase/firestore';
 
 const Chat = () => {
   const navigate = useNavigate()
@@ -82,7 +82,6 @@ const Chat = () => {
           id => !allExistingIds.has(id)
         );
         if (newSenderIds.length > 0) {
-          const { getDoc, doc } = await import('firebase/firestore');
           const userDocs = await Promise.all(newSenderIds.map(id => getDoc(doc(db, 'users', id))));
           const newDms = userDocs.map((snap, idx) => {
             const data = snap.exists() ? snap.data() : {};

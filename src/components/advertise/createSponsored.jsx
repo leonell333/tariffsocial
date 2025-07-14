@@ -1,187 +1,203 @@
-import {
-  InputAdornment,
-  MenuItem,
-  TextField,
-} from '@mui/material'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import dayjs from 'dayjs'
-import { useEffect, useRef, useState } from 'react'
-import ReactCountryFlagsSelect from 'react-country-flags-select'
-import { useSelector, useDispatch } from 'react-redux'
-import {
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom'
-import { toast } from 'react-toastify'
-import '../../pages/advertise/advertise.css'
-import countries from '../../consts/country'
-import { currencies } from '../../consts'
-import WebcamCapture from '../post/webcamCapture'
 
-import { extractKeywords, isValidEmail } from '../../utils'
-import { createOrUpdateSponsoredAd, fetchSponsoredAdById } from '../../store/actions/advertiseAction'
-import { updateBaseStore } from '../../store/actions/baseActions'
+
+import { useEffect, useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { InputAdornment, MenuItem, TextField } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
+import ReactCountryFlagsSelect from "react-country-flags-select";
+import "../../pages/advertise/advertise.css";
+import countries from "../../consts/country";
+import { currencies } from "../../consts";
+import { isValidEmail } from "../../utils";
+import { createOrUpdateSponsoredAd, getSponsoredAdById, } from "../../store/actions/advertiseAction";
 
 const CreateSponsored = () => {
-  const [searchParams] = useSearchParams()
-  const editId = searchParams.get('edit')
-  const [rte, setRte] = useState(undefined)
-  const [imageFile, setImageFile] = useState('')
-  const [title, setTitle] = useState('')
-  const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [budget, setBudget] = useState(1)
-  const [pubDate, setPubDate] = useState(dayjs())
-  const [days, setDays] = useState(1)
-  const [currency, setCurrency] = useState('USD')
-  const [selectedCountry, setSelectedCountry] = useState(() => ({label: 'Australia', countryCode: 'AU'}))
-  
-  const [businessName, setBusinessName] = useState('')
-  const [author, setAuthor] = useState('')
-  const [link, setLink] = useState('')
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const user = useSelector(state => state.user)
-  var refdiv = useRef(null)
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get("edit");
+  const [rte, setRte] = useState(undefined);
+  const [stateSponsored, setStateSponsored] = useState({
+    imageFile: "",
+    title: "",
+    email: "",
+    name: "",
+    phone: "",
+    budget: 1,
+    pubDate: dayjs(),
+    days: 7,
+    currency: "USD",
+    country: { label: "Australia", countryCode: "AU" },
+    businessName: "",
+    author: "",
+    link: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  var refdiv = useRef(null);
+
+  const updateSponsoredState = (key, value) => {
+    setStateSponsored(prev => ({
+      ...prev,
+      [key]: value
+    }));
+    setErrors(prev => ({
+      ...prev,
+      [key]: undefined
+    }));
+  };
+
   const handleSelectImage = (event) => {
-    var file = event.target.files[0]
-    const reader = new FileReader()
-    var url = reader.readAsDataURL(file)
+    var file = event.target.files[0];
+    const reader = new FileReader();
+    var url = reader.readAsDataURL(file);
     reader.onloadend = function (e) {
-      setImageFile(reader.result)
-    }.bind(this)
-  }
+      updateSponsoredState('imageFile', reader.result);
+    }.bind(this);
+  };
 
   let currencyList = currencies.map((c) => {
-    const formatter = new Intl.NumberFormat('en', {
-      style: 'currency',
+    const formatter = new Intl.NumberFormat("en", {
+      style: "currency",
       currency: c,
-      currencyDisplay: 'symbol',
-    })
-    const parts = formatter.formatToParts(1)
-    const symbol = parts.find((p) => p.type === 'currency')?.value || c
-    return { code: c, symbol }
-  })
+      currencyDisplay: "symbol",
+    });
+    const parts = formatter.formatToParts(1);
+    const symbol = parts.find((p) => p.type === "currency")?.value || c;
+    return { code: c, symbol };
+  });
 
   useEffect(() => {
-    setSelectedCountry({ label: 'Australia', countryCode: 'AU' })
-  }, [])
+    updateSponsoredState('country', { label: "Australia", countryCode: "AU" });
+  }, []);
 
   useEffect(() => {
-    if (!editId) return
+    if (!editId) return;
 
     const getSponsoredAdData = async () => {
-      const data = await dispatch(fetchSponsoredAdById(editId))
+      const data = await dispatch(getSponsoredAdById(editId));
       if (data) {
-        if (data.state === 'Approved' || data.ownerId !== user.id) {
-          navigate('/')
-          return
+        if (data.state === "Approved" || data.ownerId !== user.id) {
+          navigate("/");
+          return;
         }
-        setName(data.name || '')
-        setEmail(data.email || '')
-        setTitle(data.title || '')
-        setPhone(data.phone || '')
-        setCurrency(data.currency || 'USD')
-        setBudget(data.budget || 1)
-        setDays(data.days || 1)
-        setBusinessName(data.businessName || '')
-        setAuthor(data.author || '')
-        setLink(data.link || '')
-        const match = countries.find((c) => c.value === data.countryCode)
-        if (match)
-          setSelectedCountry({ label: match.title, countryCode: match.value })
-        setPubDate(dayjs(data.pubDate?.toDate ? data.pubDate.toDate() : data.pubDate))
+        
+        setStateSponsored({
+          imageFile: "",
+          title: data.title || "",
+          email: data.email || "",
+          name: data.name || "",
+          phone: data.phone || "",
+          budget: data.budget || 1,
+          days: data.days || 1,
+          currency: data.currency || "USD",
+          country: (() => {
+            const match = countries.find((c) => c.value === data.countryCode);
+            return match ? { label: match.title, countryCode: match.value } : { label: "Australia", countryCode: "AU" };
+          })(),
+          businessName: data.businessName || "",
+          author: data.author || "",
+          link: data.link || "",
+          pubDate: dayjs(data.pubDate?.toDate ? data.pubDate.toDate() : data.pubDate),
+        });
 
         setTimeout(() => {
-          let editor = new window.RichTextEditor(refdiv.current)
-          editor.setHTMLCode(data.content || '')
-          setRte(editor)
-        }, 10)
+          let editor = new window.RichTextEditor(refdiv.current);
+          editor.setHTMLCode(data.content || "");
+          setRte(editor);
+        }, 10);
       }
-    }
+    };
 
-    getSponsoredAdData()
-  }, [editId])
+    getSponsoredAdData();
+  }, [editId]);
 
   useEffect(() => {
     setTimeout(function () {
-      let rte1 = new window.RichTextEditor(refdiv.current)
-      rte1.setHTMLCode('')
-      setRte(rte1)
-    }, 10)
-  }, [])
+      let rte1 = new window.RichTextEditor(refdiv.current);
+      rte1.setHTMLCode("");
+      setRte(rte1);
+    }, 10);
+  }, []);
 
-  const handleSubmit = async () => {
-    let content = rte.getHTMLCode()
-    let contentText = rte.getText()
-    let document = rte.getDocument()
-    
-    let dateObj = pubDate.toDate()
-    dateObj.setHours(0)
-    dateObj.setMinutes(0)
-    dateObj.setSeconds(0)
+  const handleSponsored = async () => {
+    let content = rte.getHTMLCode();
+    let document = rte.getDocument();
 
-    if (!name) {
-      toast.error('Please enter the name.')
-      return
-    }
-    if (!title) {
-      toast.error('Please enter the title.')
-      return
-    }
-    if (!email) {
-      toast.error('Please enter the email.')
-      return
-    }
-    if (!isValidEmail(email)) {
-      toast.error('Please enter the email address correctly.')
-      return
-    }
-    if (isNaN(Number(budget))) {
-      toast.error('Please enter a number value for the budget.')
-      return
-    }
-    if (isNaN(Number(days))) {
-      toast.error('Please enter a number value for the number of days')
-      return
-    }
-    if (Number(days) < 7) {
-      toast.error('The number of days should be a little over 7 days.')
-      return
+    let d = stateSponsored.pubDate ? stateSponsored.pubDate.toDate() : null;
+    if (d) {
+      d.setHours(0);
+      d.setMinutes(0);
+      d.setSeconds(0);
     }
 
-    await dispatch(createOrUpdateSponsoredAd({
-      editId,
-      name,
-      title,
-      businessName,
-      countryCode: selectedCountry.countryCode,
-      author,
-      link,
-      content,
-      contentText,
-      email,
-      phone,
-      budget,
-      days,
-      pubDate: dateObj,
-      currency,
-      ownerId: user.id,
-      navigate,
-      setLoading: (val) => {
-        setLoading(val)
-        dispatch(updateBaseStore({ loading: val }))
+    let newErrors = {};
+    if (!stateSponsored.name) {
+      newErrors.name = 'Please enter your name.';
+    }
+    if (!stateSponsored.title) {
+      newErrors.title = 'Please enter the title.';
+    }
+    if (!stateSponsored.email) {
+      newErrors.email = 'Please enter the email.';
+    } else if (!isValidEmail(stateSponsored.email)) {
+      newErrors.email = 'Please enter the email address correctly.';
+    }
+    if (!stateSponsored.country) {
+      newErrors.country = 'Please select country.';
+    }
+    if (isNaN(Number(stateSponsored.budget))) {
+      newErrors.budget = 'Please enter a number value for the budget.';
+    }
+    if (isNaN(Number(stateSponsored.days))) {
+      newErrors.days = 'Please enter a number value for the number of days';
+    } else if (Number(stateSponsored.days) < 7) {
+      newErrors.days = 'The number of days should be a little over 7 days.';
+    }
+    if (!stateSponsored.pubDate) {
+      newErrors.pubDate = 'Please select a publish date.';
+    }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
+    dispatch(createOrUpdateSponsoredAd({
+      stateSponsored: {
+        ...stateSponsored,
+        content,
+        pubDate: d,
+        ownerId: user.id,
       },
+      editId,
       document,
-    }))
-  }
+    })).then((res) => {
+      if (res) {
+        console.log('res', res);
+        if (!editId) {
+          navigate(`/payment?id=${res}&type=sponsored`);
+        }
+      }
+    }).catch((err) => {
+      console.error('Error creating/updating sponsored ad:', err);
+    });
+  };
 
   return (
-    <div className="w-full border border-[#EBEBEB] rounded-xl bg-white">
-      <div className="text-[26px] text-center py-3 font-extrabold font-[SF_Pro_Text] text-black">
+    <div className="w-full min-h-[calc(100vh-170px)] border border-[#EBEBEB] rounded-xl bg-white">
+      <style>
+        {`
+          rte-floatpanel.rte-floatpanel-paragraphop {
+            display: none !important;
+          }
+        `}
+      </style>
+      <div className="text-[26px] text-center py-3 text-black font-bold">
         Sponsored Content
       </div>
       <div className="flex flex-col lg:flex-row gap-2 w-full">
@@ -190,25 +206,25 @@ const CreateSponsored = () => {
             <TextField
               variant="outlined"
               label="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={stateSponsored.name}
+              onChange={(e) => updateSponsoredState('name', e.target.value)}
               className="w-full"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -217,6 +233,8 @@ const CreateSponsored = () => {
                   shrink: true,
                 },
               }}
+              error={!!errors.name}
+              helperText={errors.name}
             />
           </div>
         </div>
@@ -224,26 +242,26 @@ const CreateSponsored = () => {
           <div>
             <TextField
               variant="outlined"
-              value={email}
+              value={stateSponsored.email}
               label="Email"
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => updateSponsoredState('email', e.target.value)}
               className="w-full"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -252,40 +270,74 @@ const CreateSponsored = () => {
                   shrink: true,
                 },
               }}
+              error={!!errors.email}
+              helperText={errors.email}
             />
           </div>
         </div>
         <div className="basis-1/3 pl-5 pr-5">
-          <div className="relative country-select-wrapper">
-            <div>
-              <style>
-                {` .ReactSelectFlags-module_searchSelect__O6Fp2 {
-                        border: 1px solid gray !important;
-                        border-radius: 4px !important;
-                        outline: none !important;
-                        box-shadow: none !important;
-                      }
-
-                      /* On focus/click */
-                      .ReactSelectFlags-module_searchSelect__O6Fp2:focus-within {
-                        border: 2px solid #1976d2 !important;
-                      }
-                      .country-select-wrapper:focus-within .country-label {
-                        color: #1976d2 !important;
-                      }
-                    `}
-              </style>
-              <ReactCountryFlagsSelect
-                selectHeight={40}
-                classes={{ width: '100%', borderRadius: 20 }}
-                className="custom-country-select"
-                defaultValue="AU"
-                selected={selectedCountry}
-                onSelect={setSelectedCountry}
-                fullWidth
-                searchable
-              />
-            </div>
+          <div className="relative">
+            <style>
+              {`
+                .ReactSelectFlags-module_searchSelect__O6Fp2 {
+                  border: 1px solid gray !important;
+                  border-radius: 4px !important;
+                  outline: none !important;
+                  box-shadow: none !important;
+                  width: 100% !important;
+                }
+                .ReactSelectFlags-module_control__aWqic {
+                  width: 100% !important;
+                }
+                .ReactSelectFlags-module_container__Xxx {
+                  width: 100% !important;
+                }
+                .ReactSelectFlags-module_valueContainer__abc {
+                  width: 100% !important;
+                }
+                .ReactSelectFlags-module_searchSelect__O6Fp2:focus-within {
+                  border: 2px solid #1976d2 !important;
+                }
+                .country-select-wrapper:focus-within .country-label {
+                  color: #1976d2 !important;
+                }
+              `}
+            </style>
+            <ReactCountryFlagsSelect
+              selectHeight={40}
+              fullWidth
+              className="w-full custom-country-select custom-scrollbar"
+              selected={stateSponsored.country?.countryCode ? stateSponsored.country : null}
+              onSelect={(country) => {
+                if (!country || country.countryCode === stateSponsored.country?.countryCode) return;
+                setStateSponsored(prev => ({
+                  ...prev,
+                  country: {
+                    countryCode: country?.countryCode,
+                    label: country?.label,
+                  },
+                }));
+                setErrors(prev => ({
+                  ...prev,
+                  country: undefined
+                }));
+              }}
+              searchable
+              optionsListMaxHeight={250}
+              classes={{
+                menu: 'custom-country-menu',
+                option: 'custom-country-option',
+                optionLabel: 'custom-country-option-label',
+                flag: 'custom-country-flag',
+                selected: 'custom-country-selected',
+                input: 'custom-country-input',
+                list: 'custom-country-list',
+                container: 'custom-country-container'
+              }}
+            />
+            {errors.country && (
+              <div className="text-red-500 text-xs mt-1">{errors.country}</div>
+            )}
             <div className="absolute text-gray-500 top-[-11px] left-[13px] px-2 pointer-events-none select-none z-10 bg-[#ffffff] text-[13px] country-label">
               Country
             </div>
@@ -298,25 +350,25 @@ const CreateSponsored = () => {
             <TextField
               variant="outlined"
               label="Business Name"
-              value={businessName}
-              onChange={(e) => setBusinessName(e.target.value)}
+              value={stateSponsored.businessName}
+              onChange={(e) => updateSponsoredState('businessName', e.target.value)}
               className="w-full"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -333,25 +385,25 @@ const CreateSponsored = () => {
             <TextField
               variant="outlined"
               label="Author"
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
+              value={stateSponsored.author}
+              onChange={(e) => updateSponsoredState('author', e.target.value)}
               className="w-full"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -367,26 +419,26 @@ const CreateSponsored = () => {
           <div>
             <TextField
               variant="outlined"
-              value={link}
+              value={stateSponsored.link}
               label="Link to site"
-              onChange={(e) => setLink(e.target.value)}
+              onChange={(e) => updateSponsoredState('link', e.target.value)}
               className="w-full link-to-site"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -403,16 +455,17 @@ const CreateSponsored = () => {
         <div>
           <input
             type="text"
-            className="w-full placeholder:text-[20px] border border-[#c4c4c4] rounded-[8px] border-r h-15 my-3 py-3 px-6 hover:border-[#808080] focus:border-2 focus:border-[#1976d2] focus:outline-none"
-            value={title}
-            placeholder="New sponsored content title here...."
-            onChange={(e) => {
-              setTitle(e.target.value)
-            }}
+            className="w-full placeholder:text-[20px] border border-[#c4c4c4] rounded-[8px] border-r h-13 mt-3 py-2 px-6 hover:border-[#808080] focus:border-2 focus:border-[#1976d2] focus:outline-none"
+            value={stateSponsored.title}
+            placeholder="sponsored title"
+            onChange={(e) => updateSponsoredState('title', e.target.value)}
           />
+          {errors.title && (
+            <div className="text-red-500 text-xs mt-1">{errors.title}</div>
+          )}
         </div>
       </div>
-      <div className="w-full px-5">
+      <div className="w-full px-5 mt-3">
         <div className="w-full h-80" ref={refdiv} id="sponsored_editor"></div>
       </div>
       <div className="flex px-5 mt-8 gap-4">
@@ -421,8 +474,8 @@ const CreateSponsored = () => {
             variant="outlined"
             label="Phone Number"
             fullWidth
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            value={stateSponsored.phone}
+            onChange={(e) => updateSponsoredState('phone', e.target.value)}
             size="small"
             slotProps={{
               inputLabel: {
@@ -436,21 +489,21 @@ const CreateSponsored = () => {
           <TextField
             variant="outlined"
             disabled={editId}
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
+            value={stateSponsored.budget}
+            onChange={(e) => updateSponsoredState('budget', e.target.value)}
             fullWidth
             size="small"
             label="Budget"
             sx={{
-              '& .MuiOutlinedInput-root': {
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'gray',
+              "& .MuiOutlinedInput-root": {
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "gray",
                 },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'gray',
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "gray",
                 },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#1976d2',
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#1976d2",
                 },
               },
             }}
@@ -466,13 +519,13 @@ const CreateSponsored = () => {
                       fullWidth
                       select
                       size="small"
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
+                      value={stateSponsored.currency}
+                      onChange={(e) => updateSponsoredState('currency', e.target.value)}
                       variant="outlined"
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '& fieldset': { border: 'none' },
-                          backgroundColor: 'transparent',
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": { border: "none" },
+                          backgroundColor: "transparent",
                         },
                       }}
                     >
@@ -489,53 +542,56 @@ const CreateSponsored = () => {
                 ),
               },
             }}
+            error={!!errors.budget}
+            helperText={errors.budget}
           />
         </div>
 
         <div className="basis-1/4">
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Publish Date"
-              disabled={editId}
-              value={pubDate}
-              onChange={(newValue) => setPubDate(newValue)}
-              slotProps={{
-                textField: {
-                  size: 'small',
-                  fullWidth: true,
-                  InputLabelProps: {
-                    shrink: true,
+          <DatePicker
+            label="Publish Date"
+            disabled={editId}
+            value={stateSponsored.pubDate}
+            onChange={(newValue) => updateSponsoredState('pubDate', newValue)}
+            slotProps={{
+              textField: {
+                size: "small",
+                fullWidth: true,
+                InputLabelProps: {
+                  shrink: true,
+                },
+                sx: {
+                  "& .MuiOutlinedInput-root": {
+                    fontSize: "14px",
+                    borderRadius: "4px",
                   },
-                  sx: {
-                    '& .MuiOutlinedInput-root': {
-                      fontSize: '14px',
-                      borderRadius: '4px',
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
+                  },
+                  "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                    {
+                      borderColor: "gray",
                     },
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'gray',
+                  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                    {
+                      borderColor: "#1976d2",
                     },
-                    '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline':
-                      {
-                        borderColor: 'gray',
-                      },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
-                      {
-                        borderColor: '#1976d2',
-                      },
-                    '& .MuiInputLabel-root': {
-                      backgroundColor: '#ffffff',
-                      padding: '0 4px',
-                      transform: 'translate(14px, -9px) scale(0.75)',
-                      color: 'gray',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#1976d2',
-                    },
+                  "& .MuiInputLabel-root": {
+                    backgroundColor: "#ffffff",
+                    padding: "0 4px",
+                    transform: "translate(14px, -9px) scale(0.75)",
+                    color: "gray",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#1976d2",
                   },
                 },
-              }}
-            />
-          </LocalizationProvider>
+              },
+            }}
+          />
+          {errors.pubDate && (
+            <div className="text-red-500 text-xs mt-1">{errors.pubDate}</div>
+          )}
         </div>
 
         <div className="basis-1/4">
@@ -543,20 +599,20 @@ const CreateSponsored = () => {
             variant="outlined"
             label="Number of days"
             disabled={editId}
-            value={days}
-            onChange={(e) => setDays(e.target.value)}
+            value={stateSponsored.days}
+            onChange={(e) => updateSponsoredState('days', e.target.value)}
             fullWidth
             size="small"
             sx={{
-              '& .MuiOutlinedInput-root': {
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'gray',
+              "& .MuiOutlinedInput-root": {
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "gray",
                 },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'gray',
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "gray",
                 },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#1976d2',
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#1976d2",
                 },
               },
             }}
@@ -565,6 +621,8 @@ const CreateSponsored = () => {
                 shrink: true,
               },
             }}
+            error={!!errors.days}
+            helperText={errors.days}
           />
         </div>
       </div>
@@ -573,14 +631,15 @@ const CreateSponsored = () => {
         <div className="w-fit m-auto py-5">
           <button
             type="button"
-            className="bg-[#161722] text-white text-[18px]  font-[SF_Pro_Text] cursor-pointer rounded-md h-12 w-30 mr-5"
-            onClick={handleSubmit}>
-            {editId ? 'Update' : 'Create'}
+            className="bg-[#161722] text-white text-[18px]  rounded-xl cursor-pointer h-10 w-25"
+            onClick={handleSponsored}
+          >
+            {editId ? "Update" : "Create"}
           </button>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CreateSponsored
+export default CreateSponsored;

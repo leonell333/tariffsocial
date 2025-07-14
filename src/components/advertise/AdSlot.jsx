@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../firebase';
 
@@ -8,6 +8,19 @@ const AD_SLOT_ID = "1602364811";
 const AdSlot = () => {
   const [adLoaded, setAdLoaded] = useState(false);
   const [adError, setAdError] = useState(false);
+  const [adRendered, setAdRendered] = useState(false);
+  const adRef = useRef(null);
+
+  const dispatchErrorEvent = () => {
+    const event = new CustomEvent('adsense-network-error', {
+      detail: {
+        timestamp: Date.now(),
+        adSlot: AD_SLOT_ID,
+        adClient: ADSENSE_SLOT
+      }
+    });
+    window.dispatchEvent(event);
+  };
 
   useEffect(() => {
     if (analytics) {
@@ -26,6 +39,7 @@ const AdSlot = () => {
       script.onerror = () => {
         console.warn('AdSense script failed to load');
         setAdError(true);
+        dispatchErrorEvent();
       };
       
       script.onload = () => {
@@ -40,6 +54,7 @@ const AdSlot = () => {
       if (!adLoaded && !adError) {
         console.warn('AdSense loading timeout - ads may not display immediately');
         setAdError(true);
+        dispatchErrorEvent();
       }
     }, 10000);
 
@@ -50,9 +65,30 @@ const AdSlot = () => {
     if (adLoaded && window.adsbygoogle) {
       try {
         window.adsbygoogle.push({});
+        
+        // Check if ad actually rendered after a delay
+        const renderTimeout = setTimeout(() => {
+          if (adRef.current) {
+            const adElement = adRef.current;
+            const hasContent = adElement.children.length > 0 || 
+                              adElement.innerHTML.trim().length > 0 ||
+                              adElement.offsetHeight > 0;
+            
+            if (!hasContent) {
+              console.warn('AdSense ad failed to render content');
+              setAdError(true);
+              dispatchErrorEvent();
+            } else {
+              setAdRendered(true);
+            }
+          }
+        }, 5000); // Wait 5 seconds for ad to render
+
+        return () => clearTimeout(renderTimeout);
       } catch (error) {
         console.warn('Error pushing AdSense ads:', error);
         setAdError(true);
+        dispatchErrorEvent();
       }
     }
   }, [adLoaded]);
@@ -67,9 +103,15 @@ const AdSlot = () => {
     }
   };
 
+  if (adError) {
+    return null;
+  }
+
   return (
-    <div className="w-full flex justify-center mb-2" onClick={handleAdClick}>
-      <ins className="adsbygoogle"
+    <div className="w-full max-h-[220px] flex justify-center mb-2 bg-white rounded-xl" onClick={handleAdClick}>
+      <ins 
+        ref={adRef}
+        className="adsbygoogle"
         style={{ display: 'block', width: '100%' }}
         data-ad-client={ADSENSE_SLOT}
         data-ad-slot={AD_SLOT_ID}

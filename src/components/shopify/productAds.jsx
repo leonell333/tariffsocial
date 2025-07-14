@@ -222,7 +222,7 @@ const ProductAds = () => {
   return (
 
     
-    <div className="bg-[#fff] border border-[#EBEBEB] rounded-xl p-5 shadow-none">
+    <div className="bg-[#fff] border border-[#EBEBEB] rounded-xl p-4 mb-2 shadow-none">
         <div className="flex flex-row items-center product-ads-header">
           <Box>
             <img src={logo} className="h-[48px] object-contain" />
