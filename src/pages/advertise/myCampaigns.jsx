@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useNavigate} from "react-router";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -8,18 +8,22 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { useTheme, useMediaQuery } from "@mui/material";
-import { TextField, Button, Container, Typography, Box } from "@mui/material";
+import {Box, Button, TextField, Typography, useMediaQuery, useTheme} from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import dayjs from "dayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import InputAdornment from "@mui/material/InputAdornment";
 import MenuItem from "@mui/material/MenuItem";
-import { currencies } from "../../consts";
-import { handlePaymentSession, getCampaigns, renewCampaign } from "../../store/actions/advertiseAction";
+import {currencies} from "../../consts";
+import {getCampaigns, handlePaymentSession, renewCampaign} from "../../store/actions/advertiseAction";
 import "./advertise.css";
 
 const stripeBackend = import.meta.env.VITE_BACKEND;
+
+function CheckOut(){
+  return <></>
+}
+
 
 const MyCampaigns = () => {
   const theme = useTheme();
@@ -322,7 +326,7 @@ const MyCampaigns = () => {
                     </TableCell>
                     <TableCell sx={{ width: "5%", p: 1 }}>
                       <Tooltip
-                        title={item.billed ? "Billed" : "UnBilled" || ""}
+                        title={item.billed ? "Billed" : "UnBilled"}
                         arrow
                       >
                         <div className="table-cell-none-ellipsis">

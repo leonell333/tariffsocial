@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useSelector } from 'react-redux';
-import AdAnalytics from '../../components/advertise/AdAnalytics';
+// import AdAnalytics from '../../components/advertise/AdAnalytics';
 import { Card, CardContent, Typography, Box, Grid } from '@mui/material';
 import { Users, TrendingUp, DollarSign, Eye } from 'lucide-react';
 
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
       </Grid>
 
       {/* Ad Analytics */}
-      <AdAnalytics />
+      {/*<AdAnalytics />*/}
     </div>
   );
 };

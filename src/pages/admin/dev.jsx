@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef, StrictMode } from 'react';
-import { Outlet  } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { updateBaseStore } from '../../store/actions/baseActions';
-import { updatePostStore } from '../../store/actions/postActions';
-import { getServerTime } from '../../utils';
+import {connect} from 'react-redux';
+import {updateBaseStore} from '../../store/actions/baseActions';
+import {updatePostStore} from '../../store/actions/postActions';
+import {getServerTime} from '../../utils';
 
 const Dev = (props) => {
   return (<>

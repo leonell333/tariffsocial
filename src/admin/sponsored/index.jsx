@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { connect } from 'react-redux';
-import { auth, db, storage , storageBucket } from "../../firebase"
-import { doc,addDoc, updateDoc, getDoc, collection , where, query, getDocs, getCountFromServer , limit ,orderBy, serverTimestamp } from "firebase/firestore";
-import {getDownloadURL,ref as storageRef,uploadBytes,uploadString} from "firebase/storage";
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import {updateBaseStore } from "../../store/actions/baseActions"
-import { updatePostStore } from "../../store/actions/postActions"
+import {useEffect, useState} from 'react'
+import {connect} from 'react-redux';
+import {db, storage, storageBucket} from "../../firebase"
+import {collection, doc, getDocs, orderBy, query, updateDoc, where} from "firebase/firestore";
+import {ref as storageRef} from "firebase/storage";
+import {useNavigate} from 'react-router';
+import {updateBaseStore} from "../../store/actions/baseActions"
+import {updatePostStore} from "../../store/actions/postActions"
 import UpdateSponsored from '../../components/advertise/updateSponsored';
-import { sendRequest } from '../../utils';
+import {extractKeywords, getFireStoreUrl, sendRequest} from '../../utils';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -16,20 +16,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import SearchIcon from '@mui/icons-material/Search';
-import { Checkbox,FormControlLabel, FormControl,InputLabel,Select,MenuItem,InputAdornment } from '@mui/material';
-import {
-  TextField,
-  Button,
-  Container,
-  Typography,
-  Box,
-} from '@mui/material';
-import { extractKeywords } from '../../utils';
-import { getFireStoreUrl } from '../../utils';
-const stripeBackend = import.meta.env.VITE_BACKEND;
+import {Button, FormControl, InputAdornment, InputLabel, MenuItem, Select, TextField} from '@mui/material';
 
-import CountryFlag from 'react-country-flag';
-import { isValidEmail } from '../../utils';
+const stripeBackend = import.meta.env.VITE_BACKEND;
 
 const AdminSponsored = (props) => {
   const [sponsoreds, setSponsoreds] = useState([]);

@@ -1,10 +1,20 @@
-import { useEffect } from 'react';
 import axios from 'axios'
-import { auth, db, storage, storageBucket } from "../firebase"
-import {query, collection, doc ,getDoc, setDoc, updateDoc, serverTimestamp, arrayUnion, getDocs, where, addDoc, Timestamp } from "firebase/firestore";
-import { ref as storageRef, getDownloadURL } from 'firebase/storage';
-import { format } from 'date-fns';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
+import {db, storage, storageBucket} from "../firebase"
+import {
+  addDoc,
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  where
+} from "firebase/firestore";
+import {getDownloadURL, ref as storageRef} from 'firebase/storage';
+import {countries} from "../consts/index.js";
 
 const baseURL = import.meta.env.VITE_BACKEND;
 
@@ -114,7 +124,7 @@ export const getFormattedContent = (content) => {
     const cleanWrapperContent = wrapperContent.replace(/<button[^>]*class="[^"]*quill-delete-btn[^"]*"[^>]*>.*?<\/button>/g, '');
     mediaHTML = `<div class="quill-video-wrapper">${cleanWrapperContent}</div>`;
   } else if (videoMatches.length > 0) {
-    mediaHTML = `<div class="quill-video-wrapper">${videoMatches[0][0].replace('<video', '<video autoplay muted controls=\"false\"')}</div>`;
+    mediaHTML = `<div class="quill-video-wrapper">${videoMatches[0][0].replace('<video', '<video autoplay muted controls="false"')}</div>`;
   } else if (youtubeIds.length > 0) {
     const videoId = youtubeIds[0];
     mediaHTML = `<div class="w-full my-2"><iframe class="w-full h-[230px] rounded-[10px]"
@@ -158,6 +168,9 @@ export const getFormattedContent = (content) => {
     }
   }
   if (mediaHTML) {
+    // if <img is presesnt then add loading="lazy" to it
+    // mediaHTML = mediaHTML.replace(/<img /g, '<img loading="lazy" ');
+
     return `
       <div class="post-preview">
         ${titleHTML}
@@ -234,7 +247,7 @@ export const cleanHtmlTextContent = (html) => {
   return tempDiv.innerHTML;
 };
 
-export const convertToWebp = (file) => {
+export const convertToWebp = (file, w =0, h=0) => {
   return new Promise((res, rej) => {
     const img = new Image();
     const reader = new FileReader();
@@ -244,13 +257,26 @@ export const convertToWebp = (file) => {
 
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
+        if (w > 0 && h > 0) {
+            canvas.width = w;
+            canvas.height = h;
+        } else if (w > 0) {
+            const aspectRatio = img.width / img.height;
+            canvas.width = w;
+            canvas.height = Math.round(w / aspectRatio);
+        } else if (h > 0) {
+            const aspectRatio = img.width / img.height;
+            canvas.width = Math.round(h * aspectRatio);
+            canvas.height = h;
+        } else {
+            canvas.width = img.width;
+            canvas.height = img.height;
+        }
 
       const ctx = canvas.getContext('2d');
       if (!ctx) return rej('Canvas context error');
 
-      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       canvas.toBlob(
         (webpBlob) => {
@@ -443,14 +469,14 @@ export const getServerTime = async () => {
 
   serverTimeOffset = serverTime.getTime() - localTime.getTime();
   return new Date(Date.now() + serverTimeOffset);
-} 
+}
 
 export const sendMessage=(me,to,message)=>{
-  return new Promise(async (res, rej) => {
+  return new Promise( async (res, rej) => {
     if(to==null){
         rej();
         return;
-    } 
+    }
     try {
       let dms=to.dms;
       if(!dms) dms=[]
@@ -501,15 +527,16 @@ export const sendMessage=(me,to,message)=>{
     } catch (error) {
         console.log(error);
         rej();
-        
+
     }
 
   })
-    
+
 }
- 
+
 export const getFireStoreUrl = (path) => {
-  return new Promise(async (res, rej) => {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise( async (res, rej) => {
     let coll1 = collection(db, 'firestore_url')
     const q1 = query(coll1, where('firestore','==',path))
     const snap1 = await getDocs(q1)
@@ -532,7 +559,7 @@ export const getFireStoreUrl = (path) => {
     } else {
       res(data[0].url)
     }
-    
+
   })
 }
 

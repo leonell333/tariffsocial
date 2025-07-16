@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { updatePostStore, updateFollowers, } from '../../store/actions/postActions'
-import { Card, CardHeader, CardContent, CardFooter } from '../ui/card'
+import {useState} from 'react'
+import {connect} from 'react-redux'
+import {useNavigate} from 'react-router'
+import {updateFollowers, updatePostStore,} from '../../store/actions/postActions'
+import {Card, CardContent, CardHeader} from '../ui/card'
 
 const ViewSponsored = (props) => {
   const [defaultTime, setDefaultTime] = useState(new Date())

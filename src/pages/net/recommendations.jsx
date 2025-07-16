@@ -1,14 +1,12 @@
-
-import { useEffect, useState, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Avatar } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { updateBaseStore } from '../../store/actions/baseActions';
+import {useEffect, useRef, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {Avatar} from '@mui/material';
+import {useNavigate} from 'react-router';
 import Post from "../../components/post/post"
-import { getColleagues, followAction } from '../../store/actions/colleagueAction';
-import { updateUserStore } from '../../store/actions/userActions';
-import { getUsers, searchUsersByUsername, getTotalUserCount } from '../../store/actions/chatAction';
-import { getPostsByUser } from '../../store/actions/postActions';
+import {followAction} from '../../store/actions/colleagueAction';
+import {updateUserStore} from '../../store/actions/userActions';
+import {getTotalUserCount, getUsers, searchUsersByUsername} from '../../store/actions/chatAction';
+import {getPostsByUser} from '../../store/actions/postActions';
 
 const Recommendations = (props) => {
   const navigate = useNavigate();
@@ -235,7 +233,7 @@ const Recommendations = (props) => {
             ) : (
               <div className="text-center py-2">
                 <p className="text-gray-500 text-lg mb-2">No posts yet</p>
-                <p className="text-gray-400 text-sm">This user hasn't shared any posts.</p>
+                <p className="text-gray-400 text-sm">This user hasn&#39;t shared any posts.</p>
               </div>
             )}
           </>

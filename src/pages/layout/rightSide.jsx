@@ -1,5 +1,4 @@
-
-import { useSelector, useDispatch } from 'react-redux'
+import {useDispatch} from 'react-redux'
 import Colleagues from '../net/recentColleagues'
 import ProductAds from '../../components/shopify/productAds'
 import AdSlot from '../../components/advertise/AdSlot'

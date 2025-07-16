@@ -1,16 +1,8 @@
-import React, { useState, useCallback } from 'react'
-import { loadStripe } from '@stripe/stripe-js'
-import { Elements } from '@stripe/react-stripe-js'
-import { updateBaseStore } from '../../store/actions/baseActions'
-import { useSelector, useDispatch } from 'react-redux'
-import {
-  PaymentElement,
-  CheckoutProvider,
-  useCheckout,
-} from '@stripe/react-stripe-js'
-
-import Modal from '@mui/material/Modal'
-import Box from '@mui/material/Box'
+import React, {useCallback, useState} from 'react'
+import {loadStripe} from '@stripe/stripe-js'
+import {CheckoutProvider, PaymentElement, useCheckout} from '@stripe/react-stripe-js'
+import {updateBaseStore} from '../../store/actions/baseActions'
+import {useDispatch, useSelector} from 'react-redux'
 import './checkout.css'
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUB_KEY)

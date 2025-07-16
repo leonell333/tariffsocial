@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { auth, db, storage, storageBucket } from "../../firebase"
 import { doc,addDoc, setDoc, getDoc, collection , where, query, getDocs, startAfter , limit ,orderBy, serverTimestamp } from "firebase/firestore";
 import {getDownloadURL,ref as storageRef,uploadBytes,uploadString} from "firebase/storage";
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router';
 import {updateBaseStore } from "../../store/actions/baseActions"
 import { updatePostStore } from "../../store/actions/postActions"
 import Button from '@mui/material/Button';

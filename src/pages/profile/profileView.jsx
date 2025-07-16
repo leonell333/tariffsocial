@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import {useEffect} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {useNavigate, useParams} from 'react-router';
 import CountryFlag from 'react-country-flag'
-import { FaCircleMinus } from 'react-icons/fa6'
+import {FaCircleMinus} from 'react-icons/fa6'
 import Message from '../../components/dm/Message'
 import './profile.css'
-import { followAction } from '../../store/actions/colleagueAction';
-import { updateBaseStore } from '../../store/actions/baseActions';
+import {followAction} from '../../store/actions/colleagueAction';
+import {updateBaseStore} from '../../store/actions/baseActions';
 
 const ProfileView = () => {
   const { id } = useParams();

@@ -1,14 +1,13 @@
-
-import { useState, useEffect, useRef } from 'react';
-import { getAuth } from "firebase/auth";
-import { useSelector, useDispatch } from 'react-redux'
-import { Avatar, Popover, Button } from '@mui/material';
-import { MoreHorizontalIcon, Trash, Pencil, Save, CircleX } from 'lucide-react';
-import { Separator } from '../ui/separator';
-import { Card, CardHeader, CardContent, CardFooter } from '../ui/card';
+import {useEffect, useState} from 'react';
+import {getAuth} from "firebase/auth";
+import {useDispatch} from 'react-redux'
+import {Avatar, Popover} from '@mui/material';
+import {CircleX, MoreHorizontalIcon, Pencil, Save, Trash} from 'lucide-react';
+import {Separator} from '../ui/separator';
+import {Card, CardContent, CardFooter, CardHeader} from '../ui/card';
 import CommentEditor from './commentEditor';
-import { updateComment, deleteComment } from '../../store/actions/postActions';
-import { readTime, formatTextCleanlyPreservingMedia } from '../../utils';
+import {deleteComment, updateComment} from '../../store/actions/postActions';
+import {formatTextCleanlyPreservingMedia, readTime} from '../../utils';
 
 const Comment = (props) => {
   const dispatch = useDispatch();
@@ -21,6 +20,7 @@ const Comment = (props) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const popupOpen = Boolean(anchorEl);
   const popup_id = popupOpen ? 'simple-popover' : undefined;
+  const [_previewImage, setPreviewImage] = useState(null);
 
   const saveEditedComment = () => {
     if (!commentId || !postId || !editorInstance) return;

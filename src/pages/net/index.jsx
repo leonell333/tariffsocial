@@ -1,9 +1,7 @@
-
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Users, UserPlus, Heart } from 'lucide-react'
-import { resetAllNetData } from '../../store/actions/colleagueAction'
+import {useDispatch, useSelector} from 'react-redux'
+import {Outlet, useLocation, useNavigate} from 'react-router'
+import {Heart, UserPlus, Users} from 'lucide-react'
+import {resetAllNetData} from '../../store/actions/colleagueAction'
 
 const MyNet = () => {
   const location = useLocation()

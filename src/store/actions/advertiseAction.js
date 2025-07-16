@@ -1,15 +1,21 @@
-import { UPDATE_POST_STORE, UPDATE_ADVERTISE_STORE } from "../types";
-import { db, auth, storage } from "../../firebase";
-import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion,
-  arrayRemove, increment, writeBatch, collection, query, where, limit, serverTimestamp, orderBy,
-  startAfter, getCountFromServer, getDocsFromCache, onSnapshot, } from "firebase/firestore";
-import { ref as storageRef, uploadString, getDownloadURL, uploadBytes, uploadBytesResumable, } from "firebase/storage";
-import { updateUserStore } from "./userActions";
-import { updateBaseStore } from "./baseActions";
-import { extractKeywords } from "../../utils";
-import { toast } from "react-toastify";
-import { logEvent } from "firebase/analytics";
-import { analytics } from "../../firebase";
+import {UPDATE_ADVERTISE_STORE} from "../types";
+import {analytics, db, storage} from "../../firebase";
+import {
+  addDoc,
+  collection,
+  doc,
+  getCountFromServer,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import {getDownloadURL, ref as storageRef, uploadString,} from "firebase/storage";
+import {extractKeywords} from "../../utils";
+import {logEvent} from "firebase/analytics";
 
 export const updateAdvertiseStore = (data) => (dispatch, getState) => {
   return new Promise((res, rej) => {
@@ -92,8 +98,7 @@ export const createOrUpdateBannerAd = ({ stateAdvertise }) => (dispatch, getStat
     } catch (error) {
       console.error("Failed to create banner ad:", error);
       rej(error);
-    } finally {
-    }
+    } 
   });
 };
 

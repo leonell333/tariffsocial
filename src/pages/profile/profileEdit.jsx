@@ -1,16 +1,14 @@
-
-import { useEffect, useRef, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { Button, } from '@mui/material'
-import { Pen, Save, Trash2 } from 'lucide-react'
+import {useEffect, useRef, useState} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {Button,} from '@mui/material'
+import {Pen, Save, Trash2} from 'lucide-react'
 import CountryFlag from 'react-country-flag'
 import ReactCountryFlagsSelect from 'react-country-flags-select'
-import { AiOutlineCloseCircle } from 'react-icons/ai'
+import {AiOutlineCloseCircle} from 'react-icons/ai'
 import userAvatar from '../../assets/images/user.png'
 import './profile.css'
-import { userInfoSave, uploadUserAvatar, deleteUserAvatar } from '../../store/actions/userActions'
-import { serviceList, skillList } from '../../consts';
+import {deleteUserAvatar, uploadUserAvatar, userInfoSave} from '../../store/actions/userActions'
+import {serviceList, skillList} from '../../consts';
 
 const ProfileEdit = (props) => {
   const wrapperRef = useRef(null);
@@ -188,7 +186,7 @@ const ProfileEdit = (props) => {
                 <div className="relative block w-full h-full group hover:z-10">
                   <button
                     type="button"
-                    onClick={(e) => { e.preventDefault(); return}}
+                    onClick={(e) => { e.preventDefault(); }}
                     className="absolute inset-0 flex items-center justify-center z-10 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 gap-1"
                   >
                     {

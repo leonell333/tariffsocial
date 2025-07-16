@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import "../../pages/advertise/advertise.css"
 import LeftSide from '../layout/leftSide';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 
 const LEFT_SIDE_WIDTH = 250;
 const SIDE_MARGIN = 70;

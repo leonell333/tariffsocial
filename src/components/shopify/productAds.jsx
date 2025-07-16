@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { Box } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux'
+import {useEffect, useRef, useState} from 'react'
+import {Box} from '@mui/material';
+import {useDispatch, useSelector} from 'react-redux'
 import Slider from 'react-slick'
 import logo from '../../assets/images/loading-logo.webp'
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import {ChevronLeft, ChevronRight} from 'lucide-react';
 
 const endpoint = `${import.meta.env.VITE_SHOPIFY_STORE_DOMAIN}/api/${
   import.meta.env.VITE_SHOPIFY_STOREFRONT_API_VERSION

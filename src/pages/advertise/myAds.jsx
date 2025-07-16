@@ -1,14 +1,25 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { auth, db, storage, storageBucket } from '../../firebase';
-import { doc,addDoc, updateDoc, getDoc, collection , where, query, getDocs, getCountFromServer , limit ,orderBy, serverTimestamp } from "firebase/firestore";
-import { ref as storageRef, uploadBytes, uploadString } from "firebase/storage";
-import {updateBaseStore } from "../../store/actions/baseActions"
-import {updatePostStore } from "../../store/actions/postActions"
-import { Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Paper,Tooltip } from '@mui/material';
-import { extractKeywords } from '../../utils';
+import {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {useNavigate} from 'react-router';
+import {db} from '../../firebase';
+import {
+  addDoc,
+  collection,
+  doc,
+  getCountFromServer,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where
+} from "firebase/firestore";
+import {updateBaseStore} from "../../store/actions/baseActions"
+import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip} from '@mui/material';
+import {extractKeywords} from '../../utils';
 import "./advertise.css"
+import ConnectedCheckoutModal from "../../components/checkout/index.jsx";
 
 const stripeBackend = import.meta.env.VITE_BACKEND;
 

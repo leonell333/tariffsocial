@@ -1,13 +1,5 @@
 import SearchIcon from '@mui/icons-material/Search'
-import {
-  Button,
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField
-} from '@mui/material'
+import {Button, FormControl, InputAdornment, InputLabel, MenuItem, Select, TextField} from '@mui/material'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -15,30 +7,18 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import {
-  collection,
-  doc,
-  getDocs,
-  orderBy,
-  query,
-  updateDoc,
-  where
-} from 'firebase/firestore'
-import {
-  getDownloadURL,
-  ref as storageRef
-} from 'firebase/storage'
-import { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { db, storage, storageBucket } from '../../firebase'
-import { updateBaseStore } from '../../store/actions/baseActions'
-import { updatePostStore } from '../../store/actions/postActions'
-import { extractKeywords, sendRequest } from '../../utils'
+import {collection, doc, getDocs, orderBy, query, updateDoc, where} from 'firebase/firestore'
+import {getDownloadURL, ref as storageRef} from 'firebase/storage'
+import {useEffect, useState} from 'react'
+import {connect} from 'react-redux'
+import {db, storage, storageBucket} from '../../firebase'
+import {updateBaseStore} from '../../store/actions/baseActions'
+import {updatePostStore} from '../../store/actions/postActions'
+import {extractKeywords, sendRequest} from '../../utils'
+import CountryFlag from 'react-country-flag'
+import ConnectedCheckoutModal from "../../components/checkout/index.jsx";
 
 const stripeBackend = import.meta.env.VITE_BACKEND
-
-import CountryFlag from 'react-country-flag'
 
 const AdminAds = (props) => {
   const [ads, setAds] = useState([])

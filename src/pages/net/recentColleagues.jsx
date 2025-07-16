@@ -1,13 +1,12 @@
-
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux'
+import {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux'
 import "../../pages/post/post.css";
-import { Card, CardContent } from "../../components/ui/card";
-import { Separator } from "../../components/ui/separator";
-import { useNavigate } from 'react-router-dom';
-import { Avatar, Button } from '@mui/material';
-import { getNewColleagues } from '../../store/actions/colleagueAction';
-import { updateUserStore } from '../../store/actions/userActions';
+import {Card, CardContent} from "../../components/ui/card";
+import {Separator} from "../../components/ui/separator";
+import {useNavigate} from 'react-router';
+import {Avatar, Button} from '@mui/material';
+import {getNewColleagues} from '../../store/actions/colleagueAction';
+import {updateUserStore} from '../../store/actions/userActions';
 
 const Colleagues = () => {
   const navigate = useNavigate();

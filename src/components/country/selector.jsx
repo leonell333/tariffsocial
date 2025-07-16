@@ -4,12 +4,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 
 export interface CountrySelectorProps {
-  id: string;
-  open: boolean;
+  string;
+  boolean;
   disabled?: boolean;
-  onToggle: () => void;
-  onChange: (value: SelectMenuOption["value"]) => void;
-  selectedValue: SelectMenuOption;
+  () => void;
+  (value: SelectMenuOption["value"]) => void;
+  SelectMenuOption;
 }
 
 export default function CountrySelector({

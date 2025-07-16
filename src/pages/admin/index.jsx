@@ -1,9 +1,5 @@
-
-import { useState, useEffect, useRef, StrictMode } from 'react';
-import { Outlet  } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { updateBaseStore } from '../../store/actions/baseActions';
-import { updatePostStore } from '../../store/actions/postActions';
+import {Outlet} from 'react-router';
+import {useDispatch, useSelector} from 'react-redux';
 import LeftSide from './AdminLeftSide';
 
 const MainLayout = () => {

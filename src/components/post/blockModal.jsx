@@ -18,9 +18,9 @@ const BlockModal = ({ open, onClose, onBlock, username }) => {
             Block {username}?
           </h3>
           <p className="font-text-1-web text-black text-[16px] text-center mb-6">
-            {username} won't be able to find your profile and content on
-            Tariff Social. No one will see this user's replies to
-            your posts, and they won't know you've blocked them.
+            {username} won&#39;t be able to find your profile and content on
+            Tariff Social. No one will see this user&#39;s replies to
+            your posts, and they won&#39;t know you&#39;ve blocked them.
           </p>
 
           <div className="flex justify-center gap-16 w-full">

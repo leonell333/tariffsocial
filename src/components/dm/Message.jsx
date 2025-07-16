@@ -1,10 +1,9 @@
-
-import React, { useState, useCallback } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import React, {useState} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
 import Modal from '@mui/material/Modal'
-import { Avatar } from '@mui/material'
-import { sendMessageToSelectedUser } from '../../store/actions/chatAction'
-import { updateBaseStore } from '../../store/actions/baseActions'
+import {Avatar} from '@mui/material'
+import {sendMessageToSelectedUser} from '../../store/actions/chatAction'
+import {updateBaseStore} from '../../store/actions/baseActions'
 
 const Message = () => {
   const dispatch = useDispatch();

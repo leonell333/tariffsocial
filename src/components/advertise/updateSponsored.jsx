@@ -1,33 +1,22 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import { connect } from "react-redux";
+import {useEffect, useRef, useState} from "react";
+import {connect} from "react-redux";
 import "../../pages/advertise/advertise.css";
-import { auth, db, storage, storageBucket } from "../../firebase";
-import { doc, updateDoc } from "firebase/firestore";
-import { ref as storageRef, uploadString } from "firebase/storage";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { updateBaseStore } from "../../store/actions/baseActions";
-import { updatePostStore } from "../../store/actions/postActions";
-import ReactCountryFlagsSelect, { Us } from "react-country-flags-select";
-import { toast } from "react-toastify";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import {db, storage} from "../../firebase";
+import {doc, updateDoc} from "firebase/firestore";
+import {ref as storageRef, uploadString} from "firebase/storage";
+import {useNavigate} from "react-router";
+import {updateBaseStore} from "../../store/actions/baseActions";
+import {updatePostStore} from "../../store/actions/postActions";
+import {toast} from "react-toastify";
+import {DemoContainer} from "@mui/x-date-pickers/internals/demo";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 
-import {
-  Checkbox,
-  FormControlLabel,
-  FormControl,
-  InputLabel,
-  Modal,
-  InputAdornment,
-} from "@mui/material";
-import { TextField, Button, Container, Typography, Box } from "@mui/material";
+import {Button, InputAdornment, Modal, TextField,} from "@mui/material";
+import {extractKeywords, isValidEmail} from "../../utils";
 
 const stropeBackend = import.meta.env.VITE_BACKEND;
 
-import CountryFlag from "react-country-flag";
-import { extractKeywords, isValidEmail } from "../../utils";
-import { Label } from "@radix-ui/react-select";
 var bEditor = false;
 
 const UpdateSponsored = (props) => {
@@ -109,12 +98,12 @@ const UpdateSponsored = (props) => {
         keywords,
       });
       if (image_data.length) {
-        for (var i = 0; i < image_data.length; i++) {
+        for (var ii = 0; ii < image_data.length; ii++) {
           const imageRef = storageRef(
             storage,
-            `sponsored-images/${image_name[i]}`
+            `sponsored-images/${image_name[ii]}`
           );
-          let result = await uploadString(imageRef, image_data[i], "data_url");
+          let result = await uploadString(imageRef, image_data[ii], "data_url");
         }
       }
       toast("The sponsored content was updated successfully.");
