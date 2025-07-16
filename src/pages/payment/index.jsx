@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getPaymentAd } from "../../store/actions/advertiseAction";
 import CheckoutForm from "./CheckoutForm";
 
 const Payment = () => {

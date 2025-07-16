@@ -11,7 +11,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { currencies } from "../../consts";
 import { isValidEmail } from "../../utils";
-import { createOrUpdateBannerAd, updateAdvertiseStore } from "../../store/actions/advertiseAction";
+import { createOrUpdateBannerAd, updateAdvertiseStore, getBannerAdById } from "../../store/actions/advertiseAction";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import "../../pages/advertise/advertise.css";
 
@@ -33,6 +33,7 @@ const CreateBannerAdvertise = () => {
     ownerId: "",
   });
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const user = useSelector((state) => state.user);
   const selectedBannerAd = useSelector((state) => state.advertise.selectedBannerAd);
 
@@ -74,8 +75,10 @@ const CreateBannerAdvertise = () => {
   });
 
   useEffect(() => {
-    dispatch(updateAdvertiseStore({ selectedBannerAd: null }));
     updateAdvertiseState("country", { label: "Australia", countryCode: "AU" });
+    return () => {
+      dispatch(updateAdvertiseStore({ selectedBannerAd: null }));
+    };
   }, []);
 
   useEffect(() => {
@@ -136,22 +139,20 @@ const CreateBannerAdvertise = () => {
     if (Object.keys(newErrors).length > 0) {
       return;
     }
-    dispatch(
-      createOrUpdateBannerAd({
-        stateAdvertise: {
-          ...stateAdvertise,
-          pubDate: d,
-          ownerId: user.id,
-        },
-      })
-    )
-      .then((res) => {
-        if (res) {
-          navigate(`/publish/payment?id=${res}&type=ads`);
+    setIsLoading(true);
+    dispatch(createOrUpdateBannerAd({
+      stateAdvertise: { ...stateAdvertise, pubDate: d, ownerId: user.id },
+      editId: selectedBannerAd?.id
+    }))
+      .then(async (ad) => {
+        if (ad) {
+          dispatch(updateAdvertiseStore({ paymentId: ad.id, paymentType: 'ads', paymentAd: ad }));
+          navigate(`/publish/payment`);
         }
-      })
-      .catch((err) => {
+      }).catch((err) => {
         console.error("Error creating/updating ad:", err);
+      }).finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -644,11 +645,20 @@ const CreateBannerAdvertise = () => {
         <div className="w-fit m-auto py-5">
           <button
             type="button"
-            disabled={stateAdvertise.ownerId ? true : false}
-            className="bg-[#161722] text-white text-[18px]  rounded-xl cursor-pointer h-10 w-25"
+            disabled={stateAdvertise.ownerId ? true : false || isLoading}
+            className="bg-[#161722] text-white text-[18px]  rounded-xl cursor-pointer h-10 w-25 flex items-center justify-center min-w-[100px]"
             onClick={handleAdvertise}
+            style={isLoading ? { pointerEvents: 'none' } : {}}
+            tabIndex={isLoading ? -1 : 0}
           >
-            {selectedBannerAd ? "Update" : "Create"}
+            {isLoading ? (
+              <>
+                <div className="spinner mr-2" style={{ width: 20, height: 20, border: '3px solid #eee', borderTop: '3px solid #888', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+              </>
+            ) : (
+              selectedBannerAd ? "Update" : "Create"
+            )}
           </button>
         </div>
       </div>

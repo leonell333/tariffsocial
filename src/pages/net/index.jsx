@@ -17,7 +17,7 @@ const MyNet = () => {
   };
 
   return (
-    <div className="w-full bg-white h-[calc(100vh-88px)] rounded-xl p-6 text-black space-y-6" style={{ fontFamily: 'poppins' }}>
+    <div className="w-full bg-white h-[calc(100vh-108px)] rounded-xl p-6 text-black space-y-6" style={{ fontFamily: 'poppins' }}>
       <div className="flex flex-row items-center justify-center space-x-8 text-[18px] border-b-2 border-b-gray-100 mb-2 pb-1">
         {
           location.pathname == '/net/colleagues' ? (

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { PaymentElement, Elements, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -48,7 +49,6 @@ const CheckoutInnerForm = ({ amount, currency }) => {
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [checked, setChecked] = useState(false);
-
   const zeroDecimalCurrencies = [
     "bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf"
   ];
@@ -160,7 +160,6 @@ const CheckoutForm = (props) => {
       })
       .catch((err) => {
         console.error('Payment Intent Error:', err);
-        // You might want to show this error to the user
       });
   }, [paymentData]);
 

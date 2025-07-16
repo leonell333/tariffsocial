@@ -38,7 +38,7 @@ export const getBannerAdById = (adId) => (dispatch, getState) => {
   });
 };
 
-export const createOrUpdateBannerAd = ({ stateAdvertise }) => (dispatch, getState) => {
+export const createOrUpdateBannerAd = ({ stateAdvertise, editId }) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
     try {
       const keywords = extractKeywords(stateAdvertise.name);
@@ -55,41 +55,73 @@ export const createOrUpdateBannerAd = ({ stateAdvertise }) => (dispatch, getStat
       } else {
         imageUrl = stateAdvertise.imageFile;
       }
-      const docRef = await addDoc(collection(db, "ads"), {
-        name: stateAdvertise.name,
-        email: stateAdvertise.email,
-        ownerId: stateAdvertise.ownerId,
-        country: stateAdvertise.country,
-        productLink: stateAdvertise.productLink,
-        budget: Number(stateAdvertise.budget),
-        days: Number(stateAdvertise.days),
-        pubDate: stateAdvertise.pubDate,
-        keywords,
-        title: stateAdvertise.title,
-        businessName: stateAdvertise.businessName,
-        imageUrl,
-        currency: stateAdvertise.currency,
-        state: "Pending",
-        billed: false,
-        createdAt: serverTimestamp(),
-      });
-      console.log('docRef',docRef);
-      try {
-        if (analytics) {
-          logEvent(analytics, "ad_created", {
-            ad_type: "banner",
-            ad_id: docRef.id,
-            budget: stateAdvertise.budget,
-            currency: stateAdvertise.currency,
-            country: stateAdvertise.country,
-          });
+      if (editId) {
+        const adRef = doc(db, "ads", editId);
+        await updateDoc(adRef, {
+          name: stateAdvertise.name,
+          email: stateAdvertise.email,
+          ownerId: stateAdvertise.ownerId,
+          country: stateAdvertise.country,
+          productLink: stateAdvertise.productLink,
+          budget: Number(stateAdvertise.budget),
+          days: Number(stateAdvertise.days),
+          pubDate: stateAdvertise.pubDate,
+          keywords,
+          title: stateAdvertise.title,
+          businessName: stateAdvertise.businessName,
+          imageUrl,
+          currency: stateAdvertise.currency,
+        });
+        res({ ...stateAdvertise, id: editId, imageUrl });
+        try {
+          if (analytics) {
+            logEvent(analytics, "ad_updated", {
+              ad_type: "banner",
+              ad_id: editId,
+              budget: stateAdvertise.budget,
+              currency: stateAdvertise.currency,
+              country: stateAdvertise.country,
+            });
+          }
+        } catch (analyticsError) {
+          console.warn("Failed to log analytics event:", analyticsError);
         }
-      } catch (analyticsError) {
-        console.warn("Failed to log analytics event:", analyticsError);
+      } else {
+        const docRef = await addDoc(collection(db, "ads"), {
+          name: stateAdvertise.name,
+          email: stateAdvertise.email,
+          ownerId: stateAdvertise.ownerId,
+          country: stateAdvertise.country,
+          productLink: stateAdvertise.productLink,
+          budget: Number(stateAdvertise.budget),
+          days: Number(stateAdvertise.days),
+          pubDate: stateAdvertise.pubDate,
+          keywords,
+          title: stateAdvertise.title,
+          businessName: stateAdvertise.businessName,
+          imageUrl,
+          currency: stateAdvertise.currency,
+          state: "Pending",
+          billed: false,
+          createdAt: serverTimestamp(),
+        });
+        res({ ...stateAdvertise, id: docRef.id, billed: false, state: "Pending", imageUrl: imageUrl, });
+        try {
+          if (analytics) {
+            logEvent(analytics, "ad_created", {
+              ad_type: "banner",
+              ad_id: docRef.id,
+              budget: stateAdvertise.budget,
+              currency: stateAdvertise.currency,
+              country: stateAdvertise.country,
+            });
+          }
+        } catch (analyticsError) {
+          console.warn("Failed to log analytics event:", analyticsError);
+        }
       }
-      res(docRef.id);
     } catch (error) {
-      console.error("Failed to create banner ad:", error);
+      console.error("Failed to create/update banner ad:", error);
       rej(error);
     } finally {
     }
@@ -420,28 +452,4 @@ export const getSponsoredAds = () => (dispatch, getState) => {
       rej(error);
     }
   });
-};
-
-export const getPaymentAd = (id, type) => async (dispatch) => {
-  try {
-    const adRef = doc(db, type, id);
-    const adSnap = await getDoc(adRef);
-    if (adSnap.exists()) {
-      dispatch({
-        type: UPDATE_ADVERTISE_STORE,
-        payload: { paymentAd: { ...adSnap.data(), id, type } }
-      });
-    } else {
-      dispatch({
-        type: UPDATE_ADVERTISE_STORE,
-        payload: { paymentAd: null }
-      });
-    }
-  } catch (error) {
-    dispatch({
-      type: UPDATE_ADVERTISE_STORE,
-      payload: { paymentAd: null }
-    });
-    throw error;
-  }
 };
