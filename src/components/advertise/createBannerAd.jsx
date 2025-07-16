@@ -1,140 +1,166 @@
 
-import { useEffect, useState } from 'react'
-import { InputAdornment, MenuItem, TextField, } from '@mui/material'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import ReactCountryFlagsSelect from 'react-country-flags-select'
-import { FaCloudUploadAlt } from 'react-icons/fa'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { currencies } from '../../consts'
-import { isValidEmail } from '../../utils'
-import { createOrUpdateBannerAd } from '../../store/actions/advertiseAction'
-import { AiOutlineCloseCircle } from 'react-icons/ai';
-import dayjs from 'dayjs'
-import '../../pages/advertise/advertise.css'
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
+import { InputAdornment, MenuItem, TextField } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import ReactCountryFlagsSelect from "react-country-flags-select";
+import { FaCloudUploadAlt } from "react-icons/fa";
+import dayjs from "dayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { currencies } from "../../consts";
+import { isValidEmail } from "../../utils";
+import { createOrUpdateBannerAd, updateAdvertiseStore } from "../../store/actions/advertiseAction";
+import { AiOutlineCloseCircle } from "react-icons/ai";
+import "../../pages/advertise/advertise.css";
 
 const CreateBannerAdvertise = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [stateAdvertise, setStateAdvertise] = useState({
-    imageFile: '',
-    country: { countryCode: 'AU', label: 'Australia' },
-    productLink: '',
-    email: '',
-    title: '',  
-    currency: 'USD',
-    name: '',
-    businessName: '',
+    imageFile: "",
+    country: { countryCode: "AU", label: "Australia" },
+    productLink: "",
+    email: "",
+    title: "",
+    currency: "USD",
+    name: "",
+    businessName: "",
     budget: 1,
     pubDate: dayjs(),
     days: 7,
-  })
-
+    ownerId: "",
+  });
   const [errors, setErrors] = useState({});
-  const user = useSelector(state => state.user)
+  const user = useSelector((state) => state.user);
+  const selectedBannerAd = useSelector((state) => state.advertise.selectedBannerAd);
+
   const updateAdvertiseState = (key, value) => {
-    setStateAdvertise(prev => ({
+    setStateAdvertise((prev) => ({
       ...prev,
-      [key]: value
-    }))
-    setErrors(prev => ({
+      [key]: value,
+    }));
+    setErrors((prev) => ({
       ...prev,
-      [key]: undefined
-    }))
-  }
+      [key]: undefined,
+    }));
+  };
 
   const handleSelectImage = (event) => {
-    var file = event.target.files[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
+    var file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
     reader.onloadend = function (e) {
-      updateAdvertiseState('imageFile', reader.result)
+      updateAdvertiseState("imageFile", reader.result);
       event.target.value = null;
-    }.bind(this)
-  }
+    }.bind(this);
+  };
 
   const handleDeleteImage = () => {
-    setStateAdvertise((prev) => ({ ...prev, imageFile: '', file: null }));
+    setStateAdvertise((prev) => ({ ...prev, imageFile: "", file: null }));
   };
 
   let currencyList = currencies.map((c) => {
-    const formatter = new Intl.NumberFormat('en', {
-      style: 'currency',
+    const formatter = new Intl.NumberFormat("en", {
+      style: "currency",
       currency: c,
-      currencyDisplay: 'symbol',
-    })
-    const parts = formatter.formatToParts(1)
-    const symbol = parts.find((p) => p.type === 'currency')?.value || c
-    return { code: c, symbol }
-  })
+      currencyDisplay: "symbol",
+    });
+    const parts = formatter.formatToParts(1);
+    const symbol = parts.find((p) => p.type === "currency")?.value || c;
+    return { code: c, symbol };
+  });
 
   useEffect(() => {
-    updateAdvertiseState('country', { label: 'Australia', countryCode: 'AU' })
-  }, [])
+    dispatch(updateAdvertiseStore({ selectedBannerAd: null }));
+    updateAdvertiseState("country", { label: "Australia", countryCode: "AU" });
+  }, []);
+
+  useEffect(() => {
+    if (selectedBannerAd) {
+      let pubDate = selectedBannerAd.pubDate;
+      if (pubDate && typeof pubDate.toDate === "function") {
+        pubDate = dayjs(pubDate.toDate());
+      } else if (pubDate) {
+        pubDate = dayjs(pubDate);
+      } else {
+        pubDate = null;
+      }
+      setStateAdvertise({
+        ...selectedBannerAd,
+        pubDate,
+        imageFile: selectedBannerAd.imageUrl || selectedBannerAd.imageFile,
+      });
+    }
+  }, [selectedBannerAd]);
 
   const handleAdvertise = async () => {
     let d = stateAdvertise.pubDate ? stateAdvertise.pubDate.toDate() : null;
     if (d) {
-      d.setHours(0)
-      d.setMinutes(0)
-      d.setSeconds(0)
+      d.setHours(0);
+      d.setMinutes(0);
+      d.setSeconds(0);
     }
     let newErrors = {};
     if (!stateAdvertise.name) {
-      newErrors.name = 'Please enter your name.';
+      newErrors.name = "Please enter your name.";
     }
     if (!stateAdvertise.email) {
-      newErrors.email = 'Please enter the email.';
+      newErrors.email = "Please enter the email.";
     } else if (!isValidEmail(stateAdvertise.email)) {
-      newErrors.email = 'Please enter the email address correctly.';
+      newErrors.email = "Please enter the email address correctly.";
     }
     if (!stateAdvertise.country) {
-      newErrors.country = 'Please select country.';
+      newErrors.country = "Please select country.";
     }
     if (!stateAdvertise.productLink) {
-      newErrors.productLink = 'Please enter the Link path.';
+      newErrors.productLink = "Please enter the Link path.";
     }
     if (isNaN(Number(stateAdvertise.budget))) {
-      newErrors.budget = 'Please enter a number value for the budget.';
+      newErrors.budget = "Please enter a number value for the budget.";
     }
     if (isNaN(Number(stateAdvertise.days))) {
-      newErrors.days = 'Please enter a number value for the number of days';
+      newErrors.days = "Please enter a number value for the number of days";
     } else if (Number(stateAdvertise.days) < 7) {
-      newErrors.days = 'The number of days should be a little over 7 days.';
+      newErrors.days = "The number of days should be a little over 7 days.";
     }
     if (!stateAdvertise.imageFile) {
-      newErrors.imageFile = 'Please select image';
+      newErrors.imageFile = "Please select image";
     }
     if (!stateAdvertise.pubDate) {
-      newErrors.pubDate = 'Please select a publish date.';
+      newErrors.pubDate = "Please select a publish date.";
     }
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       return;
     }
-    dispatch(createOrUpdateBannerAd({
-      stateAdvertise: {
-        ...stateAdvertise,
-        pubDate: d,
-        ownerId: user.id,
-      },
-    })).then((res) => {
-      if (res) {
-        console.log('res',res);
-        navigate(`/publish/payment?id=${res}&type=ads`); // Updated path
-      }
-    }).catch((err) => {
-      console.error('Error creating/updating ad:', err);
-    });
-    
-  }
+    dispatch(
+      createOrUpdateBannerAd({
+        stateAdvertise: {
+          ...stateAdvertise,
+          pubDate: d,
+          ownerId: user.id,
+        },
+      })
+    )
+      .then((res) => {
+        if (res) {
+          navigate(`/publish/payment?id=${res}&type=ads`);
+        }
+      })
+      .catch((err) => {
+        console.error("Error creating/updating ad:", err);
+      });
+  };
 
   return (
     <div className="w-full min-h-[calc(100vh-170px)] border border-[#EBEBEB] rounded-xl bg-white">
-      <div className="text-[26px] text-center py-3 text-black font-bold" style={{ fontFamily: 'poppins' }}>  
+      <div
+        className="text-[26px] text-center py-3 text-black font-bold"
+        style={{ fontFamily: "poppins" }}
+      >
         Create Campaign
       </div>
       <div className="flex flex-col lg:flex-row gap-5 w-full">
@@ -144,24 +170,24 @@ const CreateBannerAdvertise = () => {
               variant="outlined"
               label="Name"
               value={stateAdvertise.name}
-              onChange={(e) => updateAdvertiseState('name', e.target.value)}
+              onChange={(e) => updateAdvertiseState("name", e.target.value)}
               className="w-full"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -181,24 +207,24 @@ const CreateBannerAdvertise = () => {
               variant="outlined"
               value={stateAdvertise.email}
               label="Email"
-              onChange={(e) => updateAdvertiseState('email', e.target.value)}
+              onChange={(e) => updateAdvertiseState("email", e.target.value)}
               className="w-full"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -212,7 +238,7 @@ const CreateBannerAdvertise = () => {
             />
           </div>
         </div>
-       
+
         <div className="basis-1/3 px-5">
           <div className="w-full relative">
             <style>
@@ -245,32 +271,40 @@ const CreateBannerAdvertise = () => {
               selectHeight={40}
               fullWidth
               className="w-full custom-country-select custom-scrollbar"
-              selected={stateAdvertise.country?.countryCode ? stateAdvertise.country : null}
+              selected={
+                stateAdvertise.country?.countryCode
+                  ? stateAdvertise.country
+                  : null
+              }
               onSelect={(country) => {
-                if (!country || country.countryCode === stateAdvertise.country?.countryCode) return;
-                setStateAdvertise(prev => ({
+                if (
+                  !country ||
+                  country.countryCode === stateAdvertise.country?.countryCode
+                )
+                  return;
+                setStateAdvertise((prev) => ({
                   ...prev,
                   country: {
                     countryCode: country?.countryCode,
                     label: country?.label,
                   },
                 }));
-                setErrors(prev => ({
+                setErrors((prev) => ({
                   ...prev,
-                  country: undefined
+                  country: undefined,
                 }));
               }}
               searchable
               optionsListMaxHeight={250}
               classes={{
-                menu: 'custom-country-menu',
-                option: 'custom-country-option',
-                optionLabel: 'custom-country-option-label',
-                flag: 'custom-country-flag',
-                selected: 'custom-country-selected',
-                input: 'custom-country-input',
-                list: 'custom-country-list',
-                container: 'custom-country-container'
+                menu: "custom-country-menu",
+                option: "custom-country-option",
+                optionLabel: "custom-country-option-label",
+                flag: "custom-country-flag",
+                selected: "custom-country-selected",
+                input: "custom-country-input",
+                list: "custom-country-list",
+                container: "custom-country-container",
               }}
             />
             {errors.country && (
@@ -281,7 +315,6 @@ const CreateBannerAdvertise = () => {
             </div>
           </div>
         </div>
-        
       </div>
 
       <div className="flex flex-col lg:flex-row gap-5 w-full mt-5">
@@ -291,24 +324,26 @@ const CreateBannerAdvertise = () => {
               variant="outlined"
               label="Business Name"
               value={stateAdvertise.businessName}
-              onChange={(e) => updateAdvertiseState('businessName', e.target.value)}
+              onChange={(e) =>
+                updateAdvertiseState("businessName", e.target.value)
+              }
               className="w-full"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -326,24 +361,24 @@ const CreateBannerAdvertise = () => {
               variant="outlined"
               label="Compaign Title"
               value={stateAdvertise.title}
-              onChange={(e) => updateAdvertiseState('title', e.target.value)}
+              onChange={(e) => updateAdvertiseState("title", e.target.value)}
               className="w-full"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -361,24 +396,26 @@ const CreateBannerAdvertise = () => {
               variant="outlined"
               value={stateAdvertise.productLink}
               label="Link"
-              onChange={(e) => updateAdvertiseState('productLink', e.target.value)}
+              onChange={(e) =>
+                updateAdvertiseState("productLink", e.target.value)
+              }
               className="w-full"
               size="small"
               InputProps={{
                 classes: {
-                  notchedOutline: 'custom-outline',
+                  notchedOutline: "custom-outline",
                 },
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                "& .MuiOutlinedInput-root": {
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'gray',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "gray",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
                   },
                 },
               }}
@@ -401,9 +438,10 @@ const CreateBannerAdvertise = () => {
         <div
           className="w-full border border-[#c4c4c4] min-h-[140px]  rounded-lg cursor-pointer relative"
           onClick={() => {
-            const fileInput = document.getElementById('fileInput')
-            fileInput.click()
-          }}>
+            const fileInput = document.getElementById("fileInput");
+            fileInput.click();
+          }}
+        >
           {!stateAdvertise.imageFile ? (
             <div className="mx-auto mt-4 flex flex-col ">
               <div className="">
@@ -413,11 +451,15 @@ const CreateBannerAdvertise = () => {
             </div>
           ) : (
             <div className="relative w-full h-[280px] flex justify-center items-center">
-              <img className="py-1 w-auto h-full" src={stateAdvertise.imageFile} alt="Preview" />
+              <img
+                className="py-1 w-auto h-full"
+                src={stateAdvertise.imageFile}
+                alt="Preview"
+              />
               <AiOutlineCloseCircle
                 className="absolute top-2 right-2 text-[#666666] cursor-pointer bg-white rounded-full shadow"
                 size={26}
-                onClick={e => {
+                onClick={(e) => {
                   e.stopPropagation();
                   handleDeleteImage();
                 }}
@@ -441,25 +483,25 @@ const CreateBannerAdvertise = () => {
           <TextField
             variant="outlined"
             value={stateAdvertise.budget}
-            onChange={(e) => updateAdvertiseState('budget', e.target.value)}
+            onChange={(e) => updateAdvertiseState("budget", e.target.value)}
             className="w-full"
             size="small"
             label="Budget"
             InputProps={{
               classes: {
-                notchedOutline: 'custom-outline',
+                notchedOutline: "custom-outline",
               },
             }}
             sx={{
-              '& .MuiOutlinedInput-root': {
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'gray',
+              "& .MuiOutlinedInput-root": {
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "gray",
                 },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'gray',
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "gray",
                 },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#1976d2',
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#1976d2",
                 },
               },
             }}
@@ -473,17 +515,20 @@ const CreateBannerAdvertise = () => {
                       select
                       hiddenLabel
                       size="small"
-                      classes={{ border: 'none' }}
+                      classes={{ border: "none" }}
                       value={stateAdvertise.currency}
-                      onChange={(e) => updateAdvertiseState('currency', e.target.value)}
+                      onChange={(e) =>
+                        updateAdvertiseState("currency", e.target.value)
+                      }
                       variant="outlined"
                       placeholder="Minimal"
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '& fieldset': { border: 'none' },
-                          backgroundColor: 'transparent',
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": { border: "none" },
+                          backgroundColor: "transparent",
                         },
-                      }}>
+                      }}
+                    >
                       {currencyList.map((option) => (
                         <MenuItem key={option.code} value={option.code}>
                           {option.symbol}
@@ -511,45 +556,45 @@ const CreateBannerAdvertise = () => {
             <DatePicker
               label="Publish Date"
               value={stateAdvertise.pubDate}
-              onChange={(newValue) => updateAdvertiseState('pubDate', newValue)}
+              onChange={(newValue) => updateAdvertiseState("pubDate", newValue)}
               slotProps={{
                 textField: {
-                  size: 'small',
+                  size: "small",
                   fullWidth: true,
                   InputLabelProps: {
                     shrink: true,
                   },
                   sx: {
-                    '& .MuiOutlinedInput-root': {
-                      fontSize: '14px',
-                      borderRadius: '4px',
+                    "& .MuiOutlinedInput-root": {
+                      fontSize: "14px",
+                      borderRadius: "4px",
                     },
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'gray',
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "gray",
                     },
-                    '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline':
+                    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
                       {
-                        borderColor: 'gray',
+                        borderColor: "gray",
                       },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
                       {
-                        borderColor: '#1976d2 !important',
+                        borderColor: "#1976d2 !important",
                       },
-                      '& .MuiInputLabel-root': {
-                        backgroundColor: '#ffffff',
-                        padding: '0 4px',
-                        transform: 'translate(14px, -9px) scale(0.75)',
-                        color: 'gray',
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: '#1976d2',
-                      },
+                    "& .MuiInputLabel-root": {
+                      backgroundColor: "#ffffff",
+                      padding: "0 4px",
+                      transform: "translate(14px, -9px) scale(0.75)",
+                      color: "gray",
+                    },
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: "#1976d2",
+                    },
                   },
                 },
                 field: { clearable: true },
               }}
               onClose={(reason) => {
-                if (reason === 'clear') updateAdvertiseState('pubDate', null);
+                if (reason === "clear") updateAdvertiseState("pubDate", null);
               }}
             />
           </LocalizationProvider>
@@ -563,24 +608,24 @@ const CreateBannerAdvertise = () => {
             variant="outlined"
             label="Number of days"
             value={stateAdvertise.days}
-            onChange={(e) => updateAdvertiseState('days', e.target.value)}
+            onChange={(e) => updateAdvertiseState("days", e.target.value)}
             className="w-full"
             size="small"
             InputProps={{
               classes: {
-                notchedOutline: 'custom-outline',
+                notchedOutline: "custom-outline",
               },
             }}
             sx={{
-              '& .MuiOutlinedInput-root': {
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'gray',
+              "& .MuiOutlinedInput-root": {
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "gray",
                 },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'gray',
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "gray",
                 },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#1976d2',
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#1976d2",
                 },
               },
             }}
@@ -599,14 +644,16 @@ const CreateBannerAdvertise = () => {
         <div className="w-fit m-auto py-5">
           <button
             type="button"
+            disabled={stateAdvertise.ownerId ? true : false}
             className="bg-[#161722] text-white text-[18px]  rounded-xl cursor-pointer h-10 w-25"
-            onClick={handleAdvertise}>
-            Create
+            onClick={handleAdvertise}
+          >
+            {selectedBannerAd ? "Update" : "Create"}
           </button>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default CreateBannerAdvertise;

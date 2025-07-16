@@ -1,115 +1,107 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
-import { toast } from 'react-toastify'
 
 const CardForm = () => {
   const stripe = useStripe()
   const elements = useElements()
+  const [formVisible, setFormVisible] = useState(false)
+  const [formData, setFormData] = useState({
+    number: '4242424242424242',
+    exp_month: '11/28',
+    exp_year: '2025',
+    cvc: '123',
+    name: 'Daniel Zummen',
+    email: 'danielza310@gmail.com',
+  })
 
-  const handleSubmit = async (e) => {
-    // We don't want to let default form submission happen here,
-    // which would refresh the page.
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const handlePayment = async (e) => {
     e.preventDefault()
+    if (!stripe) return
 
-    if (!stripe || !elements) {
-      // Stripe.js has not yet loaded.
-      // Make sure to disable form submission until Stripe.js has loaded.
-      toast.error('Stripe.js has not yet loaded.')
-      return
+    const { token, error } = await stripe.createToken({
+      card: {
+        number: formData.number,
+        exp_month: parseInt(formData.exp_month),
+        exp_year: parseInt(formData.exp_year),
+        cvc: formData.cvc,
+        name: formData.name,
+      },
+    })
+
+    if (error) {
+      console.error(error.message)
+    } else {
+      console.log('Token created:', token.id)
     }
-    console.log(elements.getElement(CardElement))
-
-    const { error: backendError, clientSecret } = await fetch(
-      '/api/create-payment-intent',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          paymentMethodType: 'card',
-          currency: 'usd',
-        }),
-      }
-    ).then((r) => r.json())
-
-    if (backendError) {
-      toast.error(backendError.message)
-      return
-    }
-
-    toast('Client secret returned')
-
-    const { error: stripeError, paymentIntent } =
-      await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: 'Jenny Rosen',
-          },
-        },
-      })
-
-    if (stripeError) {
-      // Show error to your customer (e.g., insufficient funds)
-      toast.error(stripeError.message)
-      return
-    }
-
-    // Show a success message to your customer
-    // There's a risk of the customer closing the window before callback
-    // execution. Set up a webhook or plugin to listen for the
-    // payment_intent.succeeded event that handles any business critical
-    // post-payment actions.
-    toast(`Payment ${paymentIntent.status}: ${paymentIntent.id}`)
   }
 
   return (
     <>
-      <h1>Card</h1>
-
-      <p>
-        <h4>
-          Try a{' '}
-          <a
-            href="https://stripe.com/docs/testing#cards"
-            target="_blank"
-            rel="noopener noreferrer">
-            test card
-          </a>
-          :
-        </h4>
-        <div>
-          <code>4242424242424242</code> (Visa)
+      <form onSubmit={handlePayment} className="border p-6 rounded space-y-4">
+        <h2 className="font-semibold text-lg">Add Payment Method</h2>
+        <input
+          name="number"
+          placeholder="1111 1111 1111 1111"
+          className="w-full border p-2 rounded"
+          value={formData.number}
+          onChange={handleChange}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            name="exp_month"
+            placeholder="MM"
+            className="border p-2 rounded"
+            value={formData.exp_month}
+            onChange={handleChange}
+          />
+          <input
+            name="exp_year"
+            placeholder="YY"
+            className="border p-2 rounded"
+            value={formData.exp_year}
+            onChange={handleChange}
+          />
         </div>
-        <div>
-          <code>5555555555554444</code> (Mastercard)
-        </div>
-        <div>
-          <code>4000002500003155</code> (Requires{' '}
-          <a
-            href="https://www.youtube.com/watch?v=2kc-FjU2-mY"
-            target="_blank"
-            rel="noopener noreferrer">
-            3DSecure
-          </a>
-          )
-        </div>
-      </p>
+        <input
+          name="cvc"
+          placeholder="CVV"
+          className="w-full border p-2 rounded"
+          value={formData.cvc}
+          onChange={handleChange}
+        />
+        <input
+          name="name"
+          placeholder="Full Name"
+          className="w-full border p-2 rounded"
+          value={formData.name}
+          onChange={handleChange}
+        />
+        <input
+          name="email"
+          placeholder="E-mail"
+          className="w-full border p-2 rounded"
+          value={formData.email}
+          onChange={handleChange}
+        />
 
-      <form id="payment-form" onSubmit={handleSubmit}>
-        <label htmlFor="card">Card</label>
-        <CardElement id="card" />
-
-        <button type="submit">Pay</button>
+        <div className="flex gap-4 mt-4">
+          <button
+            type="submit"
+            className="bg-black text-white px-6 py-2 rounded">
+            Pay now
+          </button>
+          <button
+            type="button"
+            onClick={() => setFormVisible(false)}
+            className="border px-6 py-2 rounded">
+            Cancel
+          </button>
+        </div>
       </form>
-
-      <p>
-        {' '}
-        <a href="https://youtu.be/IhvtIbfDZJI" target="_blank">
-          Watch a demo walkthrough
-        </a>{' '}
-      </p>
     </>
   )
 }

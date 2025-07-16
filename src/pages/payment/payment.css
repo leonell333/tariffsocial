@@ -2,50 +2,49 @@
     background-color: var(--accent-color);
   }
   
-  .payment button {
-    background: var(--accent-color);
-    border-radius: var(--radius);
-    color: white;
-    border: 0;
-    padding: 12px 16px;
-    margin-top: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: block;
-  }
-  .payment button:hover {
-    filter: contrast(115%);
-  }
-  .payment button:active {
-    transform: translateY(0px) scale(0.98);
-    filter: brightness(0.9);
-  }
-  .payment button:disabled {
-    opacity: 0.5;
-    cursor: none;
-  }
-  
-  .payment input, select {
-    display: block;
-    font-size: 1.1em;
-    width: 100%;
-  }
-  
-  .payment label {
-    display: block;
-  }
-  
-  .payment a {
-    color: var(--accent-color);
-    font-weight: 900;
-  }
-  
-  .payment small {
-    font-size: .6em;
-  }
-  
-  .payment fieldset, input, select {
-    border: 1px solid #efefef;
-  }
-  
+.payment button {
+  background: var(--accent-color);
+  border-radius: var(--radius);
+  color: white;
+  border: 0;
+  padding: 12px 16px;
+  margin-top: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: block;
+}
+.payment button:hover {
+  filter: contrast(115%);
+}
+.payment button:active {
+  transform: translateY(0px) scale(0.98);
+  filter: brightness(0.9);
+}
+.payment button:disabled {
+  opacity: 0.5;
+  cursor: none;
+}
+
+.payment input, select {
+  display: block;
+  font-size: 1.1em;
+  width: 100%;
+}
+
+.payment label {
+  display: block;
+}
+
+.payment a {
+  color: var(--accent-color);
+  font-weight: 900;
+}
+
+.payment small {
+  font-size: .6em;
+}
+
+.payment fieldset, input, select {
+  border: 1px solid #efefef;
+}

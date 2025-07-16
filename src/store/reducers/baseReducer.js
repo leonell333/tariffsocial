@@ -14,7 +14,6 @@ const initialState = {
   bannerAdsModal: false,
   sponsoredModal: false,
   sponsoredUpdateModal: false,
-  paymentModal: false,
   paymentData: {},
   numberOfaffilliations: 0,
   captureCamera: false,

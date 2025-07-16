@@ -1,8 +1,9 @@
+
 import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import "../../pages/advertise/advertise.css"
 import LeftSide from '../layout/leftSide';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const LEFT_SIDE_WIDTH = 250;
 const SIDE_MARGIN = 70;
@@ -69,13 +70,13 @@ const CreateAdvertise = () => {
             }
           >
             <div className='mx-5 pb-[30px] flex flex-row text-[20px] border-none'>
-              <div className={`rounded-lg px-6 ${location.pathname=='/publish/ads'?' bg-[#0e2841] border-none text-white':'text-[#161722] border border-[[#0e2841]] cursor-pointer'}`} onClick={()=>{
+              <div className={` px-6 rounded-lg ${location.pathname=='/publish/ads'?' bg-[#0e2841] border-none text-white':'text-[#161722] border border-[#0e2841] cursor-pointer'}`} onClick={()=>{
                   navigate('/publish/ads')
                 }}> Banner Advertisements</div>
-              <div className={`ml-5 rounded-lg px-6  ${location.pathname=='/publish/sponsored'?'bg-[#0e2841] border-none text-white':'text-[#161722] border border-[[#0e2841]] cursor-pointer'}`} onClick={()=>{
+              <div className={`ml-5 px-6 rounded-lg ${location.pathname=='/publish/sponsored'?'bg-[#0e2841] border-none text-white':'text-[#161722] border border-[#0e2841] cursor-pointer'}`} onClick={()=>{
                   navigate('/publish/sponsored')
               }}> Sponsored Content</div>
-              <div className={`ml-5 rounded-lg px-6  ${location.pathname=='/publish/campaigns'?'bg-[#0e2841] border-none text-white':'text-[#161722] border border-[[#0e2841]] cursor-pointer'}`} onClick={()=>{
+              <div className={`ml-5 px-6 rounded-lg ${location.pathname=='/publish/campaigns'?'bg-[#0e2841] border-none text-white':'text-[#161722] border border-[#0e2841] cursor-pointer'}`} onClick={()=>{
                   navigate('/publish/campaigns')
               }}> Campaigns</div>
             </div>

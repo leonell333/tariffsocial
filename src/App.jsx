@@ -11,7 +11,6 @@ import Chat from './pages/chat'
 import Notification from './pages/chat/notification'
 import NavBar from './components/layout/navbar'
 import Authenticatie from './utils/authenticate'
-import Advertise from './pages/advertise'
 import CreateAds from './pages/advertise'
 import CreateBannerAd from './components/advertise/createBannerAd'
 import CreateSponsored from './components/advertise/createSponsored'
@@ -30,8 +29,6 @@ import Colleagues from './pages/net/colleagues'
 import Following from './pages/net/following'
 import Followers from './pages/net/followers'
 import Recommendations from './pages/net/recommendations'
-import MyAdvertisements from './pages/advertise/myAds'
-import MySponsoredContents from './pages/advertise/mySponsored'
 import MyCampaigns from './pages/advertise/myCampaigns'
 import Payment from './pages/payment'
 import Dev from './pages/admin/dev'
@@ -74,25 +71,13 @@ function App() {
                     <Route path="info/conduct" element={<TariffInfo />} />
                     <Route path="info/advertise-rate" element={<AdvertiseRateCard />} />
                   </Route>
-
                   <Route path="publish" element={<CreateAds />}>
                     <Route index element={<Navigate to="/publish/ads" replace />} />
                     <Route path="ads" element={<CreateBannerAd />} />
                     <Route path="sponsored" element={<CreateSponsored />} />
                     <Route path="campaigns" element={<MyCampaigns />} />
-                    <Route path="payment" element={<Payment />} /> {/* <-- Payment now uses CreateAdvertise layout */}
+                    <Route path="payment" element={<Payment />} />
                   </Route>
-
-                  <Route path="advertise" element={<Advertise />}>
-                    <Route
-                      index
-                      element={<Navigate to="/advertise/ads" replace />}
-                    />
-                    <Route path="ads" element={<MyAdvertisements />} />
-                    <Route path="sponsored" element={<MySponsoredContents />} />
-                  </Route>
-
-                  {/* Removed: <Route path="/payment" element={<Payment />} /> */}
                   <Route path="/chat" element={<Chat />} />
 
                   <Route path="/admin" element={<Admin />}>
