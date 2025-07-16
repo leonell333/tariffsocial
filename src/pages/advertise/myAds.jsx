@@ -107,7 +107,8 @@ const MyAds = () => {
                     dispatch(updateAdvertiseStore({ paymentId: ad.id, paymentType: 'ads', paymentAd: ad })); navigate(`/publish/payment`); }}
                     className="text-sm text-red-600 font-medium cursor-pointer">Billing</div>}
                   {ad.state != "Approved" && <div onClick={() => { 
-                    dispatch(updateAdvertiseStore({ selectedBannerAd: ad })); navigate(`/publish/ads`); }}
+                    dispatch(updateAdvertiseStore({ selectedAd: { ...ad, type: 'banner' } }));
+                    navigate(`/publish/ads`); }}
                     className="text-sm text-green-600 font-medium cursor-pointer"
                   > Edit </div>}
                 </TableCell>

@@ -84,7 +84,10 @@ const MySponsoreds = () => {
                   {!sponsored.billed && <div onClick={() => { 
                     dispatch(updateAdvertiseStore({ paymentId: sponsored.id, paymentType: 'sponsored', paymentAd: sponsored })); navigate(`/publish/payment`); }}
                     className="text-sm text-red-600 font-medium cursor-pointer">Billing</div>}
-                  {sponsored.state != "Approved" && <div onClick={() => navigate(`/publish/sponsored`)}
+                  {sponsored.state != "Approved" && <div onClick={() => { 
+                    dispatch(updateAdvertiseStore({ selectedAd: { ...sponsored, type: 'sponsored' } }));
+                    navigate(`/publish/sponsored`);
+                  }}
                     className="text-sm text-green-600 font-medium cursor-pointer"
                   >Edit</div>}
                 </TableCell>

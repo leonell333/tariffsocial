@@ -11,7 +11,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { currencies } from "../../consts";
 import { isValidEmail } from "../../utils";
-import { createOrUpdateBannerAd, updateAdvertiseStore, getBannerAdById } from "../../store/actions/advertiseAction";
+import { createOrUpdateBannerAd, updateAdvertiseStore, } from "../../store/actions/advertiseAction";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import "../../pages/advertise/advertise.css";
 
@@ -35,7 +35,7 @@ const CreateBannerAdvertise = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const user = useSelector((state) => state.user);
-  const selectedBannerAd = useSelector((state) => state.advertise.selectedBannerAd);
+  const selectedAd = useSelector((state) => state.advertise.selectedAd);
 
   const updateAdvertiseState = (key, value) => {
     setStateAdvertise((prev) => ({
@@ -77,13 +77,13 @@ const CreateBannerAdvertise = () => {
   useEffect(() => {
     updateAdvertiseState("country", { label: "Australia", countryCode: "AU" });
     return () => {
-      dispatch(updateAdvertiseStore({ selectedBannerAd: null }));
+      dispatch(updateAdvertiseStore({ selectedAd: null }));
     };
   }, []);
 
   useEffect(() => {
-    if (selectedBannerAd) {
-      let pubDate = selectedBannerAd.pubDate;
+    if (selectedAd && selectedAd.type === 'banner') {
+      let pubDate = selectedAd.pubDate;
       if (pubDate && typeof pubDate.toDate === "function") {
         pubDate = dayjs(pubDate.toDate());
       } else if (pubDate) {
@@ -92,12 +92,12 @@ const CreateBannerAdvertise = () => {
         pubDate = null;
       }
       setStateAdvertise({
-        ...selectedBannerAd,
+        ...selectedAd,
         pubDate,
-        imageFile: selectedBannerAd.imageUrl || selectedBannerAd.imageFile,
+        imageFile: selectedAd.imageUrl || selectedAd.imageFile,
       });
     }
-  }, [selectedBannerAd]);
+  }, [selectedAd]);
 
   const handleAdvertise = async () => {
     let d = stateAdvertise.pubDate ? stateAdvertise.pubDate.toDate() : null;
@@ -142,7 +142,7 @@ const CreateBannerAdvertise = () => {
     setIsLoading(true);
     dispatch(createOrUpdateBannerAd({
       stateAdvertise: { ...stateAdvertise, pubDate: d, ownerId: user.id },
-      editId: selectedBannerAd?.id
+      editId: selectedAd?.type === 'banner' ? selectedAd?.id : undefined
     }))
       .then(async (ad) => {
         if (ad) {
@@ -657,7 +657,7 @@ const CreateBannerAdvertise = () => {
                 <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
               </>
             ) : (
-              selectedBannerAd ? "Update" : "Create"
+              selectedAd?.type === 'banner' ? "Update" : "Create"
             )}
           </button>
         </div>

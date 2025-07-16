@@ -10,7 +10,7 @@ const initialState = {
   paymentId: null,
   paymentType: null,
   paymentAd: null,
-  selectedBannerAd: null,
+  selectedAd: null,
 };
 
 export default function(state = initialState, action) {
