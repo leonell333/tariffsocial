@@ -16,7 +16,6 @@ const initialState = {
   myPosts: false,
   sort: 'recent',
   selectedTags: [],
-  // Search-related fields
   searchPosts: [],
   lastSearchPost: null,
   lastSearchPostVisible: false,

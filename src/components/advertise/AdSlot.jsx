@@ -3,7 +3,7 @@ import { logEvent } from 'firebase/analytics';
 import { analytics } from '../../firebase';
 
 const ADSENSE_SLOT = 'ca-pub-4897128497430688';
-const AD_SLOT_ID = "1602364811";
+const AD_SLOT_ID = "6526839699";
 
 const AdSlot = () => {
   const [adLoaded, setAdLoaded] = useState(false);
@@ -30,7 +30,6 @@ const AdSlot = () => {
         ad_client: ADSENSE_SLOT
       });
     }
-
     if (!window.adsbygoogle) {
       const script = document.createElement('script');
       script.async = true;
@@ -41,7 +40,6 @@ const AdSlot = () => {
         setAdError(true);
         dispatchErrorEvent();
       };
-      
       script.onload = () => {
         setAdLoaded(true);
       };
@@ -49,7 +47,6 @@ const AdSlot = () => {
     } else {
       setAdLoaded(true);
     }
-
     const timeout = setTimeout(() => {
       if (!adLoaded && !adError) {
         console.warn('AdSense loading timeout - ads may not display immediately');
@@ -57,7 +54,6 @@ const AdSlot = () => {
         dispatchErrorEvent();
       }
     }, 10000);
-
     return () => clearTimeout(timeout);
   }, [adLoaded, adError]);
 
@@ -65,8 +61,6 @@ const AdSlot = () => {
     if (adLoaded && window.adsbygoogle) {
       try {
         window.adsbygoogle.push({});
-        
-        // Check if ad actually rendered after a delay
         const renderTimeout = setTimeout(() => {
           if (adRef.current) {
             const adElement = adRef.current;
@@ -82,8 +76,7 @@ const AdSlot = () => {
               setAdRendered(true);
             }
           }
-        }, 5000); // Wait 5 seconds for ad to render
-
+        }, 5000);
         return () => clearTimeout(renderTimeout);
       } catch (error) {
         console.warn('Error pushing AdSense ads:', error);
@@ -112,11 +105,11 @@ const AdSlot = () => {
       <ins 
         ref={adRef}
         className="adsbygoogle"
-        style={{ display: 'block', width: '100%' }}
+        style={{ display: 'block', width: '100%', height: '222px' }}
         data-ad-client={ADSENSE_SLOT}
         data-ad-slot={AD_SLOT_ID}
         data-ad-format="auto"
-        data-full-width-responsive="true"
+        // data-full-width-responsive="true"
       ></ins>
     </div>
   );

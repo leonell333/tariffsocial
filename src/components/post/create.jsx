@@ -18,7 +18,7 @@ import {updateBaseStore} from '../../store/actions/baseActions'
 import PostEditor from './postEditor'
 import {convertToWebp} from '../../utils'
 
-const MAX_FILE_MB = 25;
+const MAX_FILE_MB = 100;
 
 const CreatePost = () => {
     const navigate = useNavigate();

@@ -2,10 +2,15 @@ import { UPDATE_ADVERTISE_STORE } from '../types';
 
 const initialState = {
   bannerAds: [],
-  myAds: [],
-  lastAd: null,
-  lastAdVisible: false,
-  // Add more fields as needed for ad management
+  lastBannerAd: null,
+  lastBannerAdVisible: false,
+  sponsoredAds: [],
+  lastSponsoredAd: null,
+  lastSponsoredAdVisible: false,
+  paymentId: null,
+  paymentType: null,
+  paymentAd: null,
+  selectedAd: null,
 };
 
 export default function(state = initialState, action) {

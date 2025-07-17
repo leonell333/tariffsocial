@@ -1,111 +1,100 @@
-import React, {useCallback, useState} from 'react'
-import {loadStripe} from '@stripe/stripe-js'
-import {CheckoutProvider, PaymentElement, useCheckout} from '@stripe/react-stripe-js'
-import {updateBaseStore} from '../../store/actions/baseActions'
-import {useDispatch, useSelector} from 'react-redux'
-import './checkout.css'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUB_KEY)
-const stropeBackend = import.meta.env.VITE_BACKEND
+import React, { useState, useCallback, useEffect } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { PaymentElement, Elements, useStripe, useElements } from "@stripe/react-stripe-js";
+import "./checkout.css";
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '70vw',
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  padding: 1,
-}
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUB_KEY);
+const stripeBackend = import.meta.env.VITE_BACKEND;
 
-const appearance = {
-  theme: 'night', // or 'flat', 'night', 'none'
-  variables: {
-    colorPrimary: '#FF5722',
-    colorBackground: '#ffffff',
-    colorText: '#000000',
-    fontFamily: 'Roboto, sans-serif',
-  },
-}
-
-const validateEmail = async (email, checkout) => {
-  const updateResult = await checkout.updateEmail(email)
-  const isValid = updateResult.type !== 'error'
-
-  return { isValid, message: !isValid ? updateResult.error.message : null }
-}
+const validateEmail = (email) => {
+  const re = /^(([^<>()\[\]\\.,;:\s@\"]+(\.[^<>()\[\]\\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
+  const isValid = re.test(String(email).toLowerCase());
+  return { isValid, message: isValid ? null : "Invalid email address." };
+};
 
 const EmailInput = ({ email, setEmail, error, setError }) => {
-  const checkout = useCheckout()
-  const handleBlur = async () => {
-    if (!email) {
-      return
-    }
-
-    const { isValid, message } = await validateEmail(email, checkout)
-    if (!isValid) {
-      setError(message)
-    }
-  }
-
+  const handleBlur = () => {
+    if (!email) return;
+    const { isValid, message } = validateEmail(email);
+    if (!isValid) setError(message);
+  };
   const handleChange = (e) => {
-    setError(null)
-    setEmail(e.target.value)
-  }
-
+    setError(null);
+    setEmail(e.target.value);
+  };
   return (
-    <>
-      <label>
-        Email
-        <input
-          id="email"
-          type="text"
-          value={email}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          placeholder="you@example.com"
-        />
-      </label>
-      {error && <div id="email-errors">{error}</div>}
-    </>
-  )
-}
+    <div className="p-Input">
+      <input
+        id="email"
+        type="text"
+        value={email}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        placeholder="you@example.com"
+        className="p-Input-input Input Input--empty"
+      />
+      {error && (
+        <div style={{ color: 'red', fontSize: '0.9em', marginTop: 4 }}>{error}</div>
+      )}
+    </div>
+  );
+};
 
-const CheckoutInnerForm = () => {
-  const checkout = useCheckout()
-  const [email, setEmail] = useState('')
-  const [emailError, setEmailError] = useState(null)
-  const [message, setMessage] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [checked, setChecked] = useState(false)
+const CheckoutInnerForm = ({ amount, currency }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const zeroDecimalCurrencies = [
+    "bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf"
+  ];
+  const isZeroDecimal = zeroDecimalCurrencies.includes((currency || '').toLowerCase());
+  const displayAmount = isZeroDecimal ? amount : amount / 100;
+  const formattedAmount = displayAmount.toLocaleString(undefined, {
+    style: 'currency',
+    currency: (currency || 'USD').toUpperCase(),
+  });
+
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    setIsLoading(true)
-
-    const { isValid, message } = await validateEmail(email, checkout)
+    e.preventDefault();
+    setIsLoading(true);
+    const { isValid, message: emailMsg } = validateEmail(email);
     if (!isValid) {
-      setEmailError(message)
-      setMessage(message)
-      setIsLoading(false)
-      return
+      setEmailError(emailMsg);
+      setIsLoading(false);
+      return;
     }
     if (!checked) {
-      setMessage('Please check terms and conditions. ')
-      setIsLoading(false)
-      return
+      setMessage("Please check terms and conditions. ");
+      setIsLoading(false);
+      return;
     }
-    const { error } = await checkout.confirm()
-
-    setMessage(error.message)
-
-    setIsLoading(false)
-  }
+    if (!stripe || !elements) {
+      setMessage("Stripe is not loaded yet.");
+      setIsLoading(false);
+      return;
+    }
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        receipt_email: email,
+      },
+      redirect: "if_required",
+    });
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage("Payment successful!");
+    }
+    setIsLoading(false);
+  };
 
   return (
-    <div className="checkout-form">
+    <div className="flex justify-center checkout-form">
       <form id="payment-form" onSubmit={handleSubmit}>
         <EmailInput
           email={email}
@@ -113,73 +102,84 @@ const CheckoutInnerForm = () => {
           error={emailError}
           setError={setEmailError}
         />
-        <h4>Payment</h4>
         <PaymentElement id="payment-element" />
+
         <div className="mb-2">
           <input
+            id="terms-checkbox"
             type="checkbox"
             checked={checked}
             onChange={(e) => {
-              setChecked(e.target.checked)
-            }}></input>{' '}
-          Terms and conditions acknowledgment.
+              setChecked(e.target.checked);
+            }}
+          />
+          <label
+            htmlFor="terms-checkbox"
+            style={{ cursor: 'pointer', marginLeft: 8 }}
+          >
+            Terms and conditions acknowledgment.
+          </label>
         </div>
-        <button disabled={isLoading} id="submit">
+        <button disabled={isLoading || !stripe || !elements} id="submit">
           <span id="button-text">
             {isLoading ? (
               <div className="spinner" id="spinner"></div>
             ) : (
-              `Pay ${checkout.total.total.amount} now`
+              `Pay ${formattedAmount} now`
             )}
           </span>
         </button>
-        {/* Show any error or success messages */}
         {message && <div id="payment-message">{message}</div>}
       </form>
     </div>
-  )
-}
+  );
+};
 
 const CheckoutForm = (props) => {
-  const dispatch = useDispatch()
-  const user = useSelector(state => state.user)
-  const paymentModal = useSelector(state => state.base.paymentModal)
-  
-  const [clientSecret, setClientSecret] = useState(null)
+  const { paymentData } = props;
+  const [clientSecret, setClientSecret] = useState(null);
 
-  const fetchClientSecret = useCallback(() => {
-    dispatch(updateBaseStore({ loading: true }))
-    return fetch(
-      `${stropeBackend}/stripe/create-checkout-session?data=${JSON.stringify(
-        props.paymentData
-      )}`,
-      {
-        method: 'POST',
-      }
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        dispatch(updateBaseStore({ loading: false }))
-        return data.clientSecret
-      }).catch(err=>{
-        dispatch(updateBaseStore({ loading: false }))
-        console.log(err);
+  useEffect(() => {
+    fetch(`${stripeBackend}/stripe/create-payment-intent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: paymentData }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(`HTTP ${res.status}: ${errorData.error || 'Server error'}`);
+        }
+        return res.json();
       })
-  }, [])
+      .then((data) => {
+        if (!data.clientSecret) {
+          throw new Error('No client secret received from server');
+        }
+        setClientSecret(data.clientSecret);
+      })
+      .catch((err) => {
+        console.error('Payment Intent Error:', err);
+      });
+  }, [paymentData]);
 
-  const appearance = {
-    theme: 'stripe',
-  }
+  const options = { clientSecret };
 
-  const options = { fetchClientSecret, elementsOptions: { appearance } }
-
-  if (!fetchClientSecret) return null
+  if (!clientSecret) return (
+    <div className="flex justify-center items-center min-h-[200px]">
+      <div className="spinner" style={{ width: 32, height: 32, border: '4px solid #eee', borderTop: '4px solid #888', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
 
   return (
-    <CheckoutProvider stripe={stripePromise} options={options}>
-      <CheckoutInnerForm />
-    </CheckoutProvider>
-  )
-}
+    <Elements stripe={stripePromise} options={options}>
+      <CheckoutInnerForm
+        amount={paymentData.price_data.unit_amount}
+        currency={paymentData.price_data.currency}
+      />
+    </Elements>
+  );
+};
 
-export default CheckoutForm
+export default CheckoutForm;

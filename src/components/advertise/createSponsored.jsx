@@ -1,5 +1,4 @@
 
-
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router";
@@ -11,11 +10,15 @@ import "../../pages/advertise/advertise.css";
 import countries from "../../consts/country";
 import { currencies } from "../../consts";
 import { isValidEmail } from "../../utils";
-import { createOrUpdateSponsoredAd, getSponsoredAdById, } from "../../store/actions/advertiseAction";
+import { createOrUpdateSponsoredAd } from "../../store/actions/advertiseAction";
+import { updateAdvertiseStore } from "../../store/actions/advertiseAction";
 
 const CreateSponsored = () => {
-  const [searchParams] = useSearchParams();
-  const editId = searchParams.get("edit");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const selectedAd = useSelector((state) => state.advertise.selectedAd);
+  const user = useSelector((state) => state.user);
+
   const [rte, setRte] = useState(undefined);
   const [stateSponsored, setStateSponsored] = useState({
     imageFile: "",
@@ -36,9 +39,6 @@ const CreateSponsored = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.user);
   var refdiv = useRef(null);
 
   const updateSponsoredState = (key, value) => {
@@ -74,48 +74,36 @@ const CreateSponsored = () => {
 
   useEffect(() => {
     updateSponsoredState('country', { label: "Australia", countryCode: "AU" });
+    // Cleanup on unmount: reset selectedAd
+    return () => {
+      dispatch(updateAdvertiseStore({ selectedAd: null }));
+    };
   }, []);
 
   useEffect(() => {
-    if (!editId) return;
-
-    const getSponsoredAdData = async () => {
-      const data = await dispatch(getSponsoredAdById(editId));
-      if (data) {
-        if (data.state === "Approved" || data.ownerId !== user.id) {
-          navigate("/");
-          return;
-        }
-        
-        setStateSponsored({
-          imageFile: "",
-          title: data.title || "",
-          email: data.email || "",
-          name: data.name || "",
-          phone: data.phone || "",
-          budget: data.budget || 1,
-          days: data.days || 1,
-          currency: data.currency || "USD",
-          country: (() => {
-            const match = countries.find((c) => c.value === data.countryCode);
-            return match ? { label: match.title, countryCode: match.value } : { label: "Australia", countryCode: "AU" };
-          })(),
-          businessName: data.businessName || "",
-          author: data.author || "",
-          link: data.link || "",
-          pubDate: dayjs(data.pubDate?.toDate ? data.pubDate.toDate() : data.pubDate),
-        });
-
-        setTimeout(() => {
-          let editor = new window.RichTextEditor(refdiv.current);
-          editor.setHTMLCode(data.content || "");
-          setRte(editor);
-        }, 10);
-      }
-    };
-
-    getSponsoredAdData();
-  }, [editId]);
+    if (selectedAd && selectedAd.type === 'sponsored') {
+      setStateSponsored({
+        imageFile: "",
+        title: selectedAd.title || "",
+        email: selectedAd.email || "",
+        name: selectedAd.name || "",
+        phone: selectedAd.phone || "",
+        budget: selectedAd.budget || 1,
+        days: selectedAd.days || 1,
+        currency: selectedAd.currency || "USD",
+        country: selectedAd.country || { label: "Australia", countryCode: "AU" },
+        businessName: selectedAd.businessName || "",
+        author: selectedAd.author || "",
+        link: selectedAd.link || "",
+        pubDate: dayjs(selectedAd.pubDate?.toDate ? selectedAd.pubDate.toDate() : selectedAd.pubDate),
+      });
+      setTimeout(() => {
+        let editor = new window.RichTextEditor(refdiv.current);
+        editor.setHTMLCode(selectedAd.content || "");
+        setRte(editor);
+      }, 10);
+    }
+  }, [selectedAd]);
 
   useEffect(() => {
     setTimeout(function () {
@@ -174,12 +162,11 @@ const CreateSponsored = () => {
         pubDate: d,
         ownerId: user.id,
       },
-      editId,
+      editId: selectedAd?.type === 'sponsored' ? selectedAd?.id : undefined,
       document,
     })).then((res) => {
       if (res) {
-        console.log('res', res);
-        if (!editId) {
+        if (!selectedAd) {
           navigate(`/payment?id=${res}&type=sponsored`);
         }
       }
@@ -488,7 +475,7 @@ const CreateSponsored = () => {
         <div className="basis-1/4">
           <TextField
             variant="outlined"
-            disabled={editId}
+            disabled={selectedAd && selectedAd.type === 'sponsored'}
             value={stateSponsored.budget}
             onChange={(e) => updateSponsoredState('budget', e.target.value)}
             fullWidth
@@ -515,7 +502,7 @@ const CreateSponsored = () => {
                 startAdornment: (
                   <InputAdornment position="start">
                     <TextField
-                      disabled={editId}
+                      disabled={selectedAd && selectedAd.type === 'sponsored'}
                       fullWidth
                       select
                       size="small"
@@ -550,7 +537,7 @@ const CreateSponsored = () => {
         <div className="basis-1/4">
           <DatePicker
             label="Publish Date"
-            disabled={editId}
+            disabled={selectedAd && selectedAd.type === 'sponsored'}
             value={stateSponsored.pubDate}
             onChange={(newValue) => updateSponsoredState('pubDate', newValue)}
             slotProps={{
@@ -598,7 +585,7 @@ const CreateSponsored = () => {
           <TextField
             variant="outlined"
             label="Number of days"
-            disabled={editId}
+            disabled={selectedAd && selectedAd.type === 'sponsored'}
             value={stateSponsored.days}
             onChange={(e) => updateSponsoredState('days', e.target.value)}
             fullWidth
@@ -634,7 +621,7 @@ const CreateSponsored = () => {
             className="bg-[#161722] text-white text-[18px]  rounded-xl cursor-pointer h-10 w-25"
             onClick={handleSponsored}
           >
-            {editId ? "Update" : "Create"}
+            {selectedAd && selectedAd.type === 'sponsored' ? "Update" : "Create"}
           </button>
         </div>
       </div>

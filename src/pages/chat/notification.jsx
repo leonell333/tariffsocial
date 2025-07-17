@@ -121,7 +121,7 @@ const Notification = () => {
   }, [user?.id])
 
   return (
-    <div className="w-full bg-white shadow-lg min-h-[calc(100vh-107px)] rounded-xl p-6 text-black space-y-4" style={{ fontFamily: 'poppins' }}>
+    <div className="w-full bg-white shadow-lg min-h-[calc(100vh-108px)] rounded-xl p-6 text-black space-y-4" style={{ fontFamily: 'poppins' }}>
       <div className="flex items-center gap-3 pb-1 border-b border-gray-100">
         <div className="p-2 bg-gray-50 rounded-full">
           <Bell className="w-5 h-5 text-blue-600" />

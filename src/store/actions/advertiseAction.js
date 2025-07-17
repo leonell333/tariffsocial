@@ -1,21 +1,13 @@
-import {UPDATE_ADVERTISE_STORE} from "../types";
-import {analytics, db, storage} from "../../firebase";
-import {
-  addDoc,
-  collection,
-  doc,
-  getCountFromServer,
-  getDoc,
-  getDocs,
-  orderBy,
-  query,
-  serverTimestamp,
-  updateDoc,
-  where,
-} from "firebase/firestore";
-import {getDownloadURL, ref as storageRef, uploadString,} from "firebase/storage";
-import {extractKeywords} from "../../utils";
-import {logEvent} from "firebase/analytics";
+
+import { UPDATE_POST_STORE, UPDATE_ADVERTISE_STORE } from "../types";
+import { db, auth, storage } from "../../firebase";
+import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion,
+  arrayRemove, increment, writeBatch, collection, query, where, limit, serverTimestamp, orderBy,
+  startAfter, getCountFromServer, getDocsFromCache, onSnapshot, } from "firebase/firestore";
+import { ref as storageRef, uploadString, getDownloadURL, uploadBytes, uploadBytesResumable, } from "firebase/storage";
+import { extractKeywords } from "../../utils";
+import { logEvent } from "firebase/analytics";
+import { analytics } from "../../firebase";
 
 export const updateAdvertiseStore = (data) => (dispatch, getState) => {
   return new Promise((res, rej) => {
@@ -46,7 +38,7 @@ export const getBannerAdById = (adId) => (dispatch, getState) => {
   });
 };
 
-export const createOrUpdateBannerAd = ({ stateAdvertise }) => (dispatch, getState) => {
+export const createOrUpdateBannerAd = ({ stateAdvertise, editId }) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
     try {
       const keywords = extractKeywords(stateAdvertise.name);
@@ -63,42 +55,76 @@ export const createOrUpdateBannerAd = ({ stateAdvertise }) => (dispatch, getStat
       } else {
         imageUrl = stateAdvertise.imageFile;
       }
-      const docRef = await addDoc(collection(db, "ads"), {
-        name: stateAdvertise.name,
-        email: stateAdvertise.email,
-        ownerId: stateAdvertise.ownerId,
-        country: stateAdvertise.country,
-        productLink: stateAdvertise.productLink,
-        budget: Number(stateAdvertise.budget),
-        days: Number(stateAdvertise.days),
-        pubDate: stateAdvertise.pubDate,
-        keywords,
-        title: stateAdvertise.title,
-        businessName: stateAdvertise.businessName,
-        imageUrl,
-        currency: stateAdvertise.currency,
-        state: "Pending",
-        billed: false,
-        createdAt: serverTimestamp(),
-      });
-      try {
-        if (analytics) {
-          logEvent(analytics, "ad_created", {
-            ad_type: "banner",
-            ad_id: docRef.id,
-            budget: stateAdvertise.budget,
-            currency: stateAdvertise.currency,
-            country: stateAdvertise.country,
-          });
+      if (editId) {
+        const adRef = doc(db, "ads", editId);
+        await updateDoc(adRef, {
+          name: stateAdvertise.name,
+          email: stateAdvertise.email,
+          ownerId: stateAdvertise.ownerId,
+          country: stateAdvertise.country,
+          productLink: stateAdvertise.productLink,
+          budget: Number(stateAdvertise.budget),
+          days: Number(stateAdvertise.days),
+          pubDate: stateAdvertise.pubDate,
+          keywords,
+          title: stateAdvertise.title,
+          businessName: stateAdvertise.businessName,
+          imageUrl,
+          currency: stateAdvertise.currency,
+        });
+        res({ ...stateAdvertise, id: editId, imageUrl });
+        try {
+          if (analytics) {
+            logEvent(analytics, "ad_updated", {
+              ad_type: "banner",
+              ad_id: editId,
+              budget: stateAdvertise.budget,
+              currency: stateAdvertise.currency,
+              country: stateAdvertise.country,
+            });
+          }
+        } catch (analyticsError) {
+          console.warn("Failed to log analytics event:", analyticsError);
         }
-      } catch (analyticsError) {
-        console.warn("Failed to log analytics event:", analyticsError);
+      } else {
+        const docRef = await addDoc(collection(db, "ads"), {
+          name: stateAdvertise.name,
+          email: stateAdvertise.email,
+          ownerId: stateAdvertise.ownerId,
+          country: stateAdvertise.country,
+          productLink: stateAdvertise.productLink,
+          budget: Number(stateAdvertise.budget),
+          days: Number(stateAdvertise.days),
+          pubDate: stateAdvertise.pubDate,
+          keywords,
+          title: stateAdvertise.title,
+          businessName: stateAdvertise.businessName,
+          imageUrl,
+          currency: stateAdvertise.currency,
+          state: "Pending",
+          billed: false,
+          createdAt: serverTimestamp(),
+        });
+        res({ ...stateAdvertise, id: docRef.id, billed: false, state: "Pending", imageUrl: imageUrl, });
+        try {
+          if (analytics) {
+            logEvent(analytics, "ad_created", {
+              ad_type: "banner",
+              ad_id: docRef.id,
+              budget: stateAdvertise.budget,
+              currency: stateAdvertise.currency,
+              country: stateAdvertise.country,
+            });
+          }
+        } catch (analyticsError) {
+          console.warn("Failed to log analytics event:", analyticsError);
+        }
       }
-      res(docRef.id);
     } catch (error) {
-      console.error("Failed to create banner ad:", error);
+      console.error("Failed to create/update banner ad:", error);
       rej(error);
-    } 
+    } finally {
+    }
   });
 };
 
@@ -236,32 +262,31 @@ export const handlePaymentSession = (sessionId, adId, ownerId) => (dispatch, get
 export const getCampaigns = (filters) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
     try {
-      const { ownerId, billedStatus, status, keyword } = filters;
-      let combined = [];
-      const baseConditions = [where("ownerId", "==", ownerId)];
+      const { ownerId, billedStatus, status } = filters;
+      let adsConditions = [where("ownerId", "==", ownerId)];
+      let sponsoredConditions = [where("ownerId", "==", ownerId)];
 
-      if (billedStatus === "billed")
-        baseConditions.push(where("billed", "==", true));
-      if (billedStatus === "not billed")
-        baseConditions.push(where("billed", "==", false));
-      if (status !== "all") baseConditions.push(where("state", "==", status));
-
-      let keys = extractKeywords(keyword);
-      if (keys.length !== 0) {
-        for (let k of keys)
-          baseConditions.push(where("keywords", "array-contains", k));
+      if (billedStatus === "billed") {
+        adsConditions.push(where("billed", "==", true));
+        sponsoredConditions.push(where("billed", "==", true));
       }
-
-      baseConditions.push(orderBy("createdAt", "desc"));
-
+      if (billedStatus === "not billed") {
+        adsConditions.push(where("billed", "==", false));
+        sponsoredConditions.push(where("billed", "==", false));
+      }
+      if (status !== "all") {
+        adsConditions.push(where("state", "==", status));
+        sponsoredConditions.push(where("state", "==", status));
+      }
+      adsConditions.push(orderBy("createdAt", "desc"));
+      sponsoredConditions.push(orderBy("createdAt", "desc"));
       const [adsSnap, sponsoredSnap] = await Promise.all([
-        getDocs(query(collection(db, "ads"), ...baseConditions)),
-        getDocs(query(collection(db, "sponsored"), ...baseConditions)),
+        getDocs(query(collection(db, "ads"), ...adsConditions)),
+        getDocs(query(collection(db, "sponsored"), ...sponsoredConditions)),
       ]);
 
       const formatDocs = async (snap, type) => {
         const list = [];
-
         for (const doc_ of snap.docs) {
           const data = doc_.data();
           const formatter = new Intl.NumberFormat("en", {
@@ -270,23 +295,40 @@ export const getCampaigns = (filters) => (dispatch, getState) => {
             currencyDisplay: "symbol",
           });
           const symbol =
-            formatter.formatToParts(1).find((p) => p.type === "currency")
-              ?.value || data.currency;
+            formatter.formatToParts(1).find((p) => p.type === "currency")?.value || data.currency;
+
+          // Normalize country and countryCode for table display
+          let country = null;
+          let countryCode = null;
+          if (type === "ads") {
+            country = data.country || null;
+            countryCode = data.country && data.country.countryCode ? data.country.countryCode : (data.countryCode || null);
+          } else {
+            // sponsored
+            country = null;
+            countryCode = data.countryCode || data.country || null;
+          }
 
           list.push({
             ...data,
             id: doc_.id,
             type,
             currencySymbol: symbol,
+            country,
+            countryCode,
           });
         }
-
         return list;
       };
 
       const adsList = await formatDocs(adsSnap, "ads");
       const sponsoredList = await formatDocs(sponsoredSnap, "sponsored");
-      combined = [...adsList, ...sponsoredList];
+      let combined = [...adsList, ...sponsoredList];
+      combined.sort((a, b) => {
+        const aTime = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate().getTime() : 0;
+        const bTime = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().getTime() : 0;
+        return bTime - aTime;
+      });
       res(combined);
     } catch (error) {
       console.error("Failed to get campaigns:", error);
@@ -310,15 +352,103 @@ export const renewCampaign = (campaignData) => (dispatch, getState) => {
         state: "Pending",
         createdAt: serverTimestamp(),
       });
-
       if (imageFile) {
         const imageRef = storageRef(storage, `${type}/${newDocRef.id}`);
         await uploadString(imageRef, imageFile, "data_url");
       }
-      
       res(newDocRef.id);
     } catch (error) {
       console.error("Failed to renew campaign:", error);
+      rej(error);
+    }
+  });
+};
+
+export const getBannerAds = () => (dispatch, getState) => {
+  return new Promise(async (res, rej) => {
+    try {
+      const state = getState();
+      const userId = state.user.id;
+      const { lastBannerAd } = state.advertise;
+      let conditions = [
+        where("ownerId", "==", userId),
+        orderBy("createdAt", "desc"),
+        limit(5)
+      ];
+      if (lastBannerAd) {
+        conditions.splice(conditions.length - 1, 0, startAfter(lastBannerAd));
+      }
+      const adsQuery = query(collection(db, "ads"), ...conditions);
+      const snap = await getDocs(adsQuery);
+      const ads = [];
+      snap.forEach(doc_ => {
+        const data = doc_.data();
+        const formatter = new Intl.NumberFormat("en", {
+          style: "currency",
+          currency: data.currency,
+          currencyDisplay: "symbol",
+        });
+        const symbol = formatter.formatToParts(1).find(p => p.type === "currency")?.value || data.currency;
+        ads.push({ id: doc_.id, ...data, currencySymbol: symbol });
+      });
+      const lastDoc = snap.docs[snap.docs.length - 1] || null;
+      const lastBannerAdVisible = snap.docs.length < 5;
+      dispatch({
+        type: UPDATE_ADVERTISE_STORE,
+        payload: {
+          bannerAds: lastBannerAd ? [...state.advertise.bannerAds, ...ads] : ads,
+          lastBannerAd: lastDoc,
+          lastBannerAdVisible,
+        }
+      });
+      res({ ads, lastDoc });
+    } catch (error) {
+      console.error("Failed to get banner ads:", error);
+      rej(error);
+    }
+  });
+};
+
+export const getSponsoredAds = () => (dispatch, getState) => {
+  return new Promise(async (res, rej) => {
+    try {
+      const state = getState();
+      const userId = state.user.id;
+      const { lastSponsoredAd } = state.advertise;
+      let conditions = [
+        where("ownerId", "==", userId),
+        orderBy("createdAt", "desc"),
+        limit(5)
+      ];
+      if (lastSponsoredAd) {
+        conditions.splice(conditions.length - 1, 0, startAfter(lastSponsoredAd));
+      }
+      const sponsoredQuery = query(collection(db, "sponsored"), ...conditions);
+      const snap = await getDocs(sponsoredQuery);
+      const sponsoredAds = [];
+      snap.forEach(doc_ => {
+        const data = doc_.data();
+        const formatter = new Intl.NumberFormat("en", {
+          style: "currency",
+          currency: data.currency,
+          currencyDisplay: "symbol",
+        });
+        const symbol = formatter.formatToParts(1).find(p => p.type === "currency")?.value || data.currency;
+        sponsoredAds.push({ id: doc_.id, ...data, currencySymbol: symbol });
+      });
+      const lastDoc = snap.docs[snap.docs.length - 1] || null;
+      const lastSponsoredAdVisible = snap.docs.length < 5;
+      dispatch({
+        type: UPDATE_ADVERTISE_STORE,
+        payload: {
+          sponsoredAds: lastSponsoredAd ? [...state.advertise.sponsoredAds, ...sponsoredAds] : sponsoredAds,
+          lastSponsoredAd: lastDoc,
+          lastSponsoredAdVisible,
+        }
+      });
+      res({ sponsoredAds, lastDoc });
+    } catch (error) {
+      console.error("Failed to get sponsored ads:", error);
       rej(error);
     }
   });

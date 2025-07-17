@@ -1,161 +1,104 @@
-import {
-    addDoc,
-    collection,
-    doc,
-    getCountFromServer,
-    getDoc,
-    getDocs,
-    orderBy,
-    query,
-    serverTimestamp,
-    updateDoc,
-    where
-} from "firebase/firestore";
-import {useEffect, useState} from 'react';
-import {connect} from 'react-redux';
-import {useNavigate} from 'react-router';
-import {db} from "../../firebase";
-import {updateBaseStore} from "../../store/actions/baseActions";
-import {updatePostStore} from "../../store/actions/postActions";
+
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { getSponsoredAds, updateAdvertiseStore } from "../../store/actions/advertiseAction";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip } from '@mui/material';
+import CountryFlag from 'react-country-flag';
 import "./advertise.css";
-
-import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip} from '@mui/material';
-import ConnectedCheckoutModal from "../../components/checkout/index.jsx";
-
 
 const stripeBackend = import.meta.env.VITE_BACKEND;
 
+const MySponsoreds = () => {
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user);
+  const sponsoredAds = useSelector(state => state.advertise.sponsoredAds);
+  const navigate = useNavigate();
 
-const MySponsoreds = (props) => {
-    const [sponsoreds, setSponsoreds] = useState([]);
-    const [billedStatus, setBilledStatus] = useState("all")
-    const [status, setStatus] = useState("all")
-    const [keyword, setKeyword] = useState("")
-
-    const navigate = useNavigate();
-    useEffect(() => {
-        search()
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const sessionId = urlParams.get('session_id');
-        if (sessionId) {
-            fetch(`${import.meta.env.VITE_BACKEND}/stripe/session-status?session_id=${sessionId}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.status == 'complete') {
-                        const ad_id = urlParams.get('id');
-                        const adRef = doc(db, "sponsored", ad_id);
-                        getDoc(adRef).then(async sponsored => {
-                            const ad_ = doc(db, "sponsored", sponsored.id);
-                            updateDoc(ad_, {billed: true, billedAt: serverTimestamp(), sessionId})
-                            const coll = collection(db, "payments");
-                            let q = query(coll, where("sessionId", "==", sessionId));
-                            let snapshot = await getCountFromServer(q);
-                            if (snapshot.data().count == 0) {
-                                await addDoc(collection(db, "payments"), {
-                                    // eslint-disable-next-line react/prop-types
-                                    adId: ad_id, sessionId, ownerId: props.user.id, createdAt: serverTimestamp(), // 👈 sets to current server time
-                                });
-                            }
-                            search();
-                        });
-                    }
-
-                });
-        }
-    }, [])
-    const search = async () => {
-        let ads_ = []
-        const conditions = [where("ownerId", "==", props.user.id)];
-        if (billedStatus == "billed") conditions.push(where("billed", "==", true))
-        if (billedStatus == "not billed") conditions.push(where("billed", "==", false))
-        if (status != "all") conditions.push(where("state", "==", status))
-        conditions.push(orderBy("createdAt", "desc"))
-        //conditions.push(limit(4))
-        let coll = collection(db, "sponsored")
-        const q = query(coll, ...conditions);
-        const snap = await getDocs(q);
-        snap.forEach(doc => {
-            let data = doc.data();
-            const formatter = new Intl.NumberFormat('en', {
-                style: 'currency',
-                currency: data.currency,
-                currencyDisplay: 'symbol',
-            });
-            const parts = formatter.formatToParts(1);
-            const symbol = parts.find(p => p.type === 'currency')?.value || data.currency;
-            data.currencySymbol = symbol;
-            ads_.push({id: doc.id, ...data})
-        })
-        setSponsoreds(ads_);
+  useEffect(() => {
+    dispatch(getSponsoredAds());
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const sessionId = urlParams.get('session_id');
+    if (sessionId) {
+      fetch(`${import.meta.env.VITE_BACKEND}/stripe/session-status?session_id=${sessionId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status == 'complete') {
+            dispatch(getSponsoredAds());
+          }
+        });
     }
+  }, []);
 
-    return (<>
-        <form action={`${stripeBackend}/stripe/create-checkout-session`} method="POST" id='payment_form'>
-            <input type="hidden" id="jsonData" name="jsonPayload"/>
-        </form>
-        <TableContainer component={Paper}>
-            <Table sx={{}} aria-label="simple table">
-                <TableHead>
-                    <TableRow>
-                        <TableCell>No.</TableCell>
-                        <TableCell align="left">Status</TableCell>
-                        <TableCell align="left">Title</TableCell>
-                        <TableCell align="left">Budget for a day</TableCell>
-                        <TableCell align="left">Number of days</TableCell>
-                        <TableCell align="left">Publish Date</TableCell>
-                        <TableCell align="left">Billing Status</TableCell>
-                        <TableCell align="left">Action</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {sponsoreds.map((sponsored, index) => (
-                        <TableRow
-                            key={sponsored.id}
-                            sx={{'&:last-child td, &:last-child th': {border: 0}}}
-                        >
-                            <TableCell component="th" scope="row">
-                                {index + 1}
-                            </TableCell>
-                            <TableCell align="left">{sponsored.state}</TableCell>
-                            <TableCell align="left">{sponsored.title}</TableCell>
-                            <TableCell align="left">{sponsored.currencySymbol}{sponsored.budget}</TableCell>
-                            <TableCell align="left">{sponsored.days}</TableCell>
-                            <TableCell align="left">{sponsored.pubDate.toDate().toLocaleDateString()}</TableCell>
-                            <TableCell sx={{width: '5%', p: 1}}>
-                                <Tooltip title={sponsored.billed ? "Billed" : "UnBilled"} arrow>
-                                    <div
-                                        className="table-cell-none-ellipsis">{sponsored.billed ? "Billed" : "UnBilled"}</div>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell sx={{width: '5%', p: 1}}>
-                                {!sponsored.billed &&
-                                    <div onClick={() => navigate(`/payment?id=${sponsored.id}&type=sponsored`)}
-                                         className="text-sm text-red-600 font-medium cursor-pointer">Billing</div>}
-                                {sponsored.state != "Approved" &&
-                                    <div onClick={() => navigate(`/publish/sponsored?edit=${sponsored.id}`)}
-                                         className="text-sm text-green-600 font-medium cursor-pointer"
-                                    >Edit</div>}
-                                {/* {sponsored.state == "Expired" && <div onClick={() => { setSelectedCampaign(sponsored); setRenewModalOpen(true); } }
-                            className="text-sm text-blue-600 font-medium cursor-pointer">Renew</div>} */}
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
-        {props.paymentModal && <ConnectedCheckoutModal/>}
-    </>)
+  return (<>
+    <form action={`${stripeBackend}/stripe/create-checkout-session`} method="POST" id='payment_form'>
+      <input type="hidden" id="jsonData" name="jsonPayload" />
+    </form>
+    <div className="responsive-table-wrapper">
+      <TableContainer component={Paper} elevation={0} sx={{ overflowX: 'auto', p: 2, maxWidth: "100%", }}>
+        <Table sx={{ width: "100%", boxSizing: "border-box", }} aria-label="responsive table">
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ width: "2%", textOverflow: "ellipsis", p: 1 }}>No</TableCell>
+              <TableCell align="left" sx={{ width: "20%", textOverflow: "ellipsis", p: 1 }}>Title</TableCell>
+              <TableCell align="left" sx={{ width: "12%", textOverflow: "ellipsis", p: 1 }}>Budget for a day</TableCell>
+              <TableCell align="left" sx={{ width: "10%", textOverflow: "ellipsis", p: 1 }}>days</TableCell>
+              <TableCell align="left" sx={{ width: "10%", textOverflow: "ellipsis", p: 1 }}>Publish Date</TableCell>
+              <TableCell align="left" sx={{ width: "6%", textOverflow: "ellipsis", p: 1 }}>Country</TableCell>
+              <TableCell align="left" sx={{ width: "8%", textOverflow: "ellipsis", p: 1 }}>Status</TableCell>
+              <TableCell align="left" sx={{ width: "6%", textOverflow: "ellipsis", p: 1 }}>Billing Status</TableCell>
+              <TableCell align="left" sx={{ width: "6%", textOverflow: "ellipsis", p: 1 }}>Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sponsoredAds.map((sponsored, index) => (
+              <TableRow key={sponsored.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="row" sx={{ width: "2%", p: 1 }}>{index + 1}</TableCell>
+                <TableCell align="left" sx={{ width: "20%", textOverflow: "ellipsis", p: 1 }}>{sponsored.title}</TableCell>
+                <TableCell align="left" sx={{ width: "12%", textOverflow: "ellipsis", p: 1 }}>{sponsored.currencySymbol}{sponsored.budget}</TableCell>
+                <TableCell align="left" sx={{ width: "10%", textOverflow: "ellipsis", p: 1 }}>{sponsored.days}</TableCell>
+                <TableCell align="left" sx={{ width: "10%", textOverflow: "ellipsis", p: 1 }}>{sponsored.pubDate && sponsored.pubDate.toDate ? sponsored.pubDate.toDate().toLocaleDateString() : ''}</TableCell>
+                <TableCell align="left" sx={{ width: "6%", textOverflow: "ellipsis", p: 1 }}>
+                  <Tooltip title={sponsored.country?.label || ''} arrow>
+                    <span className="flex items-center justify-center h-full cursor-pointer">
+                      {sponsored.country && sponsored.country.countryCode ? (
+                        <CountryFlag
+                          countryCode={sponsored.country.countryCode}
+                          svg
+                          style={{ fontSize: '2em', verticalAlign: 'middle' }}
+                        />
+                      ) : sponsored.countryCode}
+                    </span>
+                  </Tooltip>
+                </TableCell>
+                <TableCell align="left" sx={{ width: "8%", textOverflow: "ellipsis", p: 1 }}>{sponsored.state}</TableCell>
+                <TableCell sx={{ width: '6%', textOverflow: "ellipsis", p: 1 }}>
+                  <Tooltip title={sponsored.billed ? "Billed" : "UnBilled"} arrow>
+                    <div className="table-cell-none-ellipsis">{sponsored.billed ? "Billed" : "UnBilled"}</div>
+                  </Tooltip>
+                </TableCell>
+                <TableCell sx={{ width: '6%', textOverflow: "ellipsis", p: 1 }}>
+                  {!sponsored.billed && <div onClick={() => { 
+                    dispatch(updateAdvertiseStore({ paymentId: sponsored.id, paymentType: 'sponsored', paymentAd: sponsored })); navigate(`/publish/payment`); }}
+                    className="text-sm text-red-600 font-medium cursor-pointer">Billing</div>}
+                  {sponsored.state != "Approved" && <div onClick={() => { 
+                    dispatch(updateAdvertiseStore({ selectedAd: { ...sponsored, type: 'sponsored' } }));
+                    navigate(`/publish/sponsored`);
+                  }}
+                    className="text-sm text-green-600 font-medium cursor-pointer"
+                  >Edit</div>}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
+    {/* {paymentModal && <ConnectedCheckoutModal />} */}
+  </>);
 }
 
-const mapStateToProps = (state) => ({
-    user: state.user,
-    paymentModal: state.base.paymentModal
-});
-
-export default connect(
-    mapStateToProps,
-    {updateBaseStore, updatePostStore}
-)(MySponsoreds);
-  
-
+export default MySponsoreds;
