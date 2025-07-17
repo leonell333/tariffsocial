@@ -254,7 +254,6 @@ export const convertToWebp = (file, w =0, h=0) => {
     reader.onload = (e) => {
       img.src = e.target.result;
     };
-
     img.onload = () => {
       const canvas = document.createElement('canvas');
         if (w > 0 && h > 0) {
@@ -272,12 +271,9 @@ export const convertToWebp = (file, w =0, h=0) => {
             canvas.width = img.width;
             canvas.height = img.height;
         }
-
       const ctx = canvas.getContext('2d');
       if (!ctx) return rej('Canvas context error');
-
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
       canvas.toBlob(
         (webpBlob) => {
           if (!webpBlob) return rej('WebP conversion failed');
@@ -295,14 +291,12 @@ export const convertToWebp = (file, w =0, h=0) => {
               readableWebp: webpBlob.size > 1024 * 1024 ? `${webpSizeMB} MB` : `${webpSizeKB} KB`,
             });
           };
-
           webpReader.readAsDataURL(webpBlob);
         },
         'image/webp',
         0.8
       );
     };
-
     reader.onerror = rej;
     reader.readAsDataURL(file);
   });

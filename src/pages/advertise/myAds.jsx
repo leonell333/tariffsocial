@@ -2,10 +2,12 @@ import {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useNavigate} from 'react-router';
 import {updateBaseStore} from "../../store/actions/baseActions";
-import {getBannerAds, updateAdvertiseStore} from "../../store/actions/advertiseAction";
+import {getBannerAds, updateAdvertiseStore, deleteBannerAd} from "../../store/actions/advertiseAction";
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip} from '@mui/material';
 import CountryFlag from 'react-country-flag';
 import "./advertise.css"
+import Spinner from '../../components/ui/Spinner';
+import {useState} from 'react';
 
 const stripeBackend = import.meta.env.VITE_BACKEND;
 
@@ -13,6 +15,7 @@ const MyAds = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const bannerAds = useSelector(state => state.advertise.bannerAds);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     dispatch(getBannerAds());
@@ -104,12 +107,30 @@ const MyAds = () => {
                 <TableCell sx={{ width: '6%', textOverflow: "ellipsis", p: 1 }}>
                   {!ad.billed && <div onClick={() => { 
                     dispatch(updateAdvertiseStore({ paymentId: ad.id, paymentType: 'ads', paymentAd: ad })); navigate(`/publish/payment`); }}
-                    className="text-sm text-red-600 font-medium cursor-pointer">Billing</div>}
-                  {ad.state != "Approved" && <div onClick={() => { 
+                    className="text-sm text-red-600 font-medium cursor-pointer hover:text-red-800">Billing</div>}
+                  <div onClick={() => { 
                     dispatch(updateAdvertiseStore({ selectedAd: { ...ad, type: 'banner' } }));
                     navigate(`/publish/ads`); }}
-                    className="text-sm text-green-600 font-medium cursor-pointer"
-                  > Edit </div>}
+                    className="text-sm text-green-600 font-medium cursor-pointer hover:text-green-800"
+                  > Edit</div>
+                  <button
+                    className="text-sm text-red-500 font-medium cursor-pointer flex items-center hover:text-red-700"
+                    onClick={async () => {
+                      setDeletingId(ad.id);
+                      const success = await dispatch(deleteBannerAd(ad.id, ad.imageUrl));
+                      if (success) {
+                        setDeletingId(null);
+                      }
+                    }}
+                    disabled={deletingId === ad.id}
+                    style={deletingId === ad.id ? { pointerEvents: 'none' } : {}}
+                  >
+                    {deletingId === ad.id ? (
+                      <Spinner size={16} className="mr-1" />
+                    ) : (
+                      'Delete'
+                    )}
+                  </button>
                 </TableCell>
               </TableRow>
             ))}
@@ -117,8 +138,7 @@ const MyAds = () => {
         </Table>
       </TableContainer>
     </div>
-    {/* {paymentModal && (<ConnectedCheckoutModal />)} */}
   </>);
-}
+} 
 
 export default MyAds;

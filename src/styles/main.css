@@ -5,9 +5,7 @@
 @import 'slick-carousel/slick/slick-theme.css';
 /* endof other libraries css */
 
-
 @tailwind utilities;
-
 
 :root {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

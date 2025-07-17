@@ -76,34 +76,49 @@ const executeBatchOperations = async (operations) => {
   }
 };
 
-const optimizedUploadMedia = async (elements, folder, userId) => {
+const optimizedUploadMedia = async (elements, folder, userId, onProgress) => {
   const CONCURRENT_UPLOADS = 3;
   const tasks = Array.from(elements);
   const results = [];
+
+  let total = tasks.length;
+  let completed = 0;
 
   for (let i = 0; i < tasks.length; i += CONCURRENT_UPLOADS) {
     const batch = tasks.slice(i, i + CONCURRENT_UPLOADS);
     const batchResults = await Promise.allSettled(
       batch.map(async (el, index) => {
         if (el.src.startsWith('https://')) return null;
-
         try {
-          const optimizedBlob = await optimizeImage(el.src);
+          const response = await fetch(el.src);
+          const blob = await response.blob();
           const name = `${Date.now()}-${i + index}-${Math.random().toString(36).substr(2, 5)}`;
           const fileRef = storageRef(storage, `post-${folder}/${userId}/${name}`);
 
-          const uploadTask = uploadBytesResumable(fileRef, optimizedBlob);
-
-          return new Promise((resolve, reject) => {
+          return new Promise((res, rej) => {
+            let lastPercent = 0;
+            const uploadTask = uploadBytesResumable(fileRef, blob);
             uploadTask.on('state_changed',
-              null,
-              reject,
+              (snapshot) => {
+                if (onProgress && folder === 'videos') {
+                  const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                  if (percent !== lastPercent) {
+                    lastPercent = percent;
+                    onProgress(percent);
+                  }
+                }
+              },
+              rej,
               async () => {
                 try {
                   const url = await getDownloadURL(fileRef);
-                  resolve({ element: el, url });
+                  completed++;
+                  if (onProgress && folder === 'videos') {
+                    onProgress(Math.round((completed / total) * 100));
+                  }
+                  res({ element: el, url });
                 } catch (err) {
-                  reject(err);
+                  rej(err);
                 }
               }
             );
@@ -118,35 +133,6 @@ const optimizedUploadMedia = async (elements, folder, userId) => {
   }
 
   return results.filter(result => result.status === 'fulfilled' && result.value);
-};
-
-const optimizeImage = async (src) => {
-  return new Promise((resolve) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-
-    img.onload = () => {
-      const MAX_WIDTH = 1920;
-      const MAX_HEIGHT = 1080;
-      let { width, height } = img;
-
-      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-        const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
-        width *= ratio;
-        height *= ratio;
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-
-      ctx.drawImage(img, 0, 0, width, height);
-
-      canvas.toBlob(resolve, 'image/jpeg', 0.8);
-    };
-
-    img.src = src;
-  });
 };
 
 export const updatePostStore = (data) => (dispatch, getState) => {
@@ -544,11 +530,15 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
       }
 
       const startMedia = performance.now();
+      // For images: no progress. For videos: dispatch progress.
       const [imageResults, videoResults] = await Promise.all([
         optimizedUploadMedia(imageElements, 'images', user.id),
-        optimizedUploadMedia(videoElements, 'videos', user.id)
+        optimizedUploadMedia(videoElements, 'videos', user.id, (percent) => {
+          dispatch(updateBaseStore({ videoUploadProgress: percent }));
+        })
       ]);
-
+      // Reset progress after video upload
+      dispatch(updateBaseStore({ videoUploadProgress: null }));
 
       [...imageResults, ...videoResults].forEach(result => {
         if (result.value) {
@@ -589,6 +579,7 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
       res(true);
     } catch (err) {
       console.error('Error creating post:', err);
+      dispatch(updateBaseStore({ videoUploadProgress: null }));
       rej(err);
     }
   });
@@ -655,7 +646,7 @@ export const handlePostCreationFollowUps = ({ postRef, currentUser, tags }) => a
 };
 
 export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (dispatch, getState) => {
-  return new Promise( async (resolve, reject) => {
+  return new Promise( async (res, rej) => {
     try {
       const {user} = getState();
       const clonedRoot = editorInstance.root.cloneNode(true);
@@ -667,7 +658,7 @@ export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (
       const videoElements = clonedRoot.getElementsByTagName('video');
 
       const uploadMedia = (elements, folder) => {
-        return new Promise( (resolveUploads) => {
+        return new Promise( (resUploads) => {
           const tasks = Array.from(elements).map(async (el) => {
             if (el.src.startsWith('https://')) return null;
 
@@ -696,7 +687,7 @@ export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (
             }
           });
 
-          Promise.allSettled(tasks).then(resolveUploads);
+          Promise.allSettled(tasks).then(resUploads);
         });
       };
 
@@ -710,10 +701,10 @@ export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (
 
       const postRef = doc(db, 'posts', id);
       await updateDoc(postRef, {contentHtml, keywords});
-      resolve({contentHtml, keywords});
+      res({contentHtml, keywords});
     } catch (err) {
       console.error('Failed to update post:', err);
-      reject(err);
+      rej(err);
     }
   });
 };

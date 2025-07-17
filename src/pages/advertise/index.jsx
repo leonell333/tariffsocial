@@ -1,7 +1,6 @@
 
-import { useState, useEffect, useRef } from 'react'
-import { useSelector, useDispatch } from 'react-redux';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import {useState, useEffect, useRef} from 'react'
+import {Outlet, useLocation, useNavigate} from 'react-router';
 import "../../pages/advertise/advertise.css"
 import LeftSide from '../layout/leftSide';
 
@@ -13,11 +12,9 @@ const CONSTANT_GAP = 0;
 const CreateAdvertise = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const layoutRef = useRef(null);
   const [layoutLeft, setLayoutLeft] = useState(0);
   const [layoutWidth, setLayoutWidth] = useState(1320);
-  const user = useSelector(state => state.user);
   
   useEffect(() => {
     const updateLayout = () => {

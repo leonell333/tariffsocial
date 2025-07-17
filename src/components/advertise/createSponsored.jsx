@@ -9,6 +9,7 @@ import "../../pages/advertise/advertise.css";
 import {currencies} from "../../consts";
 import {isValidEmail} from "../../utils";
 import {createOrUpdateSponsoredAd, updateAdvertiseStore} from "../../store/actions/advertiseAction";
+import Spinner from '../ui/Spinner';
 
 const CreateSponsored = () => {
   const dispatch = useDispatch();
@@ -71,7 +72,6 @@ const CreateSponsored = () => {
 
   useEffect(() => {
     updateSponsoredState('country', { label: "Australia", countryCode: "AU" });
-    // Cleanup on unmount: reset selectedAd
     return () => {
       dispatch(updateAdvertiseStore({ selectedAd: null }));
     };
@@ -151,7 +151,7 @@ const CreateSponsored = () => {
     if (Object.keys(newErrors).length > 0) {
       return;
     }
-
+    setLoading(true);
     dispatch(createOrUpdateSponsoredAd({
       stateSponsored: {
         ...stateSponsored,
@@ -169,6 +169,8 @@ const CreateSponsored = () => {
       }
     }).catch((err) => {
       console.error('Error creating/updating sponsored ad:', err);
+    }).finally(() => {
+      setLoading(false);
     });
   };
 
@@ -472,7 +474,7 @@ const CreateSponsored = () => {
         <div className="basis-1/4">
           <TextField
             variant="outlined"
-            disabled={selectedAd && selectedAd.type === 'sponsored'}
+            // disabled={selectedAd && selectedAd.type === 'sponsored'}
             value={stateSponsored.budget}
             onChange={(e) => updateSponsoredState('budget', e.target.value)}
             fullWidth
@@ -615,10 +617,19 @@ const CreateSponsored = () => {
         <div className="w-fit m-auto py-5">
           <button
             type="button"
-            className="bg-[#161722] text-white text-[18px]  rounded-xl cursor-pointer h-10 w-25"
+            className="bg-[#161722] text-white text-[18px]  rounded-xl cursor-pointer h-10 w-25 flex items-center justify-center min-w-[100px]"
             onClick={handleSponsored}
+            disabled={loading}
+            style={loading ? { pointerEvents: 'none' } : {}}
+            tabIndex={loading ? -1 : 0}
           >
-            {selectedAd && selectedAd.type === 'sponsored' ? "Update" : "Create"}
+            {loading ? (
+              <>
+                <Spinner size={20} className="mr-2" />
+              </>
+            ) : (
+              selectedAd && selectedAd.type === 'sponsored' ? "Update" : "Create"
+            )}
           </button>
         </div>
       </div>

@@ -16,7 +16,6 @@ import {updateBaseStore} from '../../store/actions/baseActions'
 import {updatePostStore} from '../../store/actions/postActions'
 import {extractKeywords, sendRequest} from '../../utils'
 import CountryFlag from 'react-country-flag'
-import ConnectedCheckoutModal from "../../components/checkout/index.jsx";
 
 const stripeBackend = import.meta.env.VITE_BACKEND
 

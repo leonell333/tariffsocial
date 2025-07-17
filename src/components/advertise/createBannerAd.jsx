@@ -13,6 +13,7 @@ import {isValidEmail} from "../../utils";
 import {createOrUpdateBannerAd, updateAdvertiseStore,} from "../../store/actions/advertiseAction";
 import {AiOutlineCloseCircle} from "react-icons/ai";
 import "../../pages/advertise/advertise.css";
+import Spinner from '../ui/Spinner';
 
 const CreateBannerAdvertise = () => {
   const dispatch = useDispatch();
@@ -557,6 +558,7 @@ const CreateBannerAdvertise = () => {
               label="Publish Date"
               value={stateAdvertise.pubDate}
               onChange={(newValue) => updateAdvertiseState("pubDate", newValue)}
+              disabled={selectedAd?.type === 'banner'}
               slotProps={{
                 textField: {
                   size: "small",
@@ -636,6 +638,7 @@ const CreateBannerAdvertise = () => {
             }}
             error={!!errors.days}
             helperText={errors.days}
+            disabled={selectedAd?.type === 'banner'}
           />
         </div>
       </div>
@@ -644,7 +647,7 @@ const CreateBannerAdvertise = () => {
         <div className="w-fit m-auto py-5">
           <button
             type="button"
-            disabled={(!!stateAdvertise.ownerId) || isLoading}
+            disabled={stateAdvertise.ownerId ? true : false || isLoading}
             className="bg-[#161722] text-white text-[18px]  rounded-xl cursor-pointer h-10 w-25 flex items-center justify-center min-w-[100px]"
             onClick={handleAdvertise}
             style={isLoading ? { pointerEvents: 'none' } : {}}
@@ -652,8 +655,7 @@ const CreateBannerAdvertise = () => {
           >
             {isLoading ? (
               <>
-                <div className="spinner mr-2" style={{ width: 20, height: 20, border: '3px solid #eee', borderTop: '3px solid #888', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                <Spinner size={20} className="mr-2" />
               </>
             ) : (
               selectedAd?.type === 'banner' ? "Update" : "Create"

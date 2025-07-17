@@ -1,11 +1,13 @@
 
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router';
-import { getSponsoredAds, updateAdvertiseStore } from "../../store/actions/advertiseAction";
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip } from '@mui/material';
+import {useEffect} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
+import {useNavigate} from 'react-router';
+import {getSponsoredAds, updateAdvertiseStore, deleteSponsoredAd} from "../../store/actions/advertiseAction";
+import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip} from '@mui/material';
 import CountryFlag from 'react-country-flag';
 import "./advertise.css";
+import Spinner from '../../components/ui/Spinner';
+import { useState } from 'react';
 
 const stripeBackend = import.meta.env.VITE_BACKEND;
 
@@ -14,6 +16,7 @@ const MySponsoreds = () => {
   const user = useSelector(state => state.user);
   const sponsoredAds = useSelector(state => state.advertise.sponsoredAds);
   const navigate = useNavigate();
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     dispatch(getSponsoredAds());
@@ -81,15 +84,33 @@ const MySponsoreds = () => {
                   </Tooltip>
                 </TableCell>
                 <TableCell sx={{ width: '6%', textOverflow: "ellipsis", p: 1 }}>
-                  {!sponsored.billed && <div onClick={() => { 
+                  <div onClick={() => { 
                     dispatch(updateAdvertiseStore({ paymentId: sponsored.id, paymentType: 'sponsored', paymentAd: sponsored })); navigate(`/publish/payment`); }}
-                    className="text-sm text-red-600 font-medium cursor-pointer">Billing</div>}
+                    className="text-sm text-red-600 font-medium cursor-pointer hover:text-red-800">Billing</div>
                   {sponsored.state != "Approved" && <div onClick={() => { 
                     dispatch(updateAdvertiseStore({ selectedAd: { ...sponsored, type: 'sponsored' } }));
                     navigate(`/publish/sponsored`);
                   }}
-                    className="text-sm text-green-600 font-medium cursor-pointer"
+                    className="text-sm text-green-600 font-medium cursor-pointer hover:text-green-800"
                   >Edit</div>}
+                  <button
+                    className="text-sm text-red-500 font-medium cursor-pointer flex items-center hover:text-red-700"
+                    onClick={async () => {
+                      setDeletingId(sponsored.id);
+                      const success = await dispatch(deleteSponsoredAd(sponsored.id));
+                      if (success) {
+                        setDeletingId(null);
+                      }
+                    }}
+                    disabled={deletingId === sponsored.id}
+                    style={deletingId === sponsored.id ? { pointerEvents: 'none' } : {}}
+                  >
+                    {deletingId === sponsored.id ? (
+                      <Spinner size={16} className="mr-1" />
+                    ) : (
+                      'Delete'
+                    )}
+                  </button>
                 </TableCell>
               </TableRow>
             ))}
@@ -97,7 +118,6 @@ const MySponsoreds = () => {
         </Table>
       </TableContainer>
     </div>
-    {/* {paymentModal && <ConnectedCheckoutModal />} */}
   </>);
 }
 

@@ -26,8 +26,6 @@ import MyAds from './myAds';
 import MySponsoreds from './mySponsored';
 import CountryFlag from 'react-country-flag';
 
-``
-
 const stripeBackend = import.meta.env.VITE_BACKEND;
 
 const MyCampaigns = () => {
