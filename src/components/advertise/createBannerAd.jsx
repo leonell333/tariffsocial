@@ -1,19 +1,19 @@
-
-import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
-import { InputAdornment, MenuItem, TextField } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useNavigate} from "react-router";
+import {InputAdornment, MenuItem, TextField} from "@mui/material";
+import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import ReactCountryFlagsSelect from "react-country-flags-select";
-import { FaCloudUploadAlt } from "react-icons/fa";
+import {FaCloudUploadAlt} from "react-icons/fa";
 import dayjs from "dayjs";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { currencies } from "../../consts";
-import { isValidEmail } from "../../utils";
-import { createOrUpdateBannerAd, updateAdvertiseStore, } from "../../store/actions/advertiseAction";
-import { AiOutlineCloseCircle } from "react-icons/ai";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
+import {currencies} from "../../consts";
+import {isValidEmail} from "../../utils";
+import {createOrUpdateBannerAd, updateAdvertiseStore,} from "../../store/actions/advertiseAction";
+import {AiOutlineCloseCircle} from "react-icons/ai";
 import "../../pages/advertise/advertise.css";
+import Spinner from '../ui/Spinner';
 
 const CreateBannerAdvertise = () => {
   const dispatch = useDispatch();
@@ -558,6 +558,7 @@ const CreateBannerAdvertise = () => {
               label="Publish Date"
               value={stateAdvertise.pubDate}
               onChange={(newValue) => updateAdvertiseState("pubDate", newValue)}
+              disabled={selectedAd?.type === 'banner'}
               slotProps={{
                 textField: {
                   size: "small",
@@ -637,6 +638,7 @@ const CreateBannerAdvertise = () => {
             }}
             error={!!errors.days}
             helperText={errors.days}
+            disabled={selectedAd?.type === 'banner'}
           />
         </div>
       </div>
@@ -653,8 +655,7 @@ const CreateBannerAdvertise = () => {
           >
             {isLoading ? (
               <>
-                <div className="spinner mr-2" style={{ width: 20, height: 20, border: '3px solid #eee', borderTop: '3px solid #888', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                <Spinner size={20} className="mr-2" />
               </>
             ) : (
               selectedAd?.type === 'banner' ? "Update" : "Create"

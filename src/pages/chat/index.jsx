@@ -1,17 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux'
-import { HomeIcon, CheckCircle2, Ban, Unlock, Lock, Trash2, XIcon } from 'lucide-react'
-import { Separator } from "../../components/ui/separator";
+import {useEffect, useRef, useState} from 'react';
+import {useNavigate} from 'react-router';
+import {useDispatch, useSelector} from 'react-redux'
+import {Ban, CheckCircle2, HomeIcon, Lock, Trash2, Unlock} from 'lucide-react'
+import {Separator} from "../../components/ui/separator";
 import defaultAvatar from '../../assets/images/logo2.png';
 import RightSide from '../layout/rightSide'
 import DirectMessageWindow from './directMessageWindow';
 import MessageWindow from './messageWindow';
-import { getDms, getPendingDms, initialChatStore, updateChatStore, getMessageHistoryWithUser, getPendingDmsCount, handleDmAccept, 
-  handleDmBlock, handleDmUnblock, handleDmIgnore, handleDeleteDM, getUnreadMessagesCountPerUser, markMessagesAsRead } from '../../store/actions/chatAction';
-import { readTime } from '../../utils'
-import { db } from '../../firebase';
-import { getDoc, doc, collection, query, where, onSnapshot } from 'firebase/firestore';
+import {
+  getDms,
+  getMessageHistoryWithUser,
+  getPendingDms,
+  getPendingDmsCount,
+  getUnreadMessagesCountPerUser,
+  handleDeleteDM,
+  handleDmAccept,
+  handleDmBlock,
+  handleDmIgnore,
+  handleDmUnblock,
+  initialChatStore,
+  markMessagesAsRead,
+  updateChatStore
+} from '../../store/actions/chatAction';
+import {readTime} from '../../utils'
+import {db} from '../../firebase';
+import {collection, doc, getDoc, onSnapshot, query, where} from 'firebase/firestore';
 
 const Chat = () => {
   const navigate = useNavigate()
@@ -64,7 +77,7 @@ const Chat = () => {
         const updateUnread = (list, missingSenders) =>
           list.map(dm => {
             const partnerId = dm.partnerId || dm.id;
-            if (unreadBySender.hasOwnProperty(partnerId)) {
+            if (Object.prototype.hasOwnProperty.call(unreadBySender, partnerId)) {
               if (dm.unreadCount !== unreadBySender[partnerId]) {
                 return { ...dm, unreadCount: unreadBySender[partnerId] };
               }

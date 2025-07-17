@@ -1,26 +1,40 @@
-
-import { useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { db, } from '../../firebase'
-import { doc, getDoc, } from 'firebase/firestore'
-import { getAuth } from "firebase/auth";
-import { Card, CardHeader, CardContent, CardFooter } from '../ui/card'
-import { RepostIcon, ShareIcon, SaveIcon, CancelSaveIcon, InterestedIcon, NotInterestedIcon, BlockIcon, 
-  CancelBlockIcon, ComplainIcon, CopyLinkIcon } from '../ui/icons'
-import { Separator } from '../ui/separator'
-import { Avatar, Popover, } from '@mui/material'
-import { MoreHorizontalIcon, Heart, MessageCircle, Trash, Pencil, Save, CircleX, } from 'lucide-react'
+import {useEffect, useState} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {useNavigate} from 'react-router'
+import {db,} from '../../firebase'
+import {doc, getDoc,} from 'firebase/firestore'
+import {getAuth} from "firebase/auth";
+import {Card, CardContent, CardFooter, CardHeader} from '../ui/card'
+import {
+  BlockIcon,
+  CancelBlockIcon,
+  CancelSaveIcon,
+  ComplainIcon,
+  CopyLinkIcon,
+  InterestedIcon,
+  NotInterestedIcon,
+  RepostIcon,
+  SaveIcon,
+  ShareIcon
+} from '../ui/icons'
+import {Separator} from '../ui/separator'
+import {Avatar, Popover,} from '@mui/material'
+import {CircleX, Heart, MessageCircle, MoreHorizontalIcon, Pencil, Save, Trash,} from 'lucide-react'
 import CreateComment from './createComment'
 import Comment from './comment'
 import PostEditor from './postEditor'
 import BlockModal from './blockModal'
 import ReportModal from './reportModal'
 import ImagePreviewModal from './imagePreviewModal'
-import { updatePost, deletePost, updateRecommendation, getPostComments, searchPostsByKeywords } from '../../store/actions/postActions'
-import { getFormattedContent, readTime, formatTextCleanlyPreservingMedia } from '../../utils';
-import { getUserDataById } from '../../store/actions/userActions';
-import { updateBaseStore } from '../../store/actions/baseActions'
+import {
+  deletePost,
+  getPostComments,
+  searchPostsByKeywords,
+  updatePost, updatePostStore,
+  updateRecommendation
+} from '../../store/actions/postActions'
+import {formatTextCleanlyPreservingMedia, getFormattedContent, readTime} from '../../utils';
+import {getUserDataById} from '../../store/actions/userActions';
 
 const Post = (props) => {
   const navigate = useNavigate();
@@ -532,7 +546,8 @@ const Post = (props) => {
               onClick={() => {
                 if (ownerId !== user.id && !userInteractions.repost) {
                   handleUpdateRecommendations('repost', {
-                    time: serverTime,
+                    // time: serverTime,
+                    time: 2000,
                     userInteractions,
                     contentHtml
                   });

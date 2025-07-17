@@ -1,4 +1,4 @@
-import { UPDATE_COLLEAGUE_STORE, INITIAL_COLLEAGUE_STORE } from '../types';
+import {UPDATE_COLLEAGUE_STORE} from '../types';
 
 const initialState = {
   newColleagues: [],

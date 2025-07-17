@@ -1,9 +1,10 @@
-
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import React, {useEffect, useRef, useState} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
 import Button from '@mui/material/Button'
-import Slider from 'react-slick'
-import { ChevronRight } from 'lucide-react'
+import {ChevronRight} from 'lucide-react'
+import Slider from 'react-slick';
+
+// const Slider = React.lazy(() => import('react-slick'))
 
 const AdsSlick = (props) => {
   const dispatch = useDispatch()
@@ -43,13 +44,13 @@ const AdsSlick = (props) => {
     <div className='bg-white border border-[#EBEBEB] p-[10px] rounded-xl'>
       <div ref={containerRef} className="overflow-hidden w-full advertise-slider">
         {width && (
-          <Slider {...settings} style={{ width: width, }} >
-            {ads.map((ad, index) => (
-              <div key={index} style={{ width: width }}  className="h-full">
-                <img crossOrigin="anonymous" src={ad.imageUrl}  className="w-full min-h-[260px] block" />
-              </div>
-            ))}
-          </Slider>
+                 <Slider {...settings} style={{ width: width, }} >
+                {ads.map((ad, index) => (
+                  <div key={index} style={{ width: width }}  className="h-full">
+                    <img loading={index == 0 ? 'eager' : 'lazy' } crossOrigin="anonymous" src={ad.imageUrl}  className="w-full min-h-[260px] block"  alt={"Ads " +index}/>
+                  </div>
+                ))}
+              </Slider>
         )}
       </div>
       <div className="w-full">

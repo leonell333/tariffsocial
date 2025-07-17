@@ -1,13 +1,26 @@
 
-import { UPDATE_POST_STORE, UPDATE_ADVERTISE_STORE } from "../types";
-import { db, auth, storage } from "../../firebase";
-import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion,
-  arrayRemove, increment, writeBatch, collection, query, where, limit, serverTimestamp, orderBy,
-  startAfter, getCountFromServer, getDocsFromCache, onSnapshot, } from "firebase/firestore";
-import { ref as storageRef, uploadString, getDownloadURL, uploadBytes, uploadBytesResumable, } from "firebase/storage";
-import { extractKeywords } from "../../utils";
-import { logEvent } from "firebase/analytics";
-import { analytics } from "../../firebase";
+import {UPDATE_ADVERTISE_STORE} from "../types";
+import {db, storage} from "../../firebase";
+import { 
+  doc, 
+  getDoc, 
+  getDocs, 
+  updateDoc, 
+  addDoc, 
+  collection, 
+  query,
+  where, 
+  limit, 
+  serverTimestamp, 
+  orderBy,
+  startAfter, 
+  getCountFromServer, 
+  deleteDoc,
+} from "firebase/firestore";
+import {ref as storageRef, uploadString, getDownloadURL, deleteObject} from "firebase/storage";
+import {extractKeywords} from "../../utils";
+import {logEvent} from "firebase/analytics";
+import {analytics} from "../../firebase";
 
 export const updateAdvertiseStore = (data) => (dispatch, getState) => {
   return new Promise((res, rej) => {
@@ -105,7 +118,7 @@ export const createOrUpdateBannerAd = ({ stateAdvertise, editId }) => (dispatch,
           billed: false,
           createdAt: serverTimestamp(),
         });
-        res({ ...stateAdvertise, id: docRef.id, billed: false, state: "Pending", imageUrl: imageUrl, });
+        res({ ...stateAdvertise, id: docRef.id, billed: false, state: "Pending", imageUrl: imageUrl,});
         try {
           if (analytics) {
             logEvent(analytics, "ad_created", {
@@ -452,4 +465,36 @@ export const getSponsoredAds = () => (dispatch, getState) => {
       rej(error);
     }
   });
+};
+
+export const deleteBannerAd = (adId, imageUrl) => (dispatch, getState) => {
+    return new Promise(async (res, rej) => {
+      try {
+        await deleteDoc(doc(db, "ads", adId));
+        const state = getState();
+        const bannerAds = state.advertise.bannerAds || [];
+        const updatedBannerAds = bannerAds.filter(ad => ad.id !== adId);
+        await dispatch(updateAdvertiseStore({ bannerAds: updatedBannerAds }));
+        res(true);
+      } catch (err) {
+        console.error("Failed to delete banner ad:", err);
+        rej(err);
+      }
+    });
+};
+
+export const deleteSponsoredAd = (adId) => (dispatch, getState) => {
+    return new Promise(async (res, rej) => {
+      try {
+        await deleteDoc(doc(db, "sponsored", adId));
+        const state = getState();
+        const sponsoredAds = state.advertise.sponsoredAds || [];
+        const updatedSponsoredAds = sponsoredAds.filter(ad => ad.id !== adId);
+        await dispatch(updateAdvertiseStore({ sponsoredAds: updatedSponsoredAds }));
+        res(true);
+      } catch (err) {
+        console.error("Failed to delete sponsored ad:", err);
+        rej(err);
+      }
+    });
 };

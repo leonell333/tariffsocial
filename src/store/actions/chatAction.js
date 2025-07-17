@@ -1,11 +1,27 @@
-import { UPDATE_CHAT_STORE, INITIAL_CHAT_STORE } from "../types";
-import { db, auth, storage } from "../../firebase"
-import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion, arrayRemove, increment, writeBatch, 
-  collection, query, where, limit, serverTimestamp, orderBy, startAfter, getCountFromServer, getDocsFromCache, 
-  onSnapshot, startAt, endAt, } from "firebase/firestore";
-import { ref as storageRef, uploadString, getDownloadURL, uploadBytes, uploadBytesResumable } from 'firebase/storage'
-import { updateBaseStore } from "./baseActions";
-import { toast } from "react-toastify";
+import {INITIAL_CHAT_STORE, UPDATE_CHAT_STORE} from "../types";
+import {db, storage} from "../../firebase"
+import {
+  collection,
+  deleteDoc,
+  doc,
+  endAt,
+  getCountFromServer,
+  getDoc,
+  getDocs,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+  startAfter,
+  startAt,
+  updateDoc,
+  where,
+  writeBatch,
+} from "firebase/firestore";
+import {getDownloadURL, ref as storageRef, uploadBytesResumable} from 'firebase/storage'
+import {updateBaseStore} from "./baseActions";
+import {toast} from "react-toastify";
 
 export const initialChatStore = () => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
@@ -1106,8 +1122,7 @@ export const sendMessageToSelectedUser = (content) => (dispatch, getState) => {
     } catch (error) {
       console.error('Failed to send message:', error);
       rej(error);
-    } finally {
-    }
+    } 
   });
 };
 

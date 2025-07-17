@@ -1,10 +1,7 @@
-
-import { useEffect, useState, useRef } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { getNotifications, markNotificationAsRead, deleteNotification } from '../../store/actions/baseActions'
-import { Trash2, Check, Bell } from 'lucide-react'
-import Comment from '../../components/post/comment'
-import Post from '../../components/post/post'
+import {useEffect, useRef} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {deleteNotification, getNotifications, markNotificationAsRead} from '../../store/actions/baseActions'
+import {Bell, Check, Trash2} from 'lucide-react'
 
 const Notification = () => {
   const dispatch = useDispatch()

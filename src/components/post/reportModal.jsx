@@ -37,7 +37,7 @@ const ReportModal = ({ open, onClose, onSelectOption }) => {
               textAlign="center"
               mb={3}
             >
-              Your complaint is anonymous. If someone is in danger, don't wait –
+              Your complaint is anonymous. If someone is in danger, don&#39;t wait –
               call your local emergency service.
             </Typography>
             <List sx={{ width: '100%' }}>

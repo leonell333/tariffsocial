@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { logEvent } from 'firebase/analytics';
-import { analytics } from '../../firebase';
+import React, {useEffect, useState, useRef} from 'react';
+import {logEvent} from 'firebase/analytics';
+import {analytics} from '../../firebase';
 
 const ADSENSE_SLOT = 'ca-pub-4897128497430688';
 const AD_SLOT_ID = "6526839699";
@@ -67,7 +67,6 @@ const AdSlot = () => {
             const hasContent = adElement.children.length > 0 || 
                               adElement.innerHTML.trim().length > 0 ||
                               adElement.offsetHeight > 0;
-            
             if (!hasContent) {
               console.warn('AdSense ad failed to render content');
               setAdError(true);

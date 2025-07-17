@@ -1,11 +1,22 @@
-
-import { UPDATE_COLLEAGUE_STORE, INITIAL_COLLEAGUE_STORE } from "../types";
-import { db, auth } from "../../firebase"
-import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion, arrayRemove, increment, writeBatch, 
-  collection, query, where, limit, serverTimestamp, orderBy, startAfter, getCountFromServer, getDocsFromCache, 
-  onSnapshot } from "firebase/firestore";
-import { updateUserStore } from './userActions';
-import { updateBaseStore } from './baseActions';
+import {UPDATE_COLLEAGUE_STORE} from "../types";
+import {db} from "../../firebase"
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  doc,
+  getCountFromServer,
+  getDocs,
+  increment,
+  limit,
+  orderBy,
+  query,
+  serverTimestamp,
+  startAfter,
+  where,
+  writeBatch
+} from "firebase/firestore";
+import {updateUserStore} from './userActions';
 
 export const updateColleagueStore = (data) => (dispatch, getState) => {
   return new Promise((res, rej) => {

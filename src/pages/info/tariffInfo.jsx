@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 const contentMap = {
   '/info/about': {
@@ -92,8 +92,8 @@ const contentMap = {
         - Avoid spam and self-promotion without context<br />
         - Respect other viewpoints even when disagreeing<br />
         - Avoid illegal content and conduct<br />
-        - Follow moderators' instructions<br /><br />
-        Violations may result in warnings, content removal, or account suspension depending on severity. Let's build a fair, inclusive community together.
+        - Follow moderators&#39; instructions<br /><br />
+        Violations may result in warnings, content removal, or account suspension depending on severity. Let&#39;s build a fair, inclusive community together.
       </>
     )
   }

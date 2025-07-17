@@ -1,11 +1,23 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { Users, CheckCircle2, Reply, Pin, Copy, Forward, Trash2, Check, FileArchive, MoreHorizontal } from 'lucide-react';
+import React, {useEffect, useRef, useState} from 'react';
+import {useNavigate} from 'react-router';
+import {useDispatch, useSelector} from 'react-redux';
+import {Check, Copy, FileArchive, Forward, Pin, Reply, Trash2, Users} from 'lucide-react';
 import InputArea from './inputArea';
 import defaultAvatar from '../../assets/images/logo2.png';
-import { format, isSameDay } from 'date-fns';
-import { updateChatStore, searchUsersByUsername, getMessageHistoryWithUser, markMessagesAsRead, updateReaction, listenForMessages, setReplyToMessage, pinMessage, setForwardMessage, deleteMessage, toggleSelectMessage, deleteMessages } from '../../store/actions/chatAction';
+import {format, isSameDay} from 'date-fns';
+import {
+	deleteMessage,
+	deleteMessages,
+	getMessageHistoryWithUser,
+	markMessagesAsRead,
+	pinMessage,
+	searchUsersByUsername,
+	setForwardMessage,
+	setReplyToMessage,
+	toggleSelectMessage,
+	updateChatStore,
+	updateReaction
+} from '../../store/actions/chatAction';
 
 const MessageWindow = () => {
 	const navigate = useNavigate();
@@ -17,7 +29,7 @@ const MessageWindow = () => {
 	const [userListShow, setUserlistShow] = useState(false);
 	const [searchKey, setSearchKey] = useState('');
 	const [searching, setSearching] = useState(false);
-	const [previewMedia, setPreviewMedia] = useState(null);
+	const [_previewMedia, setPreviewMedia] = useState(null);
 	const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, message: null });
 	const messageBoxRef = useRef(null);
 	const messageEndRef = useRef(null);
@@ -149,7 +161,7 @@ const MessageWindow = () => {
 			case 'emoji':
 				return <span className="text-2xl">{msg.message}</span>;
 			case 'file':
-				const fileName = extractFileName(msg.message);
+				{ const fileName = extractFileName(msg.message);
 				return (
 					<div className="flex items-center gap-3">
 						<div className={`p-3 rounded-lg ${isMe ? 'bg-white/20' : 'bg-gray-200'}`}>
@@ -164,7 +176,7 @@ const MessageWindow = () => {
 							{fileName}
 						</a>
 					</div>
-				);
+				); }
 			default:
 				return <div className="inline">{msg.message}</div>;
 		}

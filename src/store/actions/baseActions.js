@@ -1,8 +1,18 @@
-import { UPDATE_BASE_STORE, } from '../types';
-import { db, auth, storage } from "../../firebase"
-import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion, arrayRemove, increment, writeBatch, 
-  collection, query, where, limit, serverTimestamp, orderBy, startAfter, getCountFromServer, getDocsFromCache, 
-  onSnapshot, startAt, endAt, } from "firebase/firestore";
+import {UPDATE_BASE_STORE,} from '../types';
+import {db} from "../../firebase"
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getCountFromServer,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 
 export const updateBaseStore = (data) => (dispatch, getState) => {
   return new Promise((res, rej) => {
@@ -33,7 +43,7 @@ export const getTags = () => (dispatch, getState) => {
 };
 
 export const getNotifications = (reset = false) => (dispatch, getState) => {
-  return new Promise(async (res, rej) => {
+  return new Promise( async (res, rej) => {
     try {
       const { user, base } = getState();
       if (!user?.id) {
@@ -88,7 +98,7 @@ export const getNotifications = (reset = false) => (dispatch, getState) => {
 };
 
 export const markNotificationAsRead = (notificationId) => (dispatch, getState) => {
-  return new Promise(async (res, rej) => {
+  return new Promise( async (res, rej) => {
     try {
       const messageRef = doc(db, 'messages', notificationId);
       await updateDoc(messageRef, { read: 1 });
@@ -112,7 +122,7 @@ export const markNotificationAsRead = (notificationId) => (dispatch, getState) =
 };
 
 export const getUnreadCounts = () => (dispatch, getState) => {
-  return new Promise(async (res, rej) => {
+  return new Promise( async (res, rej) => {
     try {
       const { user } = getState();
       if (!user?.id) {
@@ -154,7 +164,7 @@ export const getUnreadCounts = () => (dispatch, getState) => {
 };
 
 export const deleteNotification = (notificationId) => (dispatch, getState) => {
-  return new Promise(async (res, rej) => {
+  return new Promise( async (res, rej) => {
     try {
       if (!notificationId) return;
       const { base } = getState();
@@ -179,7 +189,6 @@ export const deleteNotification = (notificationId) => (dispatch, getState) => {
     } catch (error) {
       console.error('Error deleting notification:', error);
       rej(error);
-    } finally {
-    }
+    } 
   });
 };

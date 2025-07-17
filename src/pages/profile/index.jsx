@@ -1,6 +1,5 @@
-
-import { useSelector, useDispatch } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import {useSelector} from 'react-redux'
+import {useParams} from 'react-router'
 import ProfileView from './profileView'
 import ProfileEdit from './profileEdit'
 

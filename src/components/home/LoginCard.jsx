@@ -1,12 +1,11 @@
-
-import { useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { FcGoogle } from 'react-icons/fc'
-import { FaApple } from 'react-icons/fa'
-import { Eye, EyeOff } from 'lucide-react'
-import { googleLogin, signIn, signUp } from '../../store/actions/userActions'
+import {useState} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {useNavigate} from 'react-router'
+import {toast} from 'react-toastify'
+import {FcGoogle} from 'react-icons/fc'
+import {FaApple} from 'react-icons/fa'
+import {Eye, EyeOff} from 'lucide-react'
+import {googleLogin, signIn, signUp} from '../../store/actions/userActions'
 
 const LoginCard = () => {
   const navigate = useNavigate()

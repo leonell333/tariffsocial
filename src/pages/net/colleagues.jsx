@@ -1,7 +1,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import { Avatar } from '@mui/material';
 import { getColleagues, updateColleagueStore, followAction } from '../../store/actions/colleagueAction';
 import { updateUserStore } from '../../store/actions/userActions';

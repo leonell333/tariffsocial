@@ -3,6 +3,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useSelector, useDispatch } from "react-redux";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout, useCheckout } from "@stripe/react-stripe-js";
 import "./checkout.css";
+import Spinner from '../../components/ui/Spinner';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUB_KEY);
 const stripeBackend = import.meta.env.VITE_BACKEND;
@@ -95,7 +96,7 @@ const CheckoutInnerForm = () => {
         <button disabled={isLoading} id="submit">
           <span id="button-text">
             {isLoading ? (
-              <div className="spinner" id="spinner"></div>
+              <Spinner size={20} />
             ) : (
               `Pay ${checkout.total.total.amount} now`
             )}

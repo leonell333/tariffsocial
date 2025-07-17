@@ -1,14 +1,13 @@
-
-import { useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar'
+import {useDispatch, useSelector} from 'react-redux'
+import {useNavigate} from 'react-router'
+import {Avatar, AvatarFallback, AvatarImage} from '../../components/ui/avatar'
 import userAvatar from '../../assets/images/user.png'
-import { Card, } from '../../components/ui/card'
-import { MyNetIcon, NotificationIcon, DmIcon } from '../ui/icons'
-import { UserPlus, LogOut } from 'lucide-react'
-import { signOut } from '../../store/actions/userActions'
-import { GoogleAuthProvider, } from 'firebase/auth'
+import {Card,} from '../../components/ui/card'
+import {DmIcon, MyNetIcon, NotificationIcon} from '../ui/icons'
+import {LogOut, UserPlus} from 'lucide-react'
+import {signOut} from '../../store/actions/userActions'
+import {GoogleAuthProvider,} from 'firebase/auth'
+
 export const provider = new GoogleAuthProvider()
 
 const UserInfo = (props) => {

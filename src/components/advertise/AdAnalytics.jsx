@@ -1,13 +1,8 @@
-
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { logEvent } from 'firebase/analytics';
-import { analytics } from '../../firebase';
-import { Card, CardContent, Typography, Box, Grid, LinearProgress } from '@mui/material';
-import { TrendingUp, TrendingDown, Eye, MousePointer } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import {Box, Card, CardContent, Grid, LinearProgress, Typography} from "@mui/material";
+import {Eye, MousePointer, TrendingDown, TrendingUp} from "lucide-react";
 
 const AdAnalytics = () => {
-  const user = useSelector(state => state.user);
   const [analyticsData, setAnalyticsData] = useState({
     totalViews: 0,
     totalClicks: 0,
@@ -16,39 +11,41 @@ const AdAnalytics = () => {
     adsenseViews: 0,
     directAdClicks: 0,
     adsenseClicks: 0,
-    revenue: 0
+    revenue: 0,
   });
 
   useEffect(() => {
     const loadAnalyticsData = () => {
-      const recentDirectAds = localStorage.getItem('recentDirectAds') || '[]';
-      const recentClicks = localStorage.getItem('recentAdClicks') || '[]';
+      const recentDirectAds = localStorage.getItem("recentDirectAds") || "[]";
+      const recentClicks = localStorage.getItem("recentAdClicks") || "[]";
       const directAds = JSON.parse(recentDirectAds);
       const clicks = JSON.parse(recentClicks);
       const now = Date.now();
-      const last24Hours = now - (24 * 60 * 60 * 1000);
-      
-      const recentDirectAdViews = directAds.filter(ad => 
-        ad.type === 'direct' && ad.timestamp > last24Hours
+      const last24Hours = now - 24 * 60 * 60 * 1000;
+
+      const recentDirectAdViews = directAds.filter(
+        (ad) => ad.type === "direct" && ad.timestamp > last24Hours
       ).length;
-      
-      const recentAdsenseViews = directAds.filter(ad => 
-        ad.type === 'adsense' && ad.timestamp > last24Hours
+
+      const recentAdsenseViews = directAds.filter(
+        (ad) => ad.type === "adsense" && ad.timestamp > last24Hours
       ).length;
-      
-      const recentDirectClicks = clicks.filter(click => 
-        click.type === 'direct' && click.timestamp > last24Hours
+
+      const recentDirectClicks = clicks.filter(
+        (click) => click.type === "direct" && click.timestamp > last24Hours
       ).length;
-      
-      const recentAdsenseClicks = clicks.filter(click => 
-        click.type === 'adsense' && click.timestamp > last24Hours
+
+      const recentAdsenseClicks = clicks.filter(
+        (click) => click.type === "adsense" && click.timestamp > last24Hours
       ).length;
-      
+
       const totalViews = recentDirectAdViews + recentAdsenseViews;
       const totalClicks = recentDirectClicks + recentAdsenseClicks;
-      const clickThroughRate = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
-      const estimatedRevenue = (recentDirectClicks * 0.50) + (recentAdsenseClicks * 0.01);
-      
+      const clickThroughRate =
+        totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
+      const estimatedRevenue =
+        recentDirectClicks * 0.5 + recentAdsenseClicks * 0.01;
+
       setAnalyticsData({
         totalViews,
         totalClicks,
@@ -57,7 +54,7 @@ const AdAnalytics = () => {
         adsenseViews: recentAdsenseViews,
         directAdClicks: recentDirectClicks,
         adsenseClicks: recentAdsenseClicks,
-        revenue: Math.round(estimatedRevenue * 100) / 100
+        revenue: Math.round(estimatedRevenue * 100) / 100,
       });
     };
     loadAnalyticsData();
@@ -66,7 +63,7 @@ const AdAnalytics = () => {
   }, []);
 
   const MetricCard = ({ title, value, subtitle, icon: Icon, trend = null }) => (
-    <Card sx={{ minWidth: 200, height: '100%' }}>
+    <Card sx={{ minWidth: 200, height: "100%" }}>
       <CardContent>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box>
@@ -91,8 +88,8 @@ const AdAnalytics = () => {
             ) : (
               <TrendingDown size={16} color="red" />
             )}
-            <Typography 
-              variant="body2" 
+            <Typography
+              variant="body2"
               color={trend > 0 ? "green" : "red"}
               ml={0.5}
             >
@@ -112,7 +109,7 @@ const AdAnalytics = () => {
       <Typography variant="body1" color="textSecondary" mb={3}>
         Last 24 hours performance metrics
       </Typography>
-      
+
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
@@ -122,7 +119,7 @@ const AdAnalytics = () => {
             icon={Eye}
           />
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="Total Clicks"
@@ -131,7 +128,7 @@ const AdAnalytics = () => {
             icon={MousePointer}
           />
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="CTR"
@@ -140,7 +137,7 @@ const AdAnalytics = () => {
             icon={TrendingUp}
           />
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="Revenue"
@@ -150,7 +147,7 @@ const AdAnalytics = () => {
           />
         </Grid>
       </Grid>
-      
+
       <Grid container spacing={3} mt={2}>
         <Grid item xs={12} md={6}>
           <Card>
@@ -158,57 +155,92 @@ const AdAnalytics = () => {
               <Typography variant="h6" gutterBottom>
                 Ad Type Performance
               </Typography>
-              
+
               <Box mb={2}>
                 <Box display="flex" justifyContent="space-between" mb={1}>
                   <Typography variant="body2">Direct Ads</Typography>
                   <Typography variant="body2">
-                    {analyticsData.directAdViews} views, {analyticsData.directAdClicks} clicks
+                    {analyticsData.directAdViews} views,{" "}
+                    {analyticsData.directAdClicks} clicks
                   </Typography>
                 </Box>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={analyticsData.totalViews > 0 ? (analyticsData.directAdViews / analyticsData.totalViews) * 100 : 0}
+                <LinearProgress
+                  variant="determinate"
+                  value={
+                    analyticsData.totalViews > 0
+                      ? (analyticsData.directAdViews /
+                          analyticsData.totalViews) *
+                        100
+                      : 0
+                  }
                   sx={{ height: 8, borderRadius: 4 }}
                 />
               </Box>
-              
+
               <Box>
                 <Box display="flex" justifyContent="space-between" mb={1}>
                   <Typography variant="body2">AdSense</Typography>
                   <Typography variant="body2">
-                    {analyticsData.adsenseViews} views, {analyticsData.adsenseClicks} clicks
+                    {analyticsData.adsenseViews} views,{" "}
+                    {analyticsData.adsenseClicks} clicks
                   </Typography>
                 </Box>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={analyticsData.totalViews > 0 ? (analyticsData.adsenseViews / analyticsData.totalViews) * 100 : 0}
+                <LinearProgress
+                  variant="determinate"
+                  value={
+                    analyticsData.totalViews > 0
+                      ? (analyticsData.adsenseViews /
+                          analyticsData.totalViews) *
+                        100
+                      : 0
+                  }
                   sx={{ height: 8, borderRadius: 4 }}
                 />
               </Box>
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Performance Insights
               </Typography>
-              
+
               <Box>
                 <Typography variant="body2" color="textSecondary" mb={1}>
-                  Direct Ad CTR: {analyticsData.directAdViews > 0 ? 
-                    Math.round((analyticsData.directAdClicks / analyticsData.directAdViews) * 100 * 100) / 100 : 0}%
+                  Direct Ad CTR:{" "}
+                  {analyticsData.directAdViews > 0
+                    ? Math.round(
+                        (analyticsData.directAdClicks /
+                          analyticsData.directAdViews) *
+                          100 *
+                          100
+                      ) / 100
+                    : 0}
+                  %
                 </Typography>
                 <Typography variant="body2" color="textSecondary" mb={1}>
-                  AdSense CTR: {analyticsData.adsenseViews > 0 ? 
-                    Math.round((analyticsData.adsenseClicks / analyticsData.adsenseViews) * 100 * 100) / 100 : 0}%
+                  AdSense CTR:{" "}
+                  {analyticsData.adsenseViews > 0
+                    ? Math.round(
+                        (analyticsData.adsenseClicks /
+                          analyticsData.adsenseViews) *
+                          100 *
+                          100
+                      ) / 100
+                    : 0}
+                  %
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  Revenue per click: ${analyticsData.totalClicks > 0 ? 
-                    Math.round((analyticsData.revenue / analyticsData.totalClicks) * 100) / 100 : 0}
+                  Revenue per click: $
+                  {analyticsData.totalClicks > 0
+                    ? Math.round(
+                        (analyticsData.revenue / analyticsData.totalClicks) *
+                          100
+                      ) / 100
+                    : 0}
                 </Typography>
               </Box>
             </CardContent>

@@ -1,4 +1,4 @@
-import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import {applyMiddleware, combineReducers, compose, createStore} from 'redux';
 import {thunk} from 'redux-thunk';
 
 import baseReducer from './reducers/baseReducer';
@@ -12,18 +12,18 @@ const initialState = {};
 const middleware = [thunk];
 
 const reducers = combineReducers({
-  base: baseReducer,
-  user: userReducer,
-  chat: chatReducer,
-  colleague: colleagueReducer,
-  post: postReducer,
-  advertise: advertiseReducer,
+    base: baseReducer,
+    user: userReducer,
+    chat: chatReducer,
+    colleague: colleagueReducer,
+    post: postReducer,
+    advertise: advertiseReducer,
 });
 
 const composeEnhancers =
-  typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
-    : compose;
+    typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+        ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+        : compose;
 
 const enhancer = composeEnhancers(applyMiddleware(...middleware));
 const store = createStore(reducers, initialState, enhancer);

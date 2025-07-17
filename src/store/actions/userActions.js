@@ -1,15 +1,18 @@
-
-import { UPDATE_USER_STORE, SET_ERRORS, CLEAR_ERRORS, LOADING_UI, SET_AUTHENTICATED, 
-  SET_UNAUTHENTICATED, LOADING_USER, } from '../types';
-import { db, auth, storage, emailVerificationUrl } from "../../firebase"
-import { signInWithEmailAndPassword, sendEmailVerification, signInWithPopup, GoogleAuthProvider, updateProfile, 
-  signInWithCredential, createUserWithEmailAndPassword, } from 'firebase/auth'
-import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
-import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion, arrayRemove, increment, writeBatch, 
-  collection, query, where, limit, serverTimestamp, orderBy, startAfter, getCountFromServer, getDocsFromCache, 
-  onSnapshot } from "firebase/firestore";
+import {SET_UNAUTHENTICATED, UPDATE_USER_STORE,} from '../types';
+import {auth, db, emailVerificationUrl, storage} from "../../firebase"
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  updateProfile,
+} from 'firebase/auth'
+import {getDownloadURL, ref as storageRef, uploadBytes} from "firebase/storage";
+import {collection, doc, getCountFromServer, getDoc, serverTimestamp, setDoc, updateDoc} from "firebase/firestore";
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
+import error from "eslint-plugin-react/lib/util/error.js";
 
 export const updateUserStore = (userData) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
@@ -69,8 +72,7 @@ export const userInfoSave = (type, value, skillList = [], serviceList = [],) => 
       } catch (err) {
         console.error('Error updating user:', err);
         rej(err);
-      } finally {
-      }
+      } 
     });
   };
 };
@@ -104,8 +106,7 @@ export const deleteUserAvatar = () => (dispatch, getState) => {
     } catch (err) {
       console.error("Failed to delete avatar:", err);
       rej(err);
-    } finally {
-    }
+    } 
   });
 };
 
@@ -151,6 +152,7 @@ export const signIn = (email, password) => (dispatch) => {
       };
       rej(error.message);
     } finally {
+      console.log('SignIn error:', error);
     }
   });
 };
@@ -209,6 +211,7 @@ export const signUp = (email, password, userName) => (dispatch) => {
       }
       rej(error.message);
     } finally {
+      console.log('err', error);
     }
   });
 };

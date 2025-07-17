@@ -1,15 +1,139 @@
+import {UPDATE_POST_STORE} from '../types';
+import {analytics, db, storage} from "../../firebase"
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  doc,
+  getCountFromServer,
+  getDoc,
+  getDocs,
+  getDocsFromCache,
+  increment,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+  startAfter,
+  updateDoc,
+  where,
+  writeBatch
+} from "firebase/firestore";
+import {getDownloadURL, ref as storageRef, uploadBytesResumable} from 'firebase/storage'
+import {updateUserStore} from './userActions';
+import {updateBaseStore} from './baseActions';
+import {extractKeywords} from '../../utils';
+import {logEvent} from 'firebase/analytics';
 
-import { UPDATE_POST_STORE } from '../types';
-import { db, auth, storage } from "../../firebase"
-import { doc, getDoc, getDocs, updateDoc, setDoc, addDoc, deleteDoc, arrayUnion, arrayRemove, increment, writeBatch, 
-  collection, query, where, limit, serverTimestamp, orderBy, startAfter, getCountFromServer, getDocsFromCache, 
-  onSnapshot } from "firebase/firestore";
-import { ref as storageRef, uploadString, getDownloadURL, uploadBytes, uploadBytesResumable } from 'firebase/storage'
-import { updateUserStore } from './userActions';
-import { updateBaseStore } from './baseActions';
-import { extractKeywords } from '../../utils';
-import { logEvent } from 'firebase/analytics';
-import { analytics } from '../../firebase';
+const keywordCache = new Map();
+const memoizedExtractKeywords = (contentHtml, tags, address) => {
+  const cacheKey = `${contentHtml.slice(0, 100)}-${tags.join(',')}-${address}`;
+  if (keywordCache.has(cacheKey)) {
+    return keywordCache.get(cacheKey);
+  }
+  const keywords = extractKeywords(contentHtml, tags, address);
+  keywordCache.set(cacheKey, keywords);
+  if (keywordCache.size > 1000) {
+    const firstKey = keywordCache.keys().next().value;
+    keywordCache.delete(firstKey);
+  }
+  return keywords;
+};
+
+const batchQueue = new Map();
+const BATCH_DELAY = 100; // ms
+const MAX_BATCH_SIZE = 500;
+
+const optimizedBatchWrite = (batchId, operation) => {
+  if (!batchQueue.has(batchId)) {
+    batchQueue.set(batchId, []);
+    setTimeout(() => {
+      const operations = batchQueue.get(batchId);
+      if (operations && operations.length > 0) {
+        executeBatchOperations(operations);
+        batchQueue.delete(batchId);
+      }
+    }, BATCH_DELAY);
+  }
+
+  const queue = batchQueue.get(batchId);
+  queue.push(operation);
+
+  if (queue.length >= MAX_BATCH_SIZE) {
+    executeBatchOperations(queue);
+    batchQueue.delete(batchId);
+  }
+};
+
+const executeBatchOperations = async (operations) => {
+  const batch = writeBatch(db);
+  operations.forEach(op => op(batch));
+  try {
+    await batch.commit();
+  } catch (error) {
+    console.error('Batch operation failed:', error);
+  }
+};
+
+const optimizedUploadMedia = async (elements, folder, userId, onProgress) => {
+  const CONCURRENT_UPLOADS = 3;
+  const tasks = Array.from(elements);
+  const results = [];
+
+  let total = tasks.length;
+  let completed = 0;
+
+  for (let i = 0; i < tasks.length; i += CONCURRENT_UPLOADS) {
+    const batch = tasks.slice(i, i + CONCURRENT_UPLOADS);
+    const batchResults = await Promise.allSettled(
+      batch.map(async (el, index) => {
+        if (el.src.startsWith('https://')) return null;
+        try {
+          const response = await fetch(el.src);
+          const blob = await response.blob();
+          const name = `${Date.now()}-${i + index}-${Math.random().toString(36).substr(2, 5)}`;
+          const fileRef = storageRef(storage, `post-${folder}/${userId}/${name}`);
+
+          return new Promise((res, rej) => {
+            let lastPercent = 0;
+            const uploadTask = uploadBytesResumable(fileRef, blob);
+            uploadTask.on('state_changed',
+              (snapshot) => {
+                if (onProgress && folder === 'videos') {
+                  const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                  if (percent !== lastPercent) {
+                    lastPercent = percent;
+                    onProgress(percent);
+                  }
+                }
+              },
+              rej,
+              async () => {
+                try {
+                  const url = await getDownloadURL(fileRef);
+                  completed++;
+                  if (onProgress && folder === 'videos') {
+                    onProgress(Math.round((completed / total) * 100));
+                  }
+                  res({ element: el, url });
+                } catch (err) {
+                  rej(err);
+                }
+              }
+            );
+          });
+        } catch (err) {
+          console.error('Upload failed:', err);
+          return null;
+        }
+      })
+    );
+    results.push(...batchResults);
+  }
+
+  return results.filter(result => result.status === 'fulfilled' && result.value);
+};
 
 export const updatePostStore = (data) => (dispatch, getState) => {
   return new Promise((res, rej) => {
@@ -146,8 +270,7 @@ export const getPostAndSponsored = () => (dispatch, getState) => {
     } catch (err) {
       console.error('Error loading posts and sponsored:', err);
       rej(err);
-    } finally {
-    }
+    } 
   });
 };
 
@@ -242,8 +365,7 @@ export const getPostsByUser = (userId, reset = false) => (dispatch, getState) =>
     } catch (error) {
       console.error('Failed to load user posts:', error);
       rej(error);
-    } finally {
-    }
+    } 
   });
 };
 
@@ -323,7 +445,6 @@ export const searchPostsByKeywords = (keywordsArray, reset = false) => (dispatch
       const { searchPosts = [], lastSearchPost, lastSearchPostVisible } = post;
       
       if (!keywordsArray || keywordsArray.length === 0) {
-        // Clear search results if no keywords
         dispatch(updatePostStore({ 
           searchPosts: [], 
           lastSearchPost: null, 
@@ -386,8 +507,7 @@ export const searchPostsByKeywords = (keywordsArray, reset = false) => (dispatch
     } catch (error) {
       console.error('Failed to search posts:', error);
       rej(error);
-    } finally {
-    }
+    } 
   });
 };
 
@@ -401,61 +521,41 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
       let contentHtml = clonedRoot.innerHTML.trim();
       const imageElements = clonedRoot.getElementsByTagName('img');
       const videoElements = clonedRoot.getElementsByTagName('video');
+
       if (imageElements.length > 10) {
         return rej('Too many images');
       }
       if (videoElements.length > 1) { 
         return rej('Too many videos');
       }
-      const uploadMedia = async (elements, folder) => {
-        const tasks = Array.from(elements).map(async (el) => {
-          if (el.src.startsWith('https://')) return null;
-          try {
-            const response = await fetch(el.src);
-            const blob = await response.blob();
-            const name = `${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-            const fileRef = storageRef(storage, `post-${folder}/${user.id}/${name}`);
-            const uploadTask = uploadBytesResumable(fileRef, blob);
-            return new Promise((res, rej) => {
-              uploadTask.on('state_changed', 
-                (snapshot) => {
-                  const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                  console.log(`${folder} upload progress: ${progress.toFixed(2)}%`);
-                },
-                (error) => {
-                  console.error('Upload failed:', error);
-                  rej(error);
-                },
-                async () => {
-                  try {
-                    const url = await getDownloadURL(fileRef);
-                    contentHtml = contentHtml.replace(el.src, url);
-                    res();
-                  } catch (err) {
-                    console.error('Error getting download URL:', err);
-                    rej(err);
-                  }
-                }
-              );
-            });
-          } catch (err) {
-            console.error('Error uploading media:', err);
-            return null;
-          }
-        });
-        return Promise.allSettled(tasks);
-      };
 
       const startMedia = performance.now();
-      const allMediaResults = await Promise.all([
-        uploadMedia(imageElements, 'images'),
-        uploadMedia(videoElements, 'videos')
+      // For images: no progress. For videos: dispatch progress.
+      const [imageResults, videoResults] = await Promise.all([
+        optimizedUploadMedia(imageElements, 'images', user.id),
+        optimizedUploadMedia(videoElements, 'videos', user.id, (percent) => {
+          dispatch(updateBaseStore({ videoUploadProgress: percent }));
+        })
       ]);
+      // Reset progress after video upload
+      dispatch(updateBaseStore({ videoUploadProgress: null }));
+
+      [...imageResults, ...videoResults].forEach(result => {
+        if (result.value) {
+          contentHtml = contentHtml.replace(result.value.element.src, result.value.url);
+        }
+      });
+
       const endMedia = performance.now();
-      console.log(`Media uploads took ${(endMedia - startMedia) / 1000} seconds.`);
-      await Promise.all(allMediaResults);
-      const keywords = extractKeywords(contentHtml, tags, address);
-      const postRef = await addDoc(collection(db, 'posts'), {
+      console.log(`Optimized media uploads took ${(endMedia - startMedia) / 1000} seconds.`);
+
+      const keywords = memoizedExtractKeywords(contentHtml, tags, address);
+
+      const batch = writeBatch(db);
+      const postRef = doc(collection(db, 'posts'));
+      const userRef = doc(db, 'users', user.id);
+
+      batch.set(postRef, {
         contentHtml,
         address,
         tags,
@@ -472,11 +572,14 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
         savesCount: 0,
         createdAt: serverTimestamp(),
       });
-      const userRef = doc(db, 'users', user.id);
-      await updateDoc(userRef, { postCount: increment(1) });
+
+      batch.update(userRef, { postCount: increment(1) });
+      await batch.commit();
+
       res(true);
     } catch (err) {
       console.error('Error creating post:', err);
+      dispatch(updateBaseStore({ videoUploadProgress: null }));
       rej(err);
     }
   });
@@ -543,9 +646,9 @@ export const handlePostCreationFollowUps = ({ postRef, currentUser, tags }) => a
 };
 
 export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (dispatch, getState) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise( async (res, rej) => {
     try {
-      const { user } = getState();
+      const {user} = getState();
       const clonedRoot = editorInstance.root.cloneNode(true);
       clonedRoot.querySelectorAll('.quill-delete-btn')?.forEach(btn => btn.remove());
 
@@ -555,7 +658,7 @@ export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (
       const videoElements = clonedRoot.getElementsByTagName('video');
 
       const uploadMedia = (elements, folder) => {
-        return new Promise((resolveUploads) => {
+        return new Promise( (resUploads) => {
           const tasks = Array.from(elements).map(async (el) => {
             if (el.src.startsWith('https://')) return null;
 
@@ -568,14 +671,14 @@ export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (
 
               return new Promise((res, rej) => {
                 uploadTask.on(
-                  'state_changed',
-                  null,
-                  rej,
-                  async () => {
-                    const url = await getDownloadURL(fileRef);
-                    contentHtml = contentHtml.replace(el.src, url);
-                    res();
-                  }
+                    'state_changed',
+                    null,
+                    rej,
+                    async () => {
+                      const url = await getDownloadURL(fileRef);
+                      contentHtml = contentHtml.replace(el.src, url);
+                      res();
+                    }
                 );
               });
             } catch (err) {
@@ -584,7 +687,7 @@ export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (
             }
           });
 
-          Promise.allSettled(tasks).then(resolveUploads);
+          Promise.allSettled(tasks).then(resUploads);
         });
       };
 
@@ -593,16 +696,15 @@ export const updatePost = ({ id, editorInstance, tags = [], address = '' }) => (
         uploadMedia(videoElements, 'videos'),
       ]);
 
-      // Extract keywords from updated content, tags, and address
-      const keywords = extractKeywords(contentHtml, tags, address);
+
+      const keywords = memoizedExtractKeywords(contentHtml, tags, address);
 
       const postRef = doc(db, 'posts', id);
-      await updateDoc(postRef, { contentHtml, keywords });
-      resolve({ contentHtml, keywords });
+      await updateDoc(postRef, {contentHtml, keywords});
+      res({contentHtml, keywords});
     } catch (err) {
       console.error('Failed to update post:', err);
-      reject(err);
-    } finally {
+      rej(err);
     }
   });
 };
@@ -642,8 +744,7 @@ export const deletePost = ({ id, ownerId }) => (dispatch, getState) => {
     } catch (err) {
       console.error("Failed to delete post and subcollections:", err);
       rej(err);
-    } finally {
-    }
+    } 
   });
 };
 
@@ -715,14 +816,14 @@ export const updateRecommendation = (recommendations, info) => (dispatch, getSta
           const { username, email, photoUrl, id: actionId } = getState().user;
           const newPostRef = doc(collection(db, 'posts'));
           
-          // Get the original post to extract keywords
+
           const originalPostRef = doc(db, 'posts', id);
           const originalPostSnap = await getDoc(originalPostRef);
           const originalPostData = originalPostSnap.data();
           
-          // Extract keywords from the original post content
-          const keywords = extractKeywords(contentHtml, originalPostData?.tags || [], originalPostData?.address || '');
-          
+
+          const keywords = memoizedExtractKeywords(contentHtml, originalPostData?.tags || [], originalPostData?.address || '');
+
           const newRepostData = {
             type: 'repost',
             originalPostId: id,
@@ -732,7 +833,7 @@ export const updateRecommendation = (recommendations, info) => (dispatch, getSta
             useremail: email,
             ownerId: actionId,
             contentHtml: contentHtml,
-            keywords, // Add keywords to repost
+            keywords,
             likesCount: 0,
             lovesCount: 0,
             repostsCount: 0,
@@ -835,8 +936,7 @@ export const getPostComments = (postId, updateComments) => (dispatch, getState) 
     } catch (err) {
       console.error('Failed to load comments:', err);
       rej(err);
-    } finally {
-    }
+    } 
   });
 };
 
@@ -913,8 +1013,7 @@ export const createComment = ({ quill, postId }) => (dispatch, getState) => {
     } catch (error) {
       console.error('Failed to create comment:', error);
       rej(error);
-    } finally {
-    }
+    } 
   });
 };
 
@@ -927,8 +1026,7 @@ export const updateComment = (postId, commentId, updatedContentHtml) => (dispatc
     } catch (err) {
       console.error('Failed to update comment:', err);
       rej({ success: false, error: err.message || 'Update failed.' });
-    } finally {
-    }
+    } 
   });
 };
 
@@ -945,7 +1043,6 @@ export const deleteComment = (postId, commentId) => (dispatch, getState) => {
     } catch (err) {
       console.error('Failed to delete comment and update count:', err);
       rej(err);
-    } finally {
-    }
+    } 
   });
 };

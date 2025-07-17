@@ -1,14 +1,9 @@
-import { useState, useEffect, useRef, StrictMode } from 'react';
-import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { GrUserAdmin } from "react-icons/gr";
-import { SearchIcon, CopyrightIcon, FileIcon, FileTextIcon, HomeIcon, InfoIcon, InstagramIcon, LinkedinIcon, LockIcon, MailIcon, MessageSquareIcon, ShoppingCartIcon,
-   YoutubeIcon, ClipboardListIcon, XIcon,FacebookIcon , BellIcon, Instagram, Youtube, Linkedin } from 'lucide-react';
-import LoginCard from '../../components/home/LoginCard';
-import UserInfo from '../../components/home/UserInfo';
-import { ListItemIcon } from '@mui/material';
-import { LuSignpost } from "react-icons/lu";
-import { RiAdvertisementLine,RiProductHuntLine  } from "react-icons/ri";
+import {connect} from 'react-redux';
+import {useNavigate} from 'react-router';
+import {HomeIcon} from 'lucide-react';
+import {LuSignpost} from "react-icons/lu";
+import {RiAdvertisementLine, RiProductHuntLine} from "react-icons/ri";
+
 const getMainNavItems = (authenticated) => {
   const items = [
     { icon: <HomeIcon className="w-6 h-6 text-[#454545]" size={18} />, label: "Home", url: "/" },

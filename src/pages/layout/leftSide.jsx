@@ -1,14 +1,13 @@
-
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { GrUserAdmin } from 'react-icons/gr'
-import { CopyrightIcon, HomeIcon, InfoIcon, MailIcon, ClipboardListIcon, } from 'lucide-react'
+import {useEffect} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {useNavigate} from 'react-router'
+import {GrUserAdmin} from 'react-icons/gr'
+import {ClipboardListIcon, CopyrightIcon, HomeIcon, InfoIcon, MailIcon,} from 'lucide-react'
 import LoginCard from '../../components/home/LoginCard'
 import UserInfo from '../../components/home/UserInfo'
-import { XLogoIcon, InstagramLogoIcon, YoutubeLogoIcon, LinkedInLogoIcon, } from '../../components/ui/icons'
-import { getTotalColleagueCount, } from '../../store/actions/colleagueAction'
-import { getUnreadCounts } from '../../store/actions/baseActions'
+import {InstagramLogoIcon, LinkedInLogoIcon, XLogoIcon, YoutubeLogoIcon,} from '../../components/ui/icons'
+import {getTotalColleagueCount,} from '../../store/actions/colleagueAction'
+import {getUnreadCounts} from '../../store/actions/baseActions'
 
 const getMainNavItems = (authenticated) => {
   const items = [

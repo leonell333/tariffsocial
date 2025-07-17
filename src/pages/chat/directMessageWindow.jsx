@@ -1,19 +1,24 @@
-
-import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux'
-import { File as FileIcon, Image, Send, User, Paperclip, Users, Gift } from 'lucide-react';
+import {useEffect, useRef, useState} from 'react';
+import {useNavigate} from 'react-router';
+import {useDispatch, useSelector} from 'react-redux'
+import {Gift, Image, Paperclip, Send, User, Users} from 'lucide-react';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import Popover from '@mui/material/Popover'
-import { EmojiIcon } from '../../components/ui/icons'
+import {EmojiIcon} from '../../components/ui/icons'
 import defaultAvatar from '../../assets/images/user.jpg';
-import { GiphyFetch } from '@giphy/js-fetch-api';
-import { Grid } from '@giphy/react-components';
-import { toast } from 'react-toastify';
+import {GiphyFetch} from '@giphy/js-fetch-api';
+import {Grid} from '@giphy/react-components';
+import {toast} from 'react-toastify';
 import ImagePreviewModal from '../../components/post/imagePreviewModal';
-import { updateChatStore, getUsers, getDmState, searchUsersByUsername, sendMessageWithAttachments, getMessageHistoryWithUser } from '../../store/actions/chatAction';
-import { updateBaseStore } from '../../store/actions/baseActions';
+import {
+  getDmState,
+  getMessageHistoryWithUser,
+  getUsers,
+  searchUsersByUsername,
+  sendMessageWithAttachments,
+  updateChatStore
+} from '../../store/actions/chatAction';
 
 const gf = new GiphyFetch('pLURtkhVrUXr3KG25Gy5IvzziV5OrZGa');
 const MAX_FILE_SIZE_MB = 20;

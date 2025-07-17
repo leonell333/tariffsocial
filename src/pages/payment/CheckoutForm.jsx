@@ -1,8 +1,9 @@
 
-import React, { useState, useCallback, useEffect } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import { PaymentElement, Elements, useStripe, useElements } from "@stripe/react-stripe-js";
+import React, {useState, useEffect} from "react";
+import {loadStripe} from "@stripe/stripe-js";
+import {PaymentElement, Elements, useStripe, useElements} from "@stripe/react-stripe-js";
 import "./checkout.css";
+import Spinner from '../../components/ui/Spinner';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUB_KEY);
 const stripeBackend = import.meta.env.VITE_BACKEND;
@@ -123,7 +124,7 @@ const CheckoutInnerForm = ({ amount, currency }) => {
         <button disabled={isLoading || !stripe || !elements} id="submit">
           <span id="button-text">
             {isLoading ? (
-              <div className="spinner" id="spinner"></div>
+              <Spinner size={20} />
             ) : (
               `Pay ${formattedAmount} now`
             )}
@@ -167,8 +168,7 @@ const CheckoutForm = (props) => {
 
   if (!clientSecret) return (
     <div className="flex justify-center items-center min-h-[200px]">
-      <div className="spinner" style={{ width: 32, height: 32, border: '4px solid #eee', borderTop: '4px solid #888', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      <Spinner size={32} style={{ marginRight: 0 }} />
     </div>
   );
 

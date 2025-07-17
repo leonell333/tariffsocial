@@ -1,8 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { logEvent } from 'firebase/analytics';
-import { analytics } from '../../firebase';
+import React, {useState, useEffect} from 'react';
+import {useSelector} from 'react-redux';
+import {logEvent} from 'firebase/analytics';
+import {analytics} from '../../firebase';
 import AdsSlick from './adsSlick';
 import AdSlot from './AdSlot';
 

@@ -18,6 +18,7 @@ const initialState = {
   numberOfaffilliations: 0,
   captureCamera: false,
   capturedImage: "",
+  videoUploadProgress: null,
 };
 
 export default function(state = initialState, action) {

@@ -1,12 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Image, Smile, Send, Mic, Paperclip, Gift } from 'lucide-react';
-import { GiphyFetch } from '@giphy/js-fetch-api';
-import { Grid } from '@giphy/react-components';
+import React, {useEffect, useRef, useState} from 'react';
+import {Gift, Paperclip, Send, Smile} from 'lucide-react';
+import {GiphyFetch} from '@giphy/js-fetch-api';
+import {Grid} from '@giphy/react-components';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import Popover from '@mui/material/Popover';
-import { useSelector, useDispatch } from 'react-redux';
-import { sendMessageToSingleUser } from '../../store/actions/chatAction';
+import {useDispatch, useSelector} from 'react-redux';
+import {sendMessageToSingleUser} from '../../store/actions/chatAction';
 
 const gf = new GiphyFetch('pLURtkhVrUXr3KG25Gy5IvzziV5OrZGa');
 
