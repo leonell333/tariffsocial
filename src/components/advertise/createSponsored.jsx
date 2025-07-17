@@ -1,17 +1,14 @@
-
-import { useEffect, useRef, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, useSearchParams } from "react-router";
-import { InputAdornment, MenuItem, TextField } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import {useEffect, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useNavigate} from "react-router";
+import {InputAdornment, MenuItem, TextField} from "@mui/material";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import ReactCountryFlagsSelect from "react-country-flags-select";
 import "../../pages/advertise/advertise.css";
-import countries from "../../consts/country";
-import { currencies } from "../../consts";
-import { isValidEmail } from "../../utils";
-import { createOrUpdateSponsoredAd } from "../../store/actions/advertiseAction";
-import { updateAdvertiseStore } from "../../store/actions/advertiseAction";
+import {currencies} from "../../consts";
+import {isValidEmail} from "../../utils";
+import {createOrUpdateSponsoredAd, updateAdvertiseStore} from "../../store/actions/advertiseAction";
 
 const CreateSponsored = () => {
   const dispatch = useDispatch();

@@ -1,5 +1,4 @@
-import { useSelector, useDispatch } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
 import CheckoutForm from "./CheckoutForm";
 
 const Payment = () => {

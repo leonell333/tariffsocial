@@ -1,10 +1,9 @@
-
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { updateBaseStore } from "../../store/actions/baseActions";
-import { getBannerAds, updateAdvertiseStore } from "../../store/actions/advertiseAction";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip } from '@mui/material';
+import {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {useNavigate} from 'react-router';
+import {updateBaseStore} from "../../store/actions/baseActions";
+import {getBannerAds, updateAdvertiseStore} from "../../store/actions/advertiseAction";
+import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip} from '@mui/material';
 import CountryFlag from 'react-country-flag';
 import "./advertise.css"
 

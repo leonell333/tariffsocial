@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 import "../../pages/advertise/advertise.css"
 import LeftSide from '../layout/leftSide';
 

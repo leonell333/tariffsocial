@@ -1,18 +1,17 @@
-
-import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
-import { InputAdornment, MenuItem, TextField } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useNavigate} from "react-router";
+import {InputAdornment, MenuItem, TextField} from "@mui/material";
+import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import ReactCountryFlagsSelect from "react-country-flags-select";
-import { FaCloudUploadAlt } from "react-icons/fa";
+import {FaCloudUploadAlt} from "react-icons/fa";
 import dayjs from "dayjs";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { currencies } from "../../consts";
-import { isValidEmail } from "../../utils";
-import { createOrUpdateBannerAd, updateAdvertiseStore, } from "../../store/actions/advertiseAction";
-import { AiOutlineCloseCircle } from "react-icons/ai";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
+import {currencies} from "../../consts";
+import {isValidEmail} from "../../utils";
+import {createOrUpdateBannerAd, updateAdvertiseStore,} from "../../store/actions/advertiseAction";
+import {AiOutlineCloseCircle} from "react-icons/ai";
 import "../../pages/advertise/advertise.css";
 
 const CreateBannerAdvertise = () => {
@@ -645,7 +644,7 @@ const CreateBannerAdvertise = () => {
         <div className="w-fit m-auto py-5">
           <button
             type="button"
-            disabled={stateAdvertise.ownerId ? true : false || isLoading}
+            disabled={(!!stateAdvertise.ownerId) || isLoading}
             className="bg-[#161722] text-white text-[18px]  rounded-xl cursor-pointer h-10 w-25 flex items-center justify-center min-w-[100px]"
             onClick={handleAdvertise}
             style={isLoading ? { pointerEvents: 'none' } : {}}

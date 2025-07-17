@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { getSponsoredAds, updateAdvertiseStore } from "../../store/actions/advertiseAction";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip } from '@mui/material';
 import CountryFlag from 'react-country-flag';
