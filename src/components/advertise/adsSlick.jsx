@@ -47,7 +47,14 @@ const AdsSlick = (props) => {
                  <Slider {...settings} style={{ width: width, }} >
                 {ads.map((ad, index) => (
                   <div key={index} style={{ width: width }}  className="h-full">
-                    <img loading={index == 0 ? 'eager' : 'lazy' } crossOrigin="anonymous" src={ad.imageUrl}  className="w-full min-h-[260px] block"  alt={"Ads " +index}/>
+                    <img
+                        loading={index == 0 ? 'eager' : 'lazy' }
+                        crossOrigin="anonymous"
+                        src={ad.imageUrl}
+                        className="w-full min-h-[260px] block"
+                        alt={"Ads " +index}
+                        fetchPriority={index == 0 ? "high" : "auto" }
+                    />
                   </div>
                 ))}
               </Slider>

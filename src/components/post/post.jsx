@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 import {useNavigate} from 'react-router'
 import {db,} from '../../firebase'
@@ -22,7 +22,7 @@ import {Avatar, Popover,} from '@mui/material'
 import {CircleX, Heart, MessageCircle, MoreHorizontalIcon, Pencil, Save, Trash,} from 'lucide-react'
 import CreateComment from './createComment'
 import Comment from './comment'
-import PostEditor from './postEditor'
+// import PostEditor from './postEditor'
 import BlockModal from './blockModal'
 import ReportModal from './reportModal'
 import ImagePreviewModal from './imagePreviewModal'
@@ -35,6 +35,8 @@ import {
 } from '../../store/actions/postActions'
 import {formatTextCleanlyPreservingMedia, getFormattedContent, readTime} from '../../utils';
 import {getUserDataById} from '../../store/actions/userActions';
+
+const PostEditor = React.lazy(() => import('./postEditor'))
 
 const Post = (props) => {
   const navigate = useNavigate();
