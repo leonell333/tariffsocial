@@ -5,7 +5,10 @@ import {toast} from 'react-toastify'
 import {FcGoogle} from 'react-icons/fc'
 import {FaApple} from 'react-icons/fa'
 import {Eye, EyeOff} from 'lucide-react'
-import {googleLogin, signIn, signUp} from '../../store/actions/userActions'
+import {signIn, signUp, updateUserStore} from '../../store/actions/userActions'
+import {auth, db} from '../../firebase';
+import {GoogleAuthProvider, signInWithPopup} from 'firebase/auth';
+import {doc, getDoc, setDoc, serverTimestamp} from 'firebase/firestore';
 
 const LoginCard = () => {
   const navigate = useNavigate()
@@ -52,20 +55,54 @@ const LoginCard = () => {
       })
       .catch((err) => {
         console.error('Signup failed:', err);
-        // toast.error(`Error: ${err}`, { position: 'top-right' });
       });
     
   }
 
   const handleGoogleLogin = async () => {
-    dispatch(googleLogin()).then((res) => {
-      if (res) {
-        navigate('/');
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const userRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(userRef);
+      let userData;
+
+      if (!docSnap.exists()) {
+        const username = user.displayName || user.email.split('@')[0];
+        userData = {
+          username: username,
+          username_lowcase: username.toLowerCase(),
+          email: user.email,
+          photoUrl: user.photoURL || '',
+          status: 'online',
+          country: { countryCode: '', label: '' },
+          description: '',
+          information: '',
+          skills: [],
+          services: [],
+          tags: [],
+          followCount: 0,
+          follows: [],
+          followerCount: 0,
+          postCount: 0,
+          adCount: 0,
+          sponsoreCount: 0,
+          role: { admin: false, moderator: false },
+          isVerified: user.emailVerified,
+          createdAt: serverTimestamp(),
+        };
+        await setDoc(userRef, userData);
+      } else {
+        userData = { ...docSnap.data() };
       }
-    }).catch((err) => {
-      console.error('Login failed:', err);
-      // toast.error('Login failed. Please try again.', { position: 'top-right' });
-    });
+      dispatch(updateUserStore({ id: user.uid, ...userData }));
+      toast.success(`Welcome ${user.displayName}`, { position: 'top-right' });
+      navigate('/');
+    } catch (err) {
+      console.error('Google login error:', err);
+    }
   }
 
   // const handleGoogleLoginSuccess = async (response) => {
@@ -110,7 +147,8 @@ const LoginCard = () => {
 
       <button
         className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 cursor-pointer"
-        onClick={handleGoogleLogin}>
+        onClick={handleGoogleLogin}
+      >
         <FcGoogle className="text-xl" />
         Continue with Google
       </button>

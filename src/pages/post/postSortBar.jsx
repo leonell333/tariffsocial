@@ -202,7 +202,7 @@ const PostSortBar = (props) => {
                     >
                         {!showCreatePost ? (
                             <>
-                                <Plus size={14}/>
+                                {/* <Plus size={14}/> */}
                                 <span>Post</span>
                             </>
                         ) : (

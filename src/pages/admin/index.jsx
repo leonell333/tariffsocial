@@ -1,27 +1,77 @@
-import {Outlet} from 'react-router';
+import {useState, useEffect, useRef} from 'react'
+import {Outlet, useLocation, useNavigate} from 'react-router';
 import {useDispatch, useSelector} from 'react-redux';
-import LeftSide from './AdminLeftSide';
+import LeftSide from './leftside';
 
-const MainLayout = () => {
+const LEFT_SIDE_WIDTH = 250;
+const SIDE_MARGIN = 70;
+const SCALE = 0.92;
+const CONSTANT_GAP = 0;
+
+const AdminLayout = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch()
   const keyword = useSelector(state => state.post.keyword)
   const unReadMessages = useSelector(state => state.base.unReadMessages)
   const user = useSelector(state => state.user)
   
+  const layoutRef = useRef(null);
+  const [layoutLeft, setLayoutLeft] = useState(0);
+  const [layoutWidth, setLayoutWidth] = useState(1320);
+  
+  useEffect(() => {
+    const updateLayout = () => {
+      if (layoutRef.current) {
+        const rect = layoutRef.current.getBoundingClientRect();
+        setLayoutLeft(rect.left);
+        setLayoutWidth(rect.width);
+      }
+    };
+    updateLayout();
+    window.addEventListener('resize', updateLayout);
+    return () => window.removeEventListener('resize', updateLayout);
+  }, []);
+
+  const leftScaleOffset = (LEFT_SIDE_WIDTH * (1 - SCALE)) / 2;
+  const leftSideLeft = layoutLeft + SIDE_MARGIN;
+  const middleSectionLeft = leftSideLeft + LEFT_SIDE_WIDTH + CONSTANT_GAP - leftScaleOffset;
+  const middleSectionWidth = layoutWidth >= 1024
+    ? layoutWidth - (middleSectionLeft - layoutLeft) - SIDE_MARGIN
+    : layoutWidth;
+  
   return (
-    <div className="bg-[#ECECEC] w-full min-h-screen text-[#454545]">
+    <div className="bg-[#ECECEC] w-full min-h-[calc(100vh-72px)] text-[#454545]">
       <div className="flex justify-center">
-        <div className="w-full max-w-[1320px] relative">
-          <div className="bg-white flex justify-center w-full">
-            <div className="bg-white w-full relative px-4 flex">
-              <div className="flex flex-col lg:flex-row gap-6 w-full mt-4">
-                <div className="w-full lg:w-[200px]">
-                  <LeftSide/>
-                </div>
-                <div className="flex-1 p-3">
-                  <Outlet />
-                </div>
-              </div>
+        <div className="relative max-w-[1320px] w-full" ref={layoutRef}>
+          <div
+            className="hidden lg:block fixed top-[86px] z-10"
+            style={{
+              width: `${LEFT_SIDE_WIDTH}px`,
+              left: `${leftSideLeft}px`,
+            }}
+            id="left-side"
+          >
+            <div className="transform scale-[0.92] origin-top h-full w-full">
+              <LeftSide />
+            </div>
+          </div>
+
+          <div
+            id="middle-section"
+            className="w-full min-h-[calc(100vh-108px)] mt-4 flex flex-col justify-center transition-all duration-300 overflow-x-hidden px-2 sm:px-4 lg:px-6"
+            style={
+              layoutWidth >= 1024
+                ? {
+                    marginLeft: `${middleSectionLeft - layoutLeft}px`,
+                    marginRight: `${SIDE_MARGIN}px`,
+                    width: `${middleSectionWidth}px`,
+                  }
+                : { marginLeft: 0, marginRight: 0, width: '100%' }
+            }
+          >
+            <div className="flex-grow min-w-0 w-full flex flex-col">
+              <Outlet />
             </div>
           </div>
         </div>
@@ -30,4 +80,4 @@ const MainLayout = () => {
   )
 }
 
-export default MainLayout;
+export default AdminLayout;

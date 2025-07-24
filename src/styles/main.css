@@ -7,6 +7,82 @@
 
 @tailwind utilities;
 
+/* CRITICAL: Global scrollbar button removal - must be first */
+*::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Chrome-specific button removal */
+::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Specific button removal for all directions */
+::-webkit-scrollbar-button:single-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+::-webkit-scrollbar-button:double-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+::-webkit-scrollbar-button:start {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+::-webkit-scrollbar-button:end {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+::-webkit-scrollbar-button:decrement {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+::-webkit-scrollbar-button:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+
+html, body, div, section, article, aside, nav, main, header, footer, 
+textarea, select, input, iframe, object, embed, canvas, svg {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+
 :root {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
@@ -620,7 +696,6 @@ video:hover {
 .main-content-scrollable {
     flex: 1 1 auto;
     overflow-y: auto;
-    min-height: 0;
     scrollbar-gutter: stable;
 }
 
@@ -634,200 +709,56 @@ video:hover {
     background: none !important;
 }
 
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #0E2841 #f7fafc;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-    transition: all 0.3s ease;
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #718096 0%, #a0aec0 100%);
-    transform: scale(1.1);
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(160, 174, 192, 0.3);
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:active {
-    background: linear-gradient(135deg, #4a5568 0%, #718096 100%);
-    transform: scale(1.05);
+    height: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+    background: #f1f1f1;
     border-radius: 10px;
-    margin: 4px 0;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.custom-scrollbar::-webkit-scrollbar-track:hover {
-    background: linear-gradient(180deg, #edf2f7 0%, #e2e8f0 100%);
-}
-
-.custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: #a0aec0 #f7fafc;
-}
-
-.custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: #a0aec0 #f7fafc;
-}
-
-.custom-scrollbar-dark::-webkit-scrollbar {
-    width: 10px;
-}
-
-.custom-scrollbar-dark::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-    border-radius: 12px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
-}
-
-.custom-scrollbar-dark::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-    transform: scale(1.15);
-    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(45, 55, 72, 0.4);
-}
-
-.custom-scrollbar-dark::-webkit-scrollbar-track {
-    background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
-    border-radius: 12px;
-    margin: 6px 0;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.custom-scrollbar-minimal::-webkit-scrollbar {
-    width: 6px;
-}
-
-.custom-scrollbar-minimal::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e0 100%);
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.custom-scrollbar-minimal::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #cbd5e0 0%, #a0aec0 100%);
-    transform: scale(1.2);
-}
-
-.custom-scrollbar-minimal::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.custom-scrollbar-animated::-webkit-scrollbar {
-    width: 8px;
-}
-
-.custom-scrollbar-animated::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #a0aec0, #718096, #4a5568, #2d3748, #1a202c);
-    background-size: 400% 400%;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
     border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-    animation: gradientShift 3s ease infinite;
-    transition: all 0.3s ease;
 }
 
-.custom-scrollbar-animated::-webkit-scrollbar-thumb:hover {
-    animation: gradientShift 1s ease infinite;
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
-.custom-scrollbar-animated::-webkit-scrollbar-track {
-    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-    border-radius: 10px;
-    margin: 4px 0;
+.custom-scrollbar::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
+.custom-scrollbar::-webkit-scrollbar-button:single-button,
+.custom-scrollbar::-webkit-scrollbar-button:double-button,
+.custom-scrollbar::-webkit-scrollbar-button:start,
+.custom-scrollbar::-webkit-scrollbar-button:end,
+.custom-scrollbar::-webkit-scrollbar-button:decrement,
+.custom-scrollbar::-webkit-scrollbar-button:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
-.custom-scrollbar-glow::-webkit-scrollbar {
-    width: 8px;
-}
-
-.custom-scrollbar-glow::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-    transition: all 0.3s ease;
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1),
-    0 0 8px rgba(160, 174, 192, 0.3),
-    0 0 16px rgba(160, 174, 192, 0.1);
-}
-
-.custom-scrollbar-glow::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #718096 0%, #a0aec0 100%);
-    transform: scale(1.1);
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2),
-    0 0 12px rgba(160, 174, 192, 0.5),
-    0 0 24px rgba(160, 174, 192, 0.3),
-    0 0 32px rgba(160, 174, 192, 0.1);
-}
-
-.custom-scrollbar-glow::-webkit-scrollbar-track {
-    background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
-    border-radius: 10px;
-    margin: 4px 0;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.custom-scrollbar-pulse::-webkit-scrollbar {
-    width: 8px;
-}
-
-.custom-scrollbar-pulse::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-    transition: all 0.3s ease;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-.custom-scrollbar-pulse::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #718096 0%, #a0aec0 100%);
-    transform: scale(1.1);
-    animation: pulse 1s ease-in-out infinite;
-}
-
-.custom-scrollbar-pulse::-webkit-scrollbar-track {
-    background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
-    border-radius: 10px;
-    margin: 4px 0;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.8;
-        transform: scale(1.05);
-    }
+.custom-scrollbar::-webkit-scrollbar-corner {
+    display: none;
 }
 
 .layout-element {
@@ -866,4 +797,107 @@ input:-webkit-autofill:active {
 
 .rte-fixed.rte-floatpanel-paragraphop {
     display: none !important;
+}
+
+.table-cell-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  max-width: 100%;
+  display: block;
+}
+
+.table-cell-link {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.table-cell-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+  margin: 0 auto;
+}
+
+
+.css-4bojcr-MuiInputBase-root-MuiOutlinedInput-root {
+    padding-left: 7px !important;
+}
+
+.css-1bug3cd-MuiButtonBase-root-MuiPaginationItem-root {
+    min-width: 25px !important;
+    height: 25px !important;
+}
+
+.admin-ads-action-btn {
+    padding: 0px !important;
+}
+.admin-ads-action-svg {
+    font-size: 1.1rem !important;
+}
+
+.admin-card {
+    padding: 10px !important;
+    background-color: #0E2841 !important;
+    color: #fff !important;
+    border-radius: 5px;
+}
+
+.admin-card h3,
+.admin-card .dark\:text-white,
+.admin-card .dark\:text-gray-400 {
+  color: #fff !important;
+}
+
+.admin-card .text-xs {
+  font-size: 11px !important;
+}
+
+.admin-card .text-success-500 {
+  color: #4ade80 !important; /* light green */
+}
+
+.admin-card .text-error-500 {
+  color: #f87171 !important; /* light red */
+}
+
+/* Hide scrollbar corner globally */
+::-webkit-scrollbar-corner {
+    display: none !important;
+    background: transparent !important;
+}
+
+::-webkit-scrollbar-button:decrement,
+::-webkit-scrollbar-button:increment {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Custom dropdown menu styling */
+.custom-dropdown-menu {
+  background: #f8fafc;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  /* Add more styles as needed */
+}
+
+/* Custom select root styling */
+.custom-select-root {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  /* Add more styles as needed */
+}
+
+/* Hide the dropdown indicator (icon) for the select */
+.custom-select-root .MuiSelect-icon {
+  display: none !important;
 }

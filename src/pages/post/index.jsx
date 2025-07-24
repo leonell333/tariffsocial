@@ -8,6 +8,7 @@ import PostSortBar from "./postSortBar.jsx";
 import Post from "../../components/post/post";
 import IntelligentAdSlot from "../../components/advertise/IntelligentAdSlot";
 import Sponsored from "../../components/advertise/viewSponsored";
+import {getTags} from "../../store/actions/baseActions";
 
 const SPONSORED_INSERT_INTERVAL = 4;
 
@@ -16,6 +17,7 @@ const Posts = () => {
   const user = useSelector((state) => state.user);
   const {keyword, hashtags, posts, sponsored, bannerAds, lastPostVisible, lastSponsoredVisible,
     searchPosts, isSearchMode } = useSelector((state) => state.post);
+  const tags = useSelector((state) => state.base.tags);
   const postRef = useRef(null);
   const lastScrollY = useRef(0);
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -42,7 +44,11 @@ const Posts = () => {
     initData();
   }, []);
 
-  // console.log('bannerAds',bannerAds);
+  useEffect(() => {
+    if (!tags || tags.length === 0) {
+      dispatch(getTags());
+    }
+  }, [tags, dispatch]);
 
   useEffect(() => {
     const updateLayout = () => {

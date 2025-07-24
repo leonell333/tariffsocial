@@ -74,7 +74,7 @@ export const analytics = getFirebaseAnalytics();
 
 export const emailVerificationUrl = (() => {
   if (import.meta.env.MODE === "development") {
-    return "http://mytariff.com:5173";
+    return "http://tariffsocial.com";
   }
-  return "https://tariff-campaign.vercel.app";
+  return "https://tariffsocial.com";
 })();

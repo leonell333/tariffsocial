@@ -41,7 +41,7 @@ const Post = (props) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const isAdmin = useSelector((state) => state.user.role?.admin);
-  const { id, username, useremail, userPhoto, ownerId, createdAt, address, tags = [], likesCount,
+  const { id, username, email, userPhoto, ownerId, createdAt, address, tags = [], likesCount,
     lovesCount, laughsCount, commentsCount, repostsCount, reportsCount, savesCount, sharesCount } = props.post;
   const [contentHtml, setContentHtml] = useState(props.post.contentHtml || '');
   const formattedContent = formatTextCleanlyPreservingMedia(contentHtml || '');

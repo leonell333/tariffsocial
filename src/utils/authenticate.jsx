@@ -10,7 +10,7 @@ import {getUserDataById, signOut} from "../store/actions/userActions";
 import {getTags} from "../store/actions/baseActions";
 import {getTopFollowersByPosts} from "../store/actions/colleagueAction";
 
-const clientId = "981132907174-8dkvdgl9kfv794hchg46p9d2rkkdpa8n.apps.googleusercontent.com";
+const clientId = "52140039322-6jm5tueun0obqj8sen1hfoc9fk3vra37.apps.googleusercontent.com";
 const signins = [
   "/post/create",
   "/chat",
@@ -115,10 +115,9 @@ const Authenticate = (props) => {
   return (
     <>
       <GoogleOAuthProvider clientId={clientId}>
-        {/* eslint-disable-next-line react/prop-types */}
         {props.children}
       </GoogleOAuthProvider>
-      <LoadingBackdrop open={loading} videoUploadProgress={videoUploadProgress} />
+      {/* <LoadingBackdrop open={loading} videoUploadProgress={videoUploadProgress} /> */}
       <ToastContainer
         position="top-right"
         autoClose={3000}

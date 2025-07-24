@@ -44,13 +44,13 @@ const AdsSlick = (props) => {
     <div className='bg-white border border-[#EBEBEB] p-[10px] rounded-xl'>
       <div ref={containerRef} className="overflow-hidden w-full advertise-slider">
         {width && (
-                 <Slider {...settings} style={{ width: width, }} >
+            <Slider {...settings} style={{ width: width, }} >
                 {ads.map((ad, index) => (
                   <div key={index} style={{ width: width }}  className="h-full">
                     <img loading={index == 0 ? 'eager' : 'lazy' } crossOrigin="anonymous" src={ad.imageUrl}  className="w-full min-h-[260px] block"  alt={"Ads " +index}/>
                   </div>
                 ))}
-              </Slider>
+            </Slider>
         )}
       </div>
       <div className="w-full">

@@ -8,7 +8,6 @@ const TagInput = forwardRef((props, ref) => {
   const [tags, setTags] = useState([])
   const [input, setInput] = useState('')
   const [suggestions, setSuggestions] = useState(props.tags)
-  const inputRef = useRef()
 
   useImperativeHandle(ref, () => ({
     getTags: () => {

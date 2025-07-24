@@ -453,7 +453,7 @@ const CreateBannerAdvertise = () => {
           ) : (
             <div className="relative w-full h-[280px] flex justify-center items-center">
               <img
-                className="py-1 w-auto h-full"
+                className="py-1 pt-2 w-auto h-full z-20"
                 src={stateAdvertise.imageFile}
                 alt="Preview"
               />

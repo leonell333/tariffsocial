@@ -53,7 +53,7 @@ const Notification = () => {
     } else if (notification.type === 'notify') {
       return {
         name: notification.username || 'System',
-        photo: notification.userPhoto || '/src/assets/images/default.png'
+        photo: notification.userPhoto
       }
     }
     return {
@@ -157,7 +157,7 @@ const Notification = () => {
                         alt={senderInfo.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.target.src = '/src/assets/images/default.png'
+                          // e.target.src = '/src/assets/images/default.png'
                         }}
                       />
                     </div>

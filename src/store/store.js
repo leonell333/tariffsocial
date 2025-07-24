@@ -7,6 +7,7 @@ import chatReducer from './reducers/chatReducer';
 import postReducer from './reducers/postReducer';
 import colleagueReducer from './reducers/colleagueReducer';
 import advertiseReducer from './reducers/advertiseReducer';
+import adminReducer from './reducers/adminReducer';
 
 const initialState = {};
 const middleware = [thunk];
@@ -18,6 +19,7 @@ const reducers = combineReducers({
     colleague: colleagueReducer,
     post: postReducer,
     advertise: advertiseReducer,
+    admin: adminReducer,
 });
 
 const composeEnhancers =

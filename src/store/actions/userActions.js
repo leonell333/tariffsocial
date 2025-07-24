@@ -12,7 +12,6 @@ import {getDownloadURL, ref as storageRef, uploadBytes} from "firebase/storage";
 import {collection, doc, getCountFromServer, getDoc, serverTimestamp, setDoc, updateDoc} from "firebase/firestore";
 import axios from 'axios';
 import {toast} from 'react-toastify';
-import error from "eslint-plugin-react/lib/util/error.js";
 
 export const updateUserStore = (userData) => (dispatch, getState) => {
   return new Promise(async (res, rej) => {
@@ -141,6 +140,7 @@ export const signIn = (email, password) => (dispatch) => {
       toast.success(`Welcome ${user.username}`, { position: 'top-right' });
       res(true);
     } catch (error) {
+      console.error('Sign in error:', error, JSON.stringify(error));
       const code = error.code || '';
       const map = {
         'auth/invalid-email': 'Invalid email format.',
@@ -170,7 +170,7 @@ export const signUp = (email, password, userName) => (dispatch) => {
           username_lowcase: userName.toLowerCase(),
           email: user.email,
           photoUrl: '',
-          country: '',
+          country: { countryCode: '', label: '' },
           information: '',
           description: '',
           skills: [],
@@ -190,6 +190,7 @@ export const signUp = (email, password, userName) => (dispatch) => {
       ]);
       res(true);
     } catch (error) {
+      console.error('Sign up error:', error, JSON.stringify(error));
       switch (error.code) {
         case 'auth/email-already-in-use':
           // toast.error('This email is already registered. Try logging in.', { position: 'top-right' });
@@ -212,53 +213,6 @@ export const signUp = (email, password, userName) => (dispatch) => {
       rej(error.message);
     } finally {
       console.log('err', error);
-    }
-  });
-};
-
-const provider = new GoogleAuthProvider();
-export const googleLogin = () => async (dispatch) => {
-  return new Promise(async (res, rej) => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const userRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(userRef);
-      let userData;
-
-      if (!docSnap.exists()) {
-        const username = user.displayName || user.email.split('@')[0];
-        userData = {
-          username: username,
-          username_lowcase: username.toLowerCase(),
-          email: user.email,
-          photoUrl: user.photoURL || '',
-          status: 'online',
-          countryCode: '',
-          description: '',
-          information: '',
-          skills: [],
-          services: [],
-          tags: [],
-          followCount: 0,
-          follows: [],
-          followerCount: 0,
-          postCount: 0,
-          adCount: 0,
-          sponsoreCount: 0,
-          role: { admin: false, moderator: false },
-          isVerified: user.emailVerified,
-          createdAt: serverTimestamp(),
-        };
-        await setDoc(userRef, userData);
-      } else {
-        userData = { ...docSnap.data() };
-      }
-      dispatch(updateUserStore({ id: user.uid, ...userData }));
-      toast.success(`Welcome ${user.displayName}`, { position: 'top-right' });
-      res(true);
-    } catch (err) {
-      rej(err.message);
     }
   });
 };

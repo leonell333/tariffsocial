@@ -1,6 +1,6 @@
 import {Navigate, Route, Routes} from "react-router";
 import React, {lazy, Suspense} from "react";
-import { Provider } from "react-redux";
+import {Provider} from "react-redux";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 
@@ -39,12 +39,12 @@ const Payment = lazy(() => import("./pages/payment"));
 
 // Admin
 const Admin = lazy(() => import("./pages/admin"));
-const AdminDashboard = lazy(() => import("./pages/admin/dashboard"));
+const AdminDashboard = lazy(() => import("./admin/dashboard"));
+const AdminUsers = lazy(() => import("./admin/users"));
 const AdminPosts = lazy(() => import("./admin/post"));
 const AdminAdvertise = lazy(() => import("./admin/advertise"));
 const AdminSponsored = lazy(() => import("./admin/sponsored"));
 const Products = lazy(() => import("./pages/products"));
-const Dev = lazy(() => import("./pages/admin/dev"));
 
 // Others
 const Chat = lazy(() => import("./pages/chat"));
@@ -56,7 +56,6 @@ function App() {
     <Provider store={store}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Authenticate>
-          <ScrollToTop />
           <NavBar />
           <div className="main-content-scrollable custom-scrollbar mt-[72px] bg-[#ECECEC] overflow-hidden">
             <Suspense fallback={<div></div>}>
@@ -104,11 +103,11 @@ function App() {
                 <Route path="/admin" element={<Admin />}>
                   <Route index element={<Navigate to="/admin/dashboard" replace />} />
                   <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="users" element={<AdminUsers />} />
                   <Route path="posts" element={<AdminPosts />} />
                   <Route path="advertise" element={<AdminAdvertise />} />
                   <Route path="sponsored" element={<AdminSponsored />} />
                   <Route path="products" element={<Products />} />
-                  <Route path="dev" element={<Dev />} />
                 </Route>
               </Routes>
             </Suspense>

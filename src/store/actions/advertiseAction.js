@@ -1,22 +1,8 @@
 
 import {UPDATE_ADVERTISE_STORE} from "../types";
 import {db, storage} from "../../firebase";
-import { 
-  doc, 
-  getDoc, 
-  getDocs, 
-  updateDoc, 
-  addDoc, 
-  collection, 
-  query,
-  where, 
-  limit, 
-  serverTimestamp, 
-  orderBy,
-  startAfter, 
-  getCountFromServer, 
-  deleteDoc,
-} from "firebase/firestore";
+import {doc, getDoc, getDocs, updateDoc, addDoc, collection, query, where, limit, serverTimestamp, orderBy,
+  startAfter, getCountFromServer, deleteDoc } from "firebase/firestore";
 import {ref as storageRef, uploadString, getDownloadURL, deleteObject} from "firebase/storage";
 import {extractKeywords} from "../../utils";
 import {logEvent} from "firebase/analytics";
@@ -68,6 +54,13 @@ export const createOrUpdateBannerAd = ({ stateAdvertise, editId }) => (dispatch,
       } else {
         imageUrl = stateAdvertise.imageFile;
       }
+      // Compute currency symbol ONCE and store in Firestore
+      const formatter = new Intl.NumberFormat("en", {
+        style: "currency",
+        currency: stateAdvertise.currency,
+        currencyDisplay: "symbol",
+      });
+      const symbol = formatter.formatToParts(1).find((p) => p.type === "currency")?.value || stateAdvertise.currency;
       if (editId) {
         const adRef = doc(db, "ads", editId);
         await updateDoc(adRef, {
@@ -84,8 +77,9 @@ export const createOrUpdateBannerAd = ({ stateAdvertise, editId }) => (dispatch,
           businessName: stateAdvertise.businessName,
           imageUrl,
           currency: stateAdvertise.currency,
+          currencySymbol: symbol,
         });
-        res({ ...stateAdvertise, id: editId, imageUrl });
+        res({ ...stateAdvertise, id: editId, imageUrl, currencySymbol: symbol });
         try {
           if (analytics) {
             logEvent(analytics, "ad_updated", {
@@ -114,11 +108,12 @@ export const createOrUpdateBannerAd = ({ stateAdvertise, editId }) => (dispatch,
           businessName: stateAdvertise.businessName,
           imageUrl,
           currency: stateAdvertise.currency,
+          currencySymbol: symbol,
           state: "Pending",
           billed: false,
           createdAt: serverTimestamp(),
         });
-        res({ ...stateAdvertise, id: docRef.id, billed: false, state: "Pending", imageUrl: imageUrl,});
+        res({ ...stateAdvertise, id: docRef.id, billed: false, state: "Pending", imageUrl: imageUrl, currencySymbol: symbol });
         try {
           if (analytics) {
             logEvent(analytics, "ad_created", {
@@ -179,6 +174,13 @@ export const createOrUpdateSponsoredAd = ({ stateSponsored, editId, document }) 
         }
       }
       let keywords = [];
+      // Compute currency symbol ONCE and store in Firestore
+      const formatter = new Intl.NumberFormat("en", {
+        style: "currency",
+        currency: stateSponsored.currency,
+        currencyDisplay: "symbol",
+      });
+      const symbol = formatter.formatToParts(1).find((p) => p.type === "currency")?.value || stateSponsored.currency;
       if (editId) {
         const ref = doc(db, "sponsored", editId);
         await updateDoc(ref, {
@@ -192,6 +194,8 @@ export const createOrUpdateSponsoredAd = ({ stateSponsored, editId, document }) 
           email: stateSponsored.email,
           phone: stateSponsored.phone,
           keywords,
+          currency: stateSponsored.currency,
+          currencySymbol: symbol,
         });
         res(editId);
       } else {
@@ -213,6 +217,7 @@ export const createOrUpdateSponsoredAd = ({ stateSponsored, editId, document }) 
           keywords,
           phone: stateSponsored.phone,
           currency: stateSponsored.currency,
+          currencySymbol: symbol,
           createdAt: serverTimestamp(),
         });
         try {
@@ -393,17 +398,7 @@ export const getBannerAds = () => (dispatch, getState) => {
       }
       const adsQuery = query(collection(db, "ads"), ...conditions);
       const snap = await getDocs(adsQuery);
-      const ads = [];
-      snap.forEach(doc_ => {
-        const data = doc_.data();
-        const formatter = new Intl.NumberFormat("en", {
-          style: "currency",
-          currency: data.currency,
-          currencyDisplay: "symbol",
-        });
-        const symbol = formatter.formatToParts(1).find(p => p.type === "currency")?.value || data.currency;
-        ads.push({ id: doc_.id, ...data, currencySymbol: symbol });
-      });
+      const ads = snap.docs.map(doc_ => ({ id: doc_.id, ...doc_.data() }));
       const lastDoc = snap.docs[snap.docs.length - 1] || null;
       const lastBannerAdVisible = snap.docs.length < 5;
       dispatch({
@@ -438,17 +433,7 @@ export const getSponsoredAds = () => (dispatch, getState) => {
       }
       const sponsoredQuery = query(collection(db, "sponsored"), ...conditions);
       const snap = await getDocs(sponsoredQuery);
-      const sponsoredAds = [];
-      snap.forEach(doc_ => {
-        const data = doc_.data();
-        const formatter = new Intl.NumberFormat("en", {
-          style: "currency",
-          currency: data.currency,
-          currencyDisplay: "symbol",
-        });
-        const symbol = formatter.formatToParts(1).find(p => p.type === "currency")?.value || data.currency;
-        sponsoredAds.push({ id: doc_.id, ...data, currencySymbol: symbol });
-      });
+      const sponsoredAds = snap.docs.map(doc_ => ({ id: doc_.id, ...doc_.data() }));
       const lastDoc = snap.docs[snap.docs.length - 1] || null;
       const lastSponsoredAdVisible = snap.docs.length < 5;
       dispatch({

@@ -282,7 +282,7 @@ export const getPosts = () => (dispatch, getState) => {
       const queryConditions = []
 
       if (authenticated && myPosts) {
-        queryConditions.push(where('useremail', '==', email))
+        queryConditions.push(where('email', '==', email))
       }
       queryConditions.push(
         sort === 'recent'
@@ -562,7 +562,7 @@ export const createPost = ({ quill, tags, address }) => (dispatch, getState) => 
         keywords,
         ownerId: user.id,
         username: user.username,
-        useremail: user.email,
+        email: user.email,
         userPhoto: user.photoUrl || '',
         likesCount: 0,
         lovesCount: 0,
@@ -830,7 +830,7 @@ export const updateRecommendation = (recommendations, info) => (dispatch, getSta
             repostedBy: actionId,
             userPhoto: photoUrl || "",
             username: username || "",
-            useremail: email,
+            email: email,
             ownerId: actionId,
             contentHtml: contentHtml,
             keywords,
@@ -993,7 +993,7 @@ export const createComment = ({ quill, postId }) => (dispatch, getState) => {
       const newComment = {
         postId,
         userId: user.id,
-        useremail: user.email,
+        email: user.email,
         username: user.username || '',
         userPhoto: user.photoUrl || '',
         contentHtml,

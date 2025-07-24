@@ -30,8 +30,7 @@ const AdItem = (props) => {
   const [data, setData] = useState({ ...props })
   let serverTime = props.serverTime?props.serverTime:new Date()
   const [imageUrl, setImageUrl] = useState('')
-  const signin_email = props.user.email
-  const { id, useremail, state, createdAt, expire } = props
+  const { id, email, state, createdAt, expire } = props
 
  
 
@@ -66,7 +65,7 @@ const AdItem = (props) => {
   return (
     <>
       <div className="flex flex-col md:flex-row w-full px-4 py-8 gap-6">
-        <div>{data.useremail}</div>
+        <div>{data.email}</div>
         <div>
           <img src={imageUrl} className="h-15" />
         </div>
